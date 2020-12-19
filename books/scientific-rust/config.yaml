@@ -4,6 +4,5 @@ topics: ["Rust", "数値計算"]
 published: true
 price: 0
 chapters:
-  - example1 # チャプター1
-  - example2 # チャプター2
-  - example3 # チャプター3
+  - num_traits
+  - ndarray_linalg
