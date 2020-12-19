@@ -2,6 +2,7 @@ title: "Rustで数値計算"
 summary: "Rustで数値計算"
 topics: ["Rust", "数値計算"]
 published: true
+allow_override: true
 price: 0
 chapters:
   - num_traits
