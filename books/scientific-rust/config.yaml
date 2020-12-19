@@ -6,3 +6,14 @@ price: 0
 chapters:
   - num_traits
   - ndarray_linalg
+  - eom
+  - fftw
+  - rand
+  - simd
+  - rayon
+  - flamegraph
+  - plotlib
+  - rug
+  - cc
+  - mkl
+  - pyo3
