@@ -21,3 +21,8 @@ License
 Copyright (C) 2020 Toshiki Teramura
 
 この文書を、フリーソフトウェア財団発行の [GNU フリー文書利用許諾契約書](https://gitlab.com/termoshtt/chaos-da-book/blob/master/LICENSE)(バージョン1.2かそれ以降から一つを選択)が定める条件の下で複製、頒布、あるいは改変することを許可する。変更不可部分、表カバーテキスト、裏カバーテキストは存在しない。
+
+Donate
+-------
+もしこのプロジェクトに価値を感じたら Donate をお願いします。あなたが貢献する方法をコードを書くことだけではありません。
+[Zenn][Zenn] サービスでは本の代金としてではなく著者に Donate をすることが可能です。
