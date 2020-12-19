@@ -5,6 +5,7 @@ published: true
 allow_override: true
 price: 0
 chapters:
+  - about
   - num_traits
   - ndarray_linalg
   - eom
