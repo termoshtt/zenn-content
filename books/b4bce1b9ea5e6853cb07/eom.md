@@ -181,7 +181,9 @@ for (t, v) in ts.take(setting.duration).enumerate() {
 このように、「どのように次のステップを計算するか」と「計算した値をどのように使うか」を分離しつつそのオーバーヘッドを避けることが出きるのがイテレータの効果ですね。
 
 $u_4, u_8, u_{16}, u_{26}$ の実部の時系列をプロットしたものが下図になります。
-![goy_shell.png](https://qiita-image-store.s3.amazonaws.com/0/30426/ca12c741-8a08-508d-637b-960a4974b903.png)
+
+![eom.png](https://raw.githubusercontent.com/termoshtt/zenn-content/main/books/b4bce1b9ea5e6853cb07/eom.png)
+
 このようにゆっくりしたダイナミクス $u_4$ と非常に早いダイナミクス $u_{16}, u_{26}$ が共存したシステムになります。
 
 [asink]: https://qiita.com/termoshtt/items/22537683feec3792fd62
