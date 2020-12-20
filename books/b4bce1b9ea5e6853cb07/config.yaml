@@ -6,6 +6,7 @@ allow_override: true
 price: 0
 chapters:
   - about
+  - intro
   - num_traits
   - ndarray_linalg
   - eom
