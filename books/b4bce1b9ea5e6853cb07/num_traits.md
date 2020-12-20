@@ -48,7 +48,7 @@ fn f<T: B>(a: &T) {
 
 この準備の下で`num_traits` crateを見ていきます。
 
-num-traits::Num
+num_traits::Num
 ----------------
 
 `num_traits::NumOps`演算子だけ定義されいてるTraitです
@@ -189,8 +189,11 @@ pub trait PrimInt:
 }
 ```
 
-num_traits::Float
+[num_traits::Float][Float]
 -----------------
+
+[Float]: https://docs.rs/num-traits/0.2.14/num_traits/float/trait.Float.html
+
 続いて浮動小数点に特化したTraitです。標準的な数学関数が定義されています。
 
 ```rust
@@ -255,9 +258,34 @@ pub trait Float: Num + Copy + NumCast + PartialOrd + Neg<Output = Self> {
 }
 ```
 
-複素数の扱い
+[num_complex::Complex][Complex]
 ------------
-複素数は構造体 `num_complex::Complex<T>` で定義されており、関連関数として数学関数が定義されています。これを `Float`と同じように使えるようにしたのが `cauchy::Scalar` です。
+
+複素数は構造体 [num_complex::Complex<T>][Complex] で定義されており、関連関数として数学関数が定義されています。0.3.0 でいくつか破壊的な変更が入っているので注意です。
+
+[Complex]: https://docs.rs/num-complex/0.3.1/num_complex/struct.Complex.html
+
+```toml
+[dependencies]
+num_complex = "0.3.1"
+```
+
+```rust
+#[derive(PartialEq, Eq, Copy, Clone, Hash, Debug, Default)]
+#[repr(C)]
+pub struct Complex<T> {
+    /// Real portion of the complex number
+    pub re: T,
+    /// Imaginary portion of the complex number
+    pub im: T,
+}
+pub type Complex32 = Complex<f32>;
+pub type Complex64 = Complex<f64>;
+```
+
+これは `repr(C)` で定義されいているので C99 の `_Complex` 型、C++の `std::complex<T>` と同じメモリ配置になります。
+
+これを複素数と実数型を合わせて同じように使えるようにした Trait が `cauchy::Scalar` です。
 
 ```rust
 pub trait Scalar:
@@ -319,4 +347,3 @@ Links
 - cauchy
     - https://github.com/rust-math/cauchy
     - https://docs.rs/cauchy/0.2.2/cauchy
-
