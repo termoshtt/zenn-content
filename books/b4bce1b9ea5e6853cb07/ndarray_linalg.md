@@ -1,6 +1,28 @@
 ---
-title: 線形代数 (ndarray-linalg crate)
+title: 多次元配列、線形代数 (ndarray, ndarray-linalg crate)
 ---
+
+多次元配列は [ndarray][ndarray]、それを使った線形代数演算は [ndarray-linalg][linalg] crate でそれぞれ提供されています。これは [numpy.ndarray][numpy] のように shape, stride, data を持つタイプの多次元配列で、他にも小さいベクトルに最適化された [nalgebra][nalgebra] などがあります。
+
+[ndarray]: https://docs.rs/ndarray/0.14.0/ndarray/
+[linalg]: https://docs.rs/ndarray-linalg/0.12.1/ndarray_linalg/
+[numpy]: https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html
+[nalgebra]: https://docs.rs/nalgebra/0.23.2/nalgebra/
+
+多次元配列 ([ndarray][ndarray] crate)
+======================================
+
+```toml
+[dependencies]
+ndarray = "0.14.0"
+```
+
+Rust で実装された多次元配列のライブラリです。N次元分のサイズと、その次元の方向に進むときにどれだけ index を増やすか (stride)、及び実際のデータを1列に並べたものを保持します。演算は Rust で実装されていますが、 `features = ["blas"]` によって BLAS 演算を `blas` crate (これはOpenBLASやIntel MKL への FFI) のものを使うこともできます。
+
+[ndarray for NumPy users](https://docs.rs/ndarray/0.14.0/ndarray/doc/ndarray_for_numpy_users/index.html) に NumPy から移行向けの資料があります。
+
+線形代数 ([ndarray-linalg][linalg] crate)
+================================
 
 [ndarray-linalg](https://github.com/rust-ndarray/ndarray-linalg) を使います
 
