@@ -2,12 +2,7 @@
 title: データ並列 (rayon crate)
 ---
 
-この記事 [Rustアドベントカレンダーその２の12/18の記事](https://qiita.com/termoshtt/items/aaa0728810062e5cfe0f) の転載です
-
-[nikomatsakis/rayon](https://github.com/nikomatsakis/rayon)はRustでデータ並列なコードをiterator形式で簡単に実装するためのライブラリです。
-C/C++/FortranでOpenMPで並列化していたような部分の代替と考えられます。
-バックエンドの実装方式としては[Intel Clik](https://www.cilkplus.org/)と同様のwork stealingによります。
-イテレータを分割してスレッドプールを用いてそれぞれに対して処理を実行します。
+[nikomatsakis/rayon](https://github.com/nikomatsakis/rayon)はRustでデータ並列なコードをiterator形式で簡単に実装するためのライブラリです。C/C++/FortranでOpenMPで並列化していたような部分の代替と考えられます。バックエンドの実装方式としては[Intel Clik](https://www.cilkplus.org/)と同様のwork stealingによります。イテレータを分割してスレッドプールを用いてそれぞれに対して処理を実行します。
 
 簡単な使い方
 ------------
