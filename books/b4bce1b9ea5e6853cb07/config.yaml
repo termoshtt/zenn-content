@@ -13,6 +13,7 @@ chapters:
   - fftw
   - rand
   - simd
+  - sfmt
   - rayon
   - flamegraph
   - plotlib
