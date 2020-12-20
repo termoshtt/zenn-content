@@ -10,12 +10,12 @@ https://github.com/rust-math/fftw
 
 のように３つのcrateに分かれています。
 
-```
+```toml
 [dependencies]
 fftw = "0.6.2"
 ```
 
-とするとデフォルトで `fftw-src` がつかわれ、Intel MKLを使うには
+とするとデフォルトで `fftw-src` がつかわれ FFTW をビルドしてリンクします。Intel MKLを使うには
 
 ```toml
 [dependencies]
@@ -24,11 +24,12 @@ fftw = { version = "0.6.2", features = ["intel-mkl"] }
 
 のように `features` を指定します。他にも `features = ["system"]` とするとシステムに既に存在する FFTW のバイナリを探してリンクしようとします。
 
-Examples
---------------
-https://docs.rs/fftw/0.6.2/fftw/
+fftw crate
+-----------
 
-Complex-to-Complex
+元の FFTW のインターフェースにしたがって、一旦 Plan と呼ばれる構造体を生成します。これには FFT を効率に計算するために前もって計算したデータを持つための構造体で、これを保持することにより実行を高速に出来ます。特に同じサイズの配列を複数回 FFT する際に有効です。また FFTW は SIMD 演算を行ってより高速化するために、メモリのアライメントに対して制約を課します。これを Rust 側で使えるように [AlignedVec](https://docs.rs/fftw/0.6.2/fftw/array/struct.AlignedVec.html) が用意してあります
+
+- Complex to Complex
 
 ```rust
 use fftw::array::AlignedVec;
@@ -47,7 +48,7 @@ for i in 0..n {
 plan.c2c(&mut a, &mut b).unwrap();
 ```
 
-Complex-to-Real
+- Complex to Real
 
 ```rust
 use fftw::array::AlignedVec;
