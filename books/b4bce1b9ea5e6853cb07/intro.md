@@ -22,6 +22,16 @@ Rustに関する日本語コミュニティとして [rust-jp slack](http://rust
 Rust を使うべきで無い場合
 --------------------------
 
-- 対話的にデータを可視化する必要のある探索的データ解析(EDA)の用途には向きません。標準で対話的に実行することをサポートしている Python や Julia、あるいは gnuplot 等を使うと良いでしょう。
-- 数学的な記述をそのままコードとして表現したい、という要望を実現するのは難しいでしょう。一般的に、数値計算を計算機に適切に実行させるには数学的なアルゴリズムの記述よりも多くの事、例えばデータの配列をメモリ上にどうやって配置するかといった事をプログラマが計算機に指示する必要があります。Rustは数値計算専用の言語ではなく汎用なプログラミング言語です。MATLAB や Mathematica など、あるいは SageMath を使うと良いでしょう。
-- プロプライエタリなコンパイラが必要な環境、例えば NVIDIA GPU や SX-Aurora TSUBASA のようなアクセラレータ、あるいは FX1000 のような独自環境では Rust を上手く動作させるには多くの困難が伴います。もしあなたがこれらの環境へ Rust を対応させる事に喜びを見出すのではなく、単なるユーザーでありたいと望むなら提供されるプロプライエタリな環境をそのまま使用することをお勧めします。
+- 対話的にデータを可視化する必要のある探索的データ解析(EDA)の用途には向きません。標準で対話的に実行することをサポートしている [Python][Python] や [Julia][Julia]、あるいは [Gnuplot][Gnuplot] 等を使うと良いでしょう。
+- 数学的な記述をそのままコードとして表現したい、という要望を実現するのは難しいでしょう。一般的に、数値計算を計算機に適切に実行させるには数学的なアルゴリズムの記述よりも多くの事、例えばデータの配列をメモリ上にどうやって配置するかといった事をプログラマが計算機に指示する必要があります。Rust は数値計算専用の言語ではなく汎用なプログラミング言語です。[MATLAB][MATLAB] や [Mathematica][Mathematica] など、あるいは [SageMath][SageMath] を使うと良いでしょう。
+- プロプライエタリなコンパイラが必要な環境、例えば [NVIDIA GPU][nvidia] や [SX-Aurora TSUBASA][SX] のようなアクセラレータ、あるいは [FX1000][FX] のような独自環境では Rust を上手く動作させるには多くの困難が伴います。もしあなたがこれらの環境へ Rust を対応させる事に喜びを見出すのではなく、単なるユーザーでありたいと望むなら提供されるプロプライエタリな環境をそのまま使用することをお勧めします。
+
+[Python]: https://www.python.org/
+[Julia]: https://julialang.org/
+[Gnuplot]: http://www.gnuplot.info/
+[MATLAB]: https://jp.mathworks.com/products/matlab.html
+[Mathematica]: https://www.wolfram.com/
+[SageMath]: https://www.sagemath.org/
+[nvidia]: https://developer.nvidia.com/cuda-toolkit
+[SX]: https://jpn.nec.com/hpc/sxauroratsubasa/index.html
+[FX]: https://www.fujitsu.com/jp/products/computing/servers/supercomputer/
