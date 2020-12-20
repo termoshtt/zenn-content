@@ -2,7 +2,9 @@
 title: SIMD-oriented Fast Mersenne Twister (sfmt crate)
 ---
 
-ここでは [std::arch](https://doc.rust-lang.org/core/arch/x86_64/index.html) を使ったメルセンヌツイスタ実装である[sfmt crate](https://github.com/rust-math/rust-sfmt)を例に、`rand_core`の使い方を見ていきましょう。
+Rust で乱数生成機を実装するには [rand_core][rand_core] crate で提供される Trait を実装します。ここでは [std::arch](https://doc.rust-lang.org/core/arch/x86_64/index.html) を使ったメルセンヌツイスタ実装である[sfmt crate](https://github.com/rust-math/rust-sfmt)を例に、[rand_core][rand_core] の使い方を見ていきましょう。
+
+[rand_core]: https://docs.rs/rand_core/0.6.0/rand_core/
 
 sfmt crateは[オリジナルのSFMT(SIMD-oriented Fast Mersenne Twister)](http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/)をRustで書き直したものです。ただし実装してあるメルセンヌツイスタは内部状態が19937bit、周期が$2^{19937}-1$のものだけです。これは多くのモンテカルロシミュレーションで十分な周期ですが、CSPRNGでは無いのでセキュリティの必要な場面では使えません。
 Double precision SIMD-oriented Fast Mersenne Twister (dSFMT)と呼ばれる直接f64を生成するアルゴリズムをSFMTとあわせた方法がモンテカルロシミュレーションの界隈では有名ですが、rand crateでは既にこのアルゴリズムでビット列からf64を生成しているのでsfmt crateには特に実装していません。
