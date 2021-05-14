@@ -1,0 +1,19 @@
+{
+  "filters": {},
+    "rules": {
+      "preset-ja-spacing": true,
+      "preset-ja-technical-writing": {
+        "sentence-length": false,
+        "no-mix-dearu-desumasu": {
+          "preferInHeader": "",
+          "preferInBody": "ですます",
+          "preferInList": "である",
+          "strict": true
+        },
+        "max-kanji-continuous-len": {
+          max: 10
+        }
+      },
+      "spellcheck-tech-word": true
+    }
+}
