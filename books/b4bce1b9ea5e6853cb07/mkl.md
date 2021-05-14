@@ -7,7 +7,7 @@ title: Intel MKLを使う (intel-mkl-src crate)
 
 https://github.com/rust-math/intel-mkl-src
 
-~~※現在はWindowsは対応していません~~ 0.4.0からwindowsも対応しました
+~~※現在はWindowsは対応していません~~ 0.4.0からWindowsも対応しました
 
 使い方
 ------

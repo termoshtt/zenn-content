@@ -27,7 +27,7 @@ rand = "0.6"
 
 この記事を書いている2018/12の段階では0.6が最新版です。randは0.4から0.5に上る際に大幅な仕様変更があり、[Upgrade to 0.5](https://rust-random.github.io/book/update-0.5.html)に移行のためのドキュメントがあります（英語）。この際に`rand_core`と呼ばれるcrateが分離され、PRNGを使うユーザーはrand、PRNGを独自に実装する場合はrand_coreを使うような形になっています。
 
-randでは乱数のビットを生成する乱数生成器(rng)と乱数の分布をわけて使うインターフェイスを採用しています
+randでは乱数のビットを生成する乱数生成器(rng)と乱数の分布をわけて使うインタフェースを採用しています
 
 ```rust
 use rand::Rng;
@@ -49,7 +49,7 @@ trait Rng: ... {
 のような定義になっており、戻り値に併せて乱数を生成する事ができます。`Standard`はいくつかのプリミティブ型に対して定義されていて以下のように定義されています。
 
 - 整数型(i32, usize等)：可能なすべての値で均等に
-- char: ユニコードスカラー値から一様に
+- char: Unicodeスカラー値から一様に
 - bool: true/falseがそれぞれ0.5
 - 浮動小数(f32,f64)：`[0, 1)`の一様分布
 
@@ -64,7 +64,7 @@ let v = d.sample(&mut rand::thread_rng());
 ```
 https://rust-random.github.io/rand/rand/distributions/struct.Bernoulli.html
 
-のように`Distribution::sample`に対してRNGの`&mut`を渡す事で乱数を生成します。この部分のインターフェイスが0.5で大きく変ったので注意してください。
+のように`Distribution::sample`に対してRNGの`&mut`を渡す事で乱数を生成します。この部分のインタフェースが0.5で大きく変ったので注意してください。
 
 参考リンク
 ----------

@@ -51,7 +51,7 @@ fn foo() {
 }
 ```
 
-(RFC2325より)このように関数の属性としてSIMDの有効・無効を指定することができます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることが期待できます。また同時に`cfg!`マクロの引数としても使えます：
+(RFC 2325より)このように関数の属性としてSIMDの有効・無効を指定することができます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることが期待できます。また同時に`cfg!`マクロの引数としても使えます：
 
 ```rust
 if cfg!(target_feature = "avx") {
@@ -59,7 +59,7 @@ if cfg!(target_feature = "avx") {
 }
 ```
 
-(RFC2325より)
+(RFC 2325より)
 加えて、実行時に検出することも出来ます：
 
 ```rust
@@ -120,7 +120,7 @@ Nightlyでしか動作しませんが、XOR Shiftと同等の速度で周期 $2^
 
 - [RFC 2366: Portable packed SIMD vector types](https://github.com/rust-lang/rfcs/pull/2366)
 
-`std::simd`互換のインターフェースを提供する目的で[packed_simd](https://github.com/rust-lang-nursery/packed_simd) crateが出来ており、例えば[rand](https://github.com/rust-lang-nursery/rand/pull/569)や[servo](https://github.com/servo/servo/pull/21272)もそちらを使っているようです。このRFCの安定化まではpacked_simdはnightlyでしか動きません。
+`std::simd`互換のインタフェースを提供する目的で[packed_simd](https://github.com/rust-lang-nursery/packed_simd) crateが出来ており、例えば[rand](https://github.com/rust-lang-nursery/rand/pull/569)や[servo](https://github.com/servo/servo/pull/21272)もそちらを使っているようです。このRFCの安定化まではpacked_simdはnightlyでしか動きません。
 
 ややこしいですが、stdsimd全体が無かったことになったわけでは無く、[std::arch](https://doc.rust-lang.org/beta/std/arch/)は安定化されているのでターゲット固定のSIMD機能はstableで使用することができます。
 

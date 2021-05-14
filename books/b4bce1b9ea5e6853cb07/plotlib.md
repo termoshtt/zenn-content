@@ -38,7 +38,7 @@ fn main() {
 
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/30426/85f0fed6-b37f-01e0-8906-529b22015860.png)
 
-QiitaはSVGを埋め込めないのでimagemagickでPNGにしてあります
+QiitaはSVGを埋め込めないのでImageMagickでPNGにしてあります
 
 ```sh
 convert scatter.{svg,png}
