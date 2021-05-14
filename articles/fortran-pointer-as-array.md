@@ -6,7 +6,7 @@ topics: ["Fortran"]
 published: true
 ---
 
-C の API でメモリが確保されて、アドレスだけ帰ってくる関数があるとします。
+CのAPIでメモリが確保されて、アドレスだけ帰ってくる関数があるとします。
 
 ```c
 #include <stdlib.h>
@@ -23,7 +23,7 @@ int* myalloc() {
 }
 ```
 
-例えばこのような `myalloc` で確保されたメモリを Fortran から配列として使うには次の様にします
+例えばこのような `myalloc` で確保されたメモリをFortranから配列として使うには次の様にします
 
 ```fortran
 program f1
@@ -45,7 +45,7 @@ program f1
 end
 ```
 
-`c_f_pointer` は `type(c_ptr)` のアドレス値を Fortran におけるポインタに変換するための関数です。第三引数に配列の shape を取ることが可能です。
+`c_f_pointer` は `type(c_ptr)` のアドレス値をFortranにおけるポインタに変換するための関数です。第三引数に配列のshapeを取ることが可能です。
 
 参考
 -----

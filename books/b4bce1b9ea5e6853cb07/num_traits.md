@@ -26,7 +26,7 @@ pub trait Add<Rhs = Self> {
 }
 ```
 
-`Add` Trait はこのように足される `Rhs` と足された結果 `Output` をそれぞれ型パラメータと関連型として持っています。`Rhs`毎に`Add<Rhs>` Traitが定義され、このTraitに対して`Output`型が一つ決まります。
+`Add` Traitはこのように足される `Rhs` と足された結果 `Output` をそれぞれ型パラメータと関連型として持っています。`Rhs`毎に`Add<Rhs>` Traitが定義され、このTraitに対して`Output`型が1つ決まります。
 
 ### 前提知識２: Traitの継承
 
@@ -261,7 +261,7 @@ pub trait Float: Num + Copy + NumCast + PartialOrd + Neg<Output = Self> {
 [num_complex::Complex][Complex]
 ------------
 
-複素数は構造体 [num_complex::Complex<T>][Complex] で定義されており、関連関数として数学関数が定義されています。0.3.0 でいくつか破壊的な変更が入っているので注意です。
+複素数は構造体 [num_complex::Complex<T>][Complex] で定義されており、関連関数として数学関数が定義されています。0.3.0でいくつか破壊的な変更が入っているので注意です。
 
 [Complex]: https://docs.rs/num-complex/0.3.1/num_complex/struct.Complex.html
 
@@ -283,9 +283,9 @@ pub type Complex32 = Complex<f32>;
 pub type Complex64 = Complex<f64>;
 ```
 
-これは `repr(C)` で定義されいているので C99 の `_Complex` 型、C++の `std::complex<T>` と同じメモリ配置になります。
+これは `repr(C)` で定義されいているのでC99の `_Complex` 型、C++の `std::complex<T>` と同じメモリ配置になります。
 
-これを複素数と実数型を合わせて同じように使えるようにした Trait が `cauchy::Scalar` です。
+これを複素数と実数型を合わせて同じように使えるようにしたTraitが `cauchy::Scalar` です。
 
 ```rust
 pub trait Scalar:

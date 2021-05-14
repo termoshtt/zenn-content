@@ -24,7 +24,7 @@ cargo install flamegraph
 
 これで`flamegraph`, `cargo-flamegraph`がインストールされます。flamegraphは背後でperfを外部プロセスとして実行するのでperfを入れておく必要があります。
 
-### ubuntu/debian
+### Ubuntu/debian
 
 `linux-tools`をインストールします。これはカーネルによって適切なものが変わるので注意してください。
 
@@ -34,7 +34,7 @@ sudo apt install linux-tools
 
 とすると候補が出るのでその中から適切なものを選んでください。私の場合はGCP上の仮想マシンだったので`linux-tools-gcp`をインストールしました。
 
-### RedHat/CentOS/Fedora
+### Red Hat/CentOS/Fedora
 
 ```
 sudo yum install perf

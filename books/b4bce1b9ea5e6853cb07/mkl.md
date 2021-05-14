@@ -7,7 +7,7 @@ title: Intel MKLを使う (intel-mkl-src crate)
 
 https://github.com/rust-math/intel-mkl-src
 
-~~※現在はWindowsは対応していません~~ 0.4.0からwindowsも対応しました
+~~※現在はWindowsは対応していません~~ 0.4.0からWindowsも対応しました
 
 使い方
 ------
@@ -31,7 +31,7 @@ ndarray-linalg自体の使い方はこちら：
 
 rust-math
 ---------
-科学技術計算系のcrateのうち、ユーザーが居る気がするものを[rust-math](https://github.com/rust-math)に分けました。intel-mkl-srcのほかに二つ移行してあります。
+科学技術計算系のcrateのうち、ユーザーが居る気がするものを[rust-math](https://github.com/rust-math)に分けました。intel-mkl-srcのほかに2つ移行してあります。
 
 - [rust-fftw3](https://github.com/rust-math/rust-fftw3): FFTW3 binding for Rust 
 - [rust-sfmt](https://github.com/rust-math/rust-sfmt): Rust implementation of  SIMD-oriented Fast Mersenne Twister (SFMT) using stable SIMD

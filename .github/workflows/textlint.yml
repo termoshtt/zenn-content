@@ -1,0 +1,24 @@
+name: textlint
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+
+jobs:
+  books:
+    runs-on: ubuntu-20.04
+    container: node:16-buster
+    steps:
+    - uses: actions/checkout@v1
+    - run: npm install
+    - run: npx textlint $(find books -name "*.md")
+
+  articles:
+    runs-on: ubuntu-20.04
+    container: node:16-buster
+    steps:
+    - uses: actions/checkout@v1
+    - run: npm install
+    - run: npx textlint $(find articles -name "*.md")
