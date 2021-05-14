@@ -18,20 +18,20 @@ title: SIMD (std::arch)
 
 - RustでSIMDを使う方法は２つある
     - LLVMの最適化に任せる
-    - intrinsics を使う
+    - intrinsicsを使う
 
 今回のStable SIMDは両方の用法に対して大きな変更点になります
 
 - `#[target_feature]`属性が追加され、関数単位でアーキテクチャを指定できるようになった
-- ~~`std::{simd,arch}` module の導入により、直接intrinsicsを叩かなくて良くなった~~
-  - `std::simd`は消えました(´・ω・｀)　（下の追記参照）
+- ~~`std::{simd,arch}` moduleの導入により、直接intrinsicsを叩かなくて良くなった~~
+  - `std::simd`は消えました(´・ω・｀)（下の追記参照）
 - `std::arch`が導入されてターゲット毎のintrinsicsをstableで使えるようになった
   - 以前は`#![feature(platform_intrinsic)]`が必要でnightlyでしか使えなかった
 
 `target_feature` attribute
 ---------------------------
 
-RustはMIRと呼ばれる中間表現を経由してLLVM IRにコンパイルされますが、LLVMによる自動ベクトル化機能により、単純なfor文等をSIMDを用いて計算することができます。しかしこの最適化を実行するにはSIMDの拡張命令を明示的に教える必要がありました。
+RustはMIRと呼ばれる中間表現を経由してLLVM IRにコンパイルされますが、LLVMによる自動ベクトル化機能により、単純なfor文等をSIMDを用いて計算できます。しかしこの最適化を実行するにはSIMDの拡張命令を明示的に教える必要がありました。
 
 ```
 RUSTFLAGS='-C target-feature=+avx' cargo run --release
@@ -51,7 +51,7 @@ fn foo() {
 }
 ```
 
-(RFC 2325より)このように関数の属性としてSIMDの有効・無効を指定することができます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることが期待できます。また同時に`cfg!`マクロの引数としても使えます：
+(RFC 2325より)このように関数の属性としてSIMDの有効・無効を指定できます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることが期待できます。また同時に`cfg!`マクロの引数としても使えます：
 
 ```rust
 if cfg!(target_feature = "avx") {
@@ -68,18 +68,18 @@ if is_target_feature_detected!("sse4.1") {
 }
 ```
 
-初回の`is_target_feature_detected!`呼び出し時にCPUを見て判定し、以降の呼び出し時にはコストがかからないようになります。これにより一つのバイナリに複数のCPU向けの最適化を同居させ、実行時に切り替えることが可能になります。
+初回の`is_target_feature_detected!`呼び出し時にCPUを見て判定し、以降の呼び出し時にはコストがかからないようになります。これにより1つのバイナリに複数のCPU向けの最適化を同居させ、実行時に切り替えることが可能になります。
 
 - 判定にちょっとバグがあるっぽいです 
   - https://github.com/rust-lang-nursery/stdsimd/issues/348
 
 `std::arch` modules
 --------------------
-RustはLLVMのintrinsicsを`#![feature(platform_intrinsic)]`経由で呼び出すことができるため、特定のSIMD命令を実行するためにこの機能を用いていました[^ptx]。[simd](https://rust-lang-nursery.github.io/simd/doc/simd/index.html) crateや上述の記事にある[x86intrin](https://crates.io/crates/x86intrin) crate はこれらをラップしたRust関数を提供していました。これはnightlyの機能なのでstableでは使えませんでした。
+RustはLLVMのintrinsicsを`#![feature(platform_intrinsic)]`経由で呼び出すことができるため、特定のSIMD命令を実行するためにこの機能を用いていました[^ptx]。[simd](https://rust-lang-nursery.github.io/simd/doc/simd/index.html) crateや上述の記事にある[x86intrin](https://crates.io/crates/x86intrin) crateはこれらをラップしたRust関数を提供していました。これはnightlyの機能なのでstableでは使えませんでした。
 
 [^ptx]: [RustでCUDAカーネルを書く](https://qiita.com/termoshtt/items/b98d5c46ab9c1ab1f7b6)
 
-今回のStable SIMDでこの点が大きく整理されました。まず二つのモジュールが`std`に追加されました：
+今回のStable SIMDでこの点が大きく整理されました。まず2つのモジュールが`std`に追加されました：
 
 - ~~`simd`: ポータブルなSIMD計算のための型定義 `i32x4`等~~
   - [packed_simd](https://github.com/rust-lang/rfcs/pull/2366)としてやり直すようです 
@@ -88,7 +88,7 @@ RustはLLVMのintrinsicsを`#![feature(platform_intrinsic)]`経由で呼び出�
 ~~これらは `#![feature(stdsimd)]` で有効化されます。これは `#![feature(platform_intrinsics)]`とは別個の機能で、恐らく比較的すぐに安定化されると期待されます[^rust2018]。~~
 Rust 1.27で`#![feature(stdsimd)]`は安定化されました。
 
-[^rust2018]: SIMDの安定化は[Rust 2018 Roadmap](https://github.com/rust-lang/rfcs/blob/master/text/2314-roadmap-2018.md)でも Custom Allocator/Macros2.0 と共に言及されています。
+[^rust2018]: SIMDの安定化は[Rust 2018 Roadmap](https://github.com/rust-lang/rfcs/blob/master/text/2314-roadmap-2018.md)でもCustom Allocator/Macros2.0と共に言及されています。
 
 [Tracking issue for stable SIMD in Rust #48556](https://github.com/rust-lang/rust/issues/48556)
 
@@ -122,7 +122,7 @@ Nightlyでしか動作しませんが、XOR Shiftと同等の速度で周期 $2^
 
 `std::simd`互換のインタフェースを提供する目的で[packed_simd](https://github.com/rust-lang-nursery/packed_simd) crateが出来ており、例えば[rand](https://github.com/rust-lang-nursery/rand/pull/569)や[servo](https://github.com/servo/servo/pull/21272)もそちらを使っているようです。このRFCの安定化まではpacked_simdはnightlyでしか動きません。
 
-ややこしいですが、stdsimd全体が無かったことになったわけでは無く、[std::arch](https://doc.rust-lang.org/beta/std/arch/)は安定化されているのでターゲット固定のSIMD機能はstableで使用することができます。
+ややこしいですが、stdsimd全体が無かったことになったわけでは無く、[std::arch](https://doc.rust-lang.org/beta/std/arch/)は安定化されているのでターゲット固定のSIMD機能はstableで使用できます。
 
 余談ですが、Embedded-WGではRustでインラインアセンブラをstableで使うために`asm!`機能を安定化させるのでなく、`core::arch`以下に実装していく方針のようです
 

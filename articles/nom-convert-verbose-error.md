@@ -6,7 +6,7 @@ topics: ["Rust"]
 published: true
 ---
 
-[nom](https://github.com/Geal/nom) は Rust のパーサコンビネータライブラリです。この記事の内容は version 6.1.2 で確認しています。
+[nom](https://github.com/Geal/nom) はRustのパーサコンビネータライブラリです。この記事の内容はversion 6.1.2で確認しています。
 
 ```rust
 use nom::{
@@ -50,9 +50,9 @@ thread 'main' panicked at 'called `Result::unwrap()` on
 an `Err` value: Error { input: "a", code: Digit }', src/main.rs:17:50
 ```
 
-の様にエラーが表示されます。これは一つ目の `digit1` が `1` を食べて、`multispace1` が ` ` を食べた後、`a` を `digi1` が食べようとして失敗していると開発者は分かりますが、ユーザーにはどこで失敗したか分かりません。
+の様にエラーが表示されます。これは1つ目の `digit1` が `1` を食べて、`multispace1` が ` ` を食べた後、`a` を `digi1` が食べようとして失敗していると開発者は分かりますが、ユーザーにはどこで失敗したか分かりません。
 
-これを後から表示するために使えるのが `VerboseError` です。これは追加で `alloc` feature を必要とします。nomは通常高速にパースを実行するために allocation 無しで動作しますが、どこでエラーが起きたかを記録しておくにはそれをどこかに追加で保持する必要があるわけです（多分）
+これを後から表示するために使えるのが `VerboseError` です。これは追加で `alloc` featureを必要とします。nomは通常高速にパースを実行するためにallocation無しで動作しますが、どこでエラーが起きたかを記録しておくにはそれをどこかに追加で保持する必要があるわけです（多分）
 
 ```rust
 use nom::{

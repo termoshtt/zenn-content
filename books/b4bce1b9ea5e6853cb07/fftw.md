@@ -6,7 +6,7 @@ https://github.com/rust-math/fftw
 
 - fftw crate: Rust向けのAPI
 - fftw-sys crate: FFTWへのFFI (ほぼ自動生成)
-- fftw-src crate: FFTWをコンパイルしてリンクする為のcrate, intel-mkl-src に置き換え可能
+- fftw-src crate: FFTWをコンパイルしてリンクする為のcrate, intel-mkl-srcに置き換え可能
 
 のように３つのcrateに分かれています。
 
@@ -15,19 +15,19 @@ https://github.com/rust-math/fftw
 fftw = "0.6.2"
 ```
 
-とするとデフォルトで `fftw-src` がつかわれ FFTW をビルドしてリンクします。Intel MKLを使うには
+とするとデフォルトで `fftw-src` がつかわれFFTWをビルドしてリンクします。Intel MKLを使うには
 
 ```toml
 [dependencies]
 fftw = { version = "0.6.2", features = ["intel-mkl"] }
 ```
 
-のように `features` を指定します。他にも `features = ["system"]` とするとシステムに既に存在する FFTW のバイナリを探してリンクしようとします。
+のように `features` を指定します。他にも `features = ["system"]` とするとシステムに既に存在するFFTWのバイナリを探してリンクしようとします。
 
 fftw crate
 -----------
 
-元の FFTW のインタフェースにしたがって、一旦 Plan と呼ばれる構造体を生成します。これには FFT を効率に計算するために前もって計算したデータを持つための構造体で、これを保持することにより実行を高速に出来ます。特に同じサイズの配列を複数回 FFT する際に有効です。また FFTW は SIMD 演算を行ってより高速化するために、メモリのアライメントに対して制約を課します。これを Rust 側で使えるように [AlignedVec](https://docs.rs/fftw/0.6.2/fftw/array/struct.AlignedVec.html) が用意してあります
+元のFFTWのインタフェースにしたがって、一旦Planと呼ばれる構造体を生成します。これにはFFTを効率に計算するために前もって計算したデータを持つための構造体で、これを保持することにより実行を高速に出来ます。特に同じサイズの配列を複数回FFTする際に有効です。またFFTWはSIMD演算を行ってより高速化するために、メモリのアライメントに対して制約を課します。これをRust側で使えるように [AlignedVec](https://docs.rs/fftw/0.6.2/fftw/array/struct.AlignedVec.html) が用意してあります
 
 - Complex to Complex
 

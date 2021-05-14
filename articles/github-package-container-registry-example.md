@@ -12,21 +12,21 @@ https://github.com/termoshtt/github-docker-package-example
 GitHub Package と GitHub container registry
 ----------------------------------------------
 
-現在(2021/4/10) GitHub には二つの Container registry service が存在しています。それぞれ GitHub Package (docker.pkg.github.com) と GitHub container registry (ghcr.io) という名前になっており、仕様が少しずつ異なります。
+現在(2021/4/10) GitHubには2つのContainer registry serviceが存在しています。それぞれGitHub Package (docker.pkg.github.com) とGitHub container registry (ghcr.io) という名前になっており、仕様が少しずつ異なります。
 
 https://docs.github.com/en/packages/guides/about-github-container-registry
 
 |        | docker.pkg.github.com   | ghcr.io                                 |
 |:-------|:-----------------------:|:---------------------------------------:|
-|認証方法| `GITHUB_TOKEN` のみ     | `GITHUB_TOKEN` と Personal Access Token |
-|名前空間| Project 毎              | User / Organization 毎                  |
-|権限    | Repository と同一       | 個別に設定                              |
-|アクセス| GitHub Actions からのみ | Public なら誰でも読み込み可能           |
+|認証方法| `GITHUB_TOKEN` のみ     | `GITHUB_TOKEN` とPersonal Access Token |
+|名前空間| Project毎              | User / Organization毎                  |
+|権限    | Repositoryと同一       | 個別に設定                              |
+|アクセス| GitHub Actionsからのみ | Publicなら誰でも読み込み可能           |
 
-この記事では ghcr.io ではなく docker.pkg.github.com を扱います
+この記事ではghcr.ioではなくdocker.pkg.github.comを扱います
 
-上の表に書いたとおり docker.pkg.github.com では `GITHUB_TOKEN` しかサポートされません。`GITHUB_TOKEN` とは GitHub Actions 中のみで有効なトークンで、つまり docker.pkg.github.com は実質 GitHub Actions からしか使えません。ただし GitHub の別プロジェクトの GitHub Actions からは GitHub 上での権限があれば読み込めるわけです。
-用途としては知らない第三者に配布するのではなく、主に Private Repository 等で GitHub 上で管理されている権限を使ってコンテナのアクセスも管理したいという目的での使用を想定しているのでしょう。
+上の表に書いたとおりdocker.pkg.github.comでは `GITHUB_TOKEN` しかサポートされません。`GITHUB_TOKEN` とはGitHub Actions中のみで有効なトークンで、つまりdocker.pkg.github.comは実質GitHub Actionsからしか使えません。ただしGitHubの別プロジェクトのGitHub ActionsからはGitHub上での権限があれば読み込めるわけです。
+用途としては使うべきではない言葉なので修正してください第三者に配布するのではなく、主にPrivate Repository等でGitHub上で管理されている権限を使ってコンテナのアクセスも管理したいという目的での使用を想定しているのでしょう。
 
 GitHub Actions の設定
 ----------------------

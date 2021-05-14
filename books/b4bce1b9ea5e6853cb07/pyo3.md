@@ -2,7 +2,7 @@
 title: PythonからRustの関数を呼び出す (pyo3 crate)
 ---
 
-[pyo3](https://github.com/PyO3/pyo3) crate を用いると Rust の関数を Python から呼び出す事が出来ます。ここでは `ndarray-linalg` と共に用いる方法について述べます。
+[pyo3](https://github.com/PyO3/pyo3) crateを用いるとRustの関数をPythonから呼び出す事が出来ます。ここでは `ndarray-linalg` と共に用いる方法について述べます。
 
 https://github.com/termoshtt/pyo3-linalg-example
 
@@ -88,7 +88,7 @@ fn pyo3_linalg_example(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 ```
 
-これを PyO3 のパッケージャである [maturin](https://github.com/PyO3/maturin) を用いてパッケージすると wheel が出来上がります
+これをPyO3のパッケージャである [maturin](https://github.com/PyO3/maturin) を用いてパッケージするとwheelが出来上がります
 
 ```shell
 pip install maturin

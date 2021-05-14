@@ -6,7 +6,7 @@ topics: ["valgrind"]
 published: true
 ---
 
-valgrind は良くメモリリークを調べるのに使われますが、使用メモリ量を調べるのにも使えます。
+valgrindは良くメモリリークを調べるのに使われますが、使用メモリ量を調べるのにも使えます。
 
 ```cpp:test.cpp
 #include <vector>
@@ -22,7 +22,7 @@ int main() {
 }
 ```
 
-valgrind コマンドは `--tool` で起動するサブプログラムを変更でき、`--tool=massif` とすると heap profiler である [massif](https://www.valgrind.org/docs/manual/ms-manual.html) を起動できます
+valgrindコマンドは `--tool` で起動するサブプログラムを変更でき、`--tool=massif` とするとheap profilerである [massif](https://www.valgrind.org/docs/manual/ms-manual.html) を起動できます
 
 ```bash
 g++ test.cpp
@@ -86,7 +86,7 @@ snapshot=3
 ...
 ```
 
-これを時系列で表示するに `ms_print` というコマンドが valgrind に付属しているはずですが、テキストベースで表示するため見づらいので、[massif-viewer](https://github.com/KDE/massif-visualizer) を使いましょう
+これを時系列で表示するに `ms_print` というコマンドがvalgrindに付属しているはずですが、テキストベースで表示するため見づらいので、[massif-viewer](https://github.com/KDE/massif-visualizer) を使いましょう
 
 ![massif-viewer-screenshot1.png](https://raw.githubusercontent.com/termoshtt/zenn-content/main/articles/massif-viewer-screenshot1.png)
 
