@@ -12,13 +12,11 @@ jobs:
     container: node:16-buster
     steps:
     - uses: actions/checkout@v1
-    - run: npm install
-    - name: setup-reviewdog
+    - uses: reviewdog/action-setup@v1
+    - name: textlint
       run: |
-        mkdir -p $HOME/bin
-        wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin/ v0.9.13
-    - run: |
-        npx textlint -f checkstyle $(find books -name "*.md") | reviewdog -f=checkstyle -name="textlint" -diff="git diff ${{ github.event.pull_request.base.ref }}" -reporter=github-pr-review -level=error
+        npm install
+        npx textlint -f checkstyle $(find books -name "*.md") | ~/bin/reviewdog -f=checkstyle -name="textlint" -reporter=github-pr-check -level=error
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
