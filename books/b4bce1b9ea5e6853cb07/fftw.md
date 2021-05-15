@@ -27,7 +27,7 @@ fftw = { version = "0.6.2", features = ["intel-mkl"] }
 fftw crate
 -----------
 
-元のFFTWのインタフェース(C API)にしたがって、一旦Planと呼ばれる構造体を生成します。これにはFFTを効率良く計算するために前もって計算したデータを持つための構造体で、これを保持することにより実行を高速に出来ます。特に同じサイズの配列を複数回FFTする際に有効です。またFFTWはSIMD演算を行ってより高速化するために、メモリのアライメントに対して制約を課します。これをRust側で使えるように [AlignedVec](https://docs.rs/fftw/0.6.2/fftw/array/struct.AlignedVec.html) が用意してあります：
+元のFFTWのインタフェース(C API)にしたがって、一旦Planと呼ばれる構造体を生成します。これにはFFTを効率良く計算するために前もって計算したデータを持つための構造体で、これを保持することにより実行を高速に出来ます。特に同じサイズの配列を複数回FFTする際に有効です。またFFTWはSIMD演算を使って高速化するためにメモリのアライメントに対して制約を課します。これをRust側で使えるように [AlignedVec](https://docs.rs/fftw/0.6.2/fftw/array/struct.AlignedVec.html) が用意してあります：
 
 - Complex to Complex
 
