@@ -29,7 +29,7 @@ int vectorAdd_main (void) {
 } // extern C
 ```
 
-これを`libvector_add.a` のように静的ライブラリにして`build.rs`でビルドしましょう：
+これを`libvector_add.a` のように静的ライブラリにして`build.rs`でビルドしましょう。
 
 ```rust:build.rs
 extern crate cc;
@@ -58,7 +58,7 @@ fn main() {
 }
 ```
 
-CUDAにはGPGPU向けに公開されているCUDA Runtime (libcudart.so)に加えてCUDA Driver API (libcuda.so)があるので必要に応じてリンクフラグを追加します。このようにしてリンクした`vectorAdd_main`は普通にCのAPIとして呼び出せます：
+CUDAにはGPGPU向けに公開されているCUDA Runtime (libcudart.so)に加えてCUDA Driver API (libcuda.so)があるので必要に応じてリンクフラグを追加します。このようにしてリンクした`vectorAdd_main`は普通にCのAPIとして呼び出せます。
 
 ```rust
 #[link(name = "vector_add", kind = "static")]
@@ -73,5 +73,5 @@ fn main() {
 }
 ```
 
-既存のC++製のCUDAコードの資産を使いつつRust使いたいみたいな状況があればお使いください(/・ω・)/
+既存のC++製のCUDAコードの資産を使いつつRust使いたいみたいな状況があればお使いください。
 
