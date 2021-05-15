@@ -88,7 +88,7 @@ fn pyo3_linalg_example(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 ```
 
-これをPyO3のパッケージャである [maturin](https://github.com/PyO3/maturin) を用いてパッケージするとwheelが出来上がります：
+これをPyO3のパッケージャ [maturin](https://github.com/PyO3/maturin) を用いてパッケージするとwheelが出来上がります：
 
 ```shell
 pip install maturin

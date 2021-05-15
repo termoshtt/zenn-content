@@ -18,7 +18,7 @@ https://github.com/rust-math/intel-mkl-src
 fftw-sys = { version = "0.4", features = ["intel-mkl"] }
 ```
 
-このようにそれぞれのcrateでfeatureを使ってバックエンドが切り替えられるようになっているのでその機能を使います。あるいはより高次のライブラリである[ndarray-linalg](https://github.com/termoshtt/ndarray-linalg)を使います。
+このようにそれぞれのcrateでfeatureを使ってバックエンドが切り替えられるようになっています。あるいはより高次のライブラリである[ndarray-linalg](https://github.com/termoshtt/ndarray-linalg)を使います。
 
 ```toml
 [dependencies]
@@ -33,7 +33,7 @@ rust-math
 ---------
 科学技術計算系のcrateのうち、ユーザーが居るものを[rust-math](https://github.com/rust-math)に分けました。intel-mkl-srcのほかに2つ移行してあります。
 
-- [rust-fftw3](https://github.com/rust-math/rust-fftw3): FFTW3 binding for Rust 
+- [rust-fftw3](https://github.com/rust-math/rust-fftw3): FFTW3 binding for Rust
 - [rust-sfmt](https://github.com/rust-math/rust-sfmt): Rust implementation of  SIMD-oriented Fast Mersenne Twister (SFMT) using stable SIMD
 
 メンテが滞りがちなので、興味のある方は連絡ください。

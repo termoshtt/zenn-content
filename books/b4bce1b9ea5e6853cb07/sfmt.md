@@ -2,7 +2,7 @@
 title: SIMD-oriented Fast Mersenne Twister (sfmt crate)
 ---
 
-Rustで乱数生成機を実装するには [rand_core][rand_core] crateで提供されるTraitを実装します。ここでは [std::arch](https://doc.rust-lang.org/core/arch/x86_64/index.html) を使ったメルセンヌツイスタ実装である[sfmt crate](https://github.com/rust-math/rust-sfmt)を例に、[rand_core][rand_core] の使い方を見ていきましょう。
+Rustで乱数生成機を実装するには [rand_core][rand_core] crateで提供されるTraitを実装します。ここでは [std::arch](https://doc.rust-lang.org/core/arch/x86_64/index.html) を使ったメルセンヌツイスタ実装[sfmt crate](https://github.com/rust-math/rust-sfmt)を例に、[rand_core][rand_core] の使い方を見ていきましょう。
 
 [rand_core]: https://docs.rs/rand_core/0.6.0/rand_core/
 
