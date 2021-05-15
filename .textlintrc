@@ -10,6 +10,19 @@
           "preferInList": "である",
           "strict": true
         },
+        "ja-no-mixed-period": {
+           "periodMark": "。",
+           "allowPeriodMarks": ["："],
+           "allowEmojiAtEnd": true,
+           "forceAppendPeriod": false
+        },
+        "no-exclamation-question-mark": {
+            "allow": [],
+            "allowHalfWidthExclamation": false,
+            "allowFullWidthExclamation": true,
+            "allowHalfWidthQuestion": false,
+            "allowFullWidthQuestion": true
+        },
         "max-kanji-continuous-len": {
           max: 10
         }
