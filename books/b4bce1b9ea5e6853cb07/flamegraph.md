@@ -9,7 +9,7 @@ title: プロファイリングを行う (cargo-flamegraph)
 
 [FlamgeGraph](https://github.com/brendangregg/FlameGraph)と呼ばれる関数の呼び出しと個々の関数での実行時間を一度に表示したものです。
 
-FlameGraphに関する説明は以下が詳しいです
+FlameGraphに関する説明は以下が詳しいです：
 
 - [Flame Graphs](http://www.brendangregg.com/flamegraphs.html)
     - [SlideShare](https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs)
@@ -41,7 +41,7 @@ sudo yum install perf
 ```
 
 ### Windows
-未調査です…
+perfはそもそもLinuxカーネルに依存しているので基本的に使えません。
 
 Usage
 -------
@@ -63,7 +63,7 @@ How to Read
 ------------
 
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/30426/c8567a54-d91c-f48b-3289-4afbc1f73a4f.png)
-[Blazing Performance with Flame Graphs](https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs)より引用
+([Blazing Performance with Flame Graphs](https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs)より引用)
 
 - 関数の呼び出しのスタックに応じて関数を縦に積み上げて、関数での消費時間に応じて横幅を定めます
 - `a()`の実行の中で、実際にどの関数で時間を消費しているかは一番上の端を見ればいい（上図の太い部分）。上図では`f()`, `d()`, `e()`, `h()`の順に時間を消費している。

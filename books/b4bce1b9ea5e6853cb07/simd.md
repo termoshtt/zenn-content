@@ -7,20 +7,20 @@ title: SIMD (std::arch)
 - [Rust Internal: SIMD now available in libstd on nightly!](https://internals.rust-lang.org/t/simd-now-available-in-libstd-on-nightly/6903)
 - [RFC 2325: Stable SIMD](https://github.com/rust-lang/rfcs/blob/master/text/2325-stable-simd.md)
 
-(2018/8/9追記) `std::simd`が消えたことによって不要になった説明を削除・修正
+(2018/8/9追記) `std::simd`が消えたことによって不要になった説明を削除・修正。
 
 前回までのあらすじ
 --------
 - [Rustの関数でSIMDをつかう → もっとはやい](https://qiita.com/tatsuya6502/items/7ffc623fc60be0220409)
 - [rust で SIMD -- x86intrinsic を移植した話](http://mayah.jp/article/2016/x86intrin/)
 
-上述の記事が詳しいですが簡単にまとめると
+上述の記事が詳しいですが簡単にまとめると：
 
 - RustでSIMDを使う方法は２つある
     - LLVMの最適化に任せる
     - intrinsicsを使う
 
-今回のStable SIMDは両方の用法に対して大きな変更点になります
+今回のStable SIMDは両方の用法に対して大きな変更点になります：
 
 - `#[target_feature]`属性が追加され、関数単位でアーキテクチャを指定できるようになった
 - ~~`std::{simd,arch}` moduleの導入により、直接intrinsicsを叩かなくて良くなった~~
@@ -51,7 +51,7 @@ fn foo() {
 }
 ```
 
-(RFC 2325より)このように関数の属性としてSIMDの有効・無効を指定できます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることが期待できます。また同時に`cfg!`マクロの引数としても使えます：
+(RFC 2325より)このように関数の属性としてSIMDの有効・無効を指定できます。これにより関数`foo`はAVX命令を用いて最適化することが許可されるため、コンパイラに`target-feature=+avx`を渡した場合と同様のアセンブラが出力されることを期待できます。また同時に`cfg!`マクロの引数としても使えます：
 
 ```rust
 if cfg!(target_feature = "avx") {
@@ -106,17 +106,17 @@ Nightlyでしか動作しませんが、XOR Shiftと同等の速度で周期 $2^
 
 追記(2018/7/7)
 --------------
-2018/6/21リリースのRust 1.27よりstdsimdは安定化し、`#[feature(stdsimd)]`無しでコンパイルできるようになりました
+2018/6/21リリースのRust 1.27よりstdsimdは安定化し、`#[feature(stdsimd)]`無しでコンパイルできるようになりました。
 
 - [Announcing Rust 1.27](https://blog.rust-lang.org/2018/06/21/Rust-1.27.html)
 
 追記(2018/8/9)
 --------------
-1.27での`std::simd`の安定化が無かったことになりました
+1.27での`std::simd`の安定化が無かったことになりました。
 
 - [Update stdsimd to undo an accidental stabilization #52535](https://github.com/rust-lang/rust/pull/52535)
 
-`std::simd`として安定化された部分は`packed_simd`として再度検討されるようです
+`std::simd`として安定化された部分は`packed_simd`として再度検討されるようです。
 
 - [RFC 2366: Portable packed SIMD vector types](https://github.com/rust-lang/rfcs/pull/2366)
 
@@ -124,7 +124,7 @@ Nightlyでしか動作しませんが、XOR Shiftと同等の速度で周期 $2^
 
 ややこしいですが、stdsimd全体が無かったことになったわけでは無く、[std::arch](https://doc.rust-lang.org/beta/std/arch/)は安定化されているのでターゲット固定のSIMD機能はstableで使用できます。
 
-余談ですが、Embedded-WGではRustでインラインアセンブラをstableで使うために`asm!`機能を安定化させるのでなく、`core::arch`以下に実装していく方針のようです
+余談ですが、Embedded-WGではRustでインラインアセンブラをstableで使うために`asm!`機能を安定化させるのでなく、`core::arch`以下に実装していく方針のようです。
 
 - [Stable assembly operations](https://github.com/rust-embedded/wg/issues/63)
 

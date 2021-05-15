@@ -17,14 +17,14 @@ title: 多次元配列、線形代数 (ndarray, ndarray-linalg crate)
 ndarray = "0.14.0"
 ```
 
-Rustで実装された多次元配列のライブラリです。N次元分のサイズと、その次元の方向に進むときにどれだけindexを増やすか (stride)、及び実際のデータを1列に並べたものを保持します。演算はRustで実装されていますが、 `features = ["blas"]` によってBLAS演算を `blas` crate (これはOpenBLASやIntel MKLへのFFI) のものを使うこともできます。
+Rustで実装された多次元配列のライブラリです。N次元分のサイズと、その次元の方向に進むときどれだけindexを増やすか (stride)、及び実際のデータを1列に並べたものを保持します。演算はRustで実装されていますが、 `features = ["blas"]` によってBLAS演算を `blas` crate (これはOpenBLASやIntel MKLへのFFI) のものを使うこともできます。
 
 [ndarray for NumPy users](https://docs.rs/ndarray/0.14.0/ndarray/doc/ndarray_for_numpy_users/index.html) にNumPyから移行向けの資料があります。
 
 線形代数 ([ndarray-linalg][linalg] crate)
 ================================
 
-[ndarray-linalg](https://github.com/rust-ndarray/ndarray-linalg) を使います
+[ndarray-linalg](https://github.com/rust-ndarray/ndarray-linalg) を使います：
 
 ```toml
 [dependencies]
@@ -32,13 +32,11 @@ ndarray = "0.13"
 ndarray-linalg = { version = "0.12", features = ["openblas"] }
 ```
 
-`features` にはBLAS/LAPACKのバックエンドが指定できて、[Intel (R) MKL](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) を使う場合は
+`features` にはBLAS/LAPACKのバックエンドが指定できて、[Intel (R) MKL](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) を使う場合は次の様に指定します：
 
 ```toml
 ndarray-linalg = { version = "0.12", features = ["intel-mkl"] }
 ```
-
-のように使います
 
 線型方程式
 --------------
@@ -92,7 +90,7 @@ fn main() {
 }
 ```
 
-対称行列の場合は `eigh` を使います
+対称行列の場合は `eigh` を使います：
 
 ```rust
 use ndarray::*;

@@ -8,7 +8,7 @@ Rustで数値型を扱う際に有用なTraitについてまとめていきま�
 
 ### 前提知識１: `std::ops::Add`
 
-Rustでは`+`等の演算子のオーバーロードもTraitとして実装されます
+Rustでは`+`等の演算子のオーバーロードもTraitとして実装されます：
 
 ```rust
 use std::ops::Add;
@@ -51,7 +51,7 @@ fn f<T: B>(a: &T) {
 num_traits::Num
 ----------------
 
-`num_traits::NumOps`演算子だけ定義されいてるTraitです
+`num_traits::NumOps`演算子だけ定義されいてるTraitです：
 
 ```rust
 pub trait NumOps<Rhs = Self, Output = Self>:
@@ -98,7 +98,7 @@ pub trait NumAssignOps<Rhs = Self>:
 {}
 ```
 
-これを追加したのが `NumAssign` です
+これを追加したのが `NumAssign` です：
 
 ```rust
 pub trait NumAssign: Num + NumAssignOps {}
@@ -150,7 +150,7 @@ pub trait FromPrimitive: Sized {
 }
 ```
 
-これを使って統一的に扱えるようにしたのが`NumCast`です
+これを使って統一的に扱えるようにしたのが`NumCast`です：
 
 ```rust
 pub trait NumCast: Sized + ToPrimitive {
