@@ -2,7 +2,7 @@
 title: 乱数を生成する(rand crate)
 ---
 
-Rustで乱数を生成するには[rand crate](https://github.com/rust-random/rand)を使用します。この記事ではこの使い方について簡単についてまとめます。
+Rustで乱数を生成するには[rand crate](https://github.com/rust-random/rand)を使用します。この記事ではこの使い方について簡単にまとめます。
 
 疑似乱数生成器(pseudo random number generator, PRNG)
 --------
@@ -25,9 +25,9 @@ rand crate
 rand = "0.6"
 ```
 
-この記事を書いている2018/12の段階では0.6が最新版です。randは0.4から0.5に上る際に大幅な仕様変更があり、[Upgrade to 0.5](https://rust-random.github.io/book/update-0.5.html)に移行のためのドキュメントがあります（英語）。この際に`rand_core`と呼ばれるcrateが分離され、PRNGを使うユーザーはrand、PRNGを独自に実装する場合はrand_coreを使うような形になっています。
+この記事を書いている2018/12の段階では0.6が最新版です。randは0.4から0.5に上る際大幅な仕様変更があり、[Upgrade to 0.5](https://rust-random.github.io/book/update-0.5.html)に移行のためのドキュメントがあります（英語）。この際に`rand_core`と呼ばれるcrateが分離され、PRNGを使うユーザーはrand、PRNGを独自に実装する場合はrand_coreを使うような形になっています。
 
-randでは乱数のビットを生成する乱数生成器(rng)と乱数の分布をわけて使うインタフェースを採用しています
+randでは乱数のビットを生成する乱数生成器(rng)と乱数の分布をわけて使うインタフェースを採用しています：
 
 ```rust
 use rand::Rng;
@@ -35,7 +35,7 @@ let mut rng = rand::thread_rng(); // デフォルトの乱数生成器を初期�
 let i: i32 = rng.gen();           // genはRng traitに定義されている
 ```
 
-`thread_rng`はその環境で一番速いセキュアな擬似乱数生成器を選択するようになっています。`gen`は
+`thread_rng`はその環境で一番速いセキュアな擬似乱数生成器を選択するようになっています。`gen`は次のような定義になっており：
 
 ```rust
 trait Rng: ... {
@@ -46,7 +46,7 @@ trait Rng: ... {
 }
 ```
 
-のような定義になっており、戻り値に併せて乱数を生成できます。`Standard`はいくつかのプリミティブ型に対して定義されていて以下のように定義されています。
+戻り値に併せて乱数を生成できます。`Standard`はいくつかのプリミティブ型に対して定義されていて以下のように定義されています。
 
 - 整数型(i32, usize等)：可能なすべての値で均等に
 - char: Unicodeスカラー値から一様に
@@ -55,7 +55,7 @@ trait Rng: ... {
 
 https://rust-random.github.io/rand/rand/distributions/struct.Standard.html
 
-これ以外の分布を使用する場合は
+これ以外の分布を使用する場合は：
 
 ```rust
 use rand::distributions::{Bernoulli, Distribution};
@@ -69,7 +69,7 @@ https://rust-random.github.io/rand/rand/distributions/struct.Bernoulli.html
 参考リンク
 ----------
 
-これで基本的な使い方について説明したので、ドキュメントを読めると思います：
+より詳しい使い方については以下のドキュメントを読んでください：
 
 - [The Rust Rand Book](https://rust-random.github.io/book/intro.html)
 - [Crate rand](https://rust-random.github.io/rand/rand/index.html)

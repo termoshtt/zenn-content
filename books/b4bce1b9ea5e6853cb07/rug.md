@@ -2,7 +2,7 @@
 title: 多倍長計算を行う (rug crate)
 ---
 
-[Rug](https://docs.rs/rug/1.6.0/rug/index.html)という多倍長演算ライブラリがあったので[Rumpの例題](https://ja.wikipedia.org/wiki/%E7%B2%BE%E5%BA%A6%E4%BF%9D%E8%A8%BC%E4%BB%98%E3%81%8D%E6%95%B0%E5%80%A4%E8%A8%88%E7%AE%97#Rump%E3%81%AE%E4%BE%8B%E9%A1%8C)をやってみます
+[Rug](https://docs.rs/rug/1.6.0/rug/index.html)という多倍長演算ライブラリがあったので[Rumpの例題](https://ja.wikipedia.org/wiki/%E7%B2%BE%E5%BA%A6%E4%BF%9D%E8%A8%BC%E4%BB%98%E3%81%8D%E6%95%B0%E5%80%A4%E8%A8%88%E7%AE%97#Rump%E3%81%AE%E4%BE%8B%E9%A1%8C)をやってみます。
 
 ```rust
 use rug::{ops::Pow, Float};
@@ -28,7 +28,7 @@ fn main() {
 }
 ```
 
-`rug::Float`に`Copy`が無いのでちょっと面倒になりましたが概ね雑にこんな感じだと思います。
+`rug::Float`に`Copy`が無いのでちょっと面倒になりましたが概ね雑にこんな感じです。
 
 > Rug is a high-level interface to the following GNU libraries:
 > - GMP for integers and rational numbers,

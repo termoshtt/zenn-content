@@ -24,7 +24,7 @@
             "allowFullWidthQuestion": true
         },
         "max-kanji-continuous-len": {
-          max: 10
+          max: 20
         }
       },
       "spellcheck-tech-word": true

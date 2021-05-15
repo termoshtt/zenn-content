@@ -71,7 +71,7 @@ impl RngCore for SFMT {
 
 `rand_core::RngCore`が`rand::Rng`の機能を提供するためのtraitです。ここでは`SFMT::gen_all()`で生成した乱数を順次`u32`や`u64`として切り出しています。他の型への変換はtraitのデフォルト実装をそのまま採用しています。
 
-この2つのtraitを実装することでrandを通して使う事ができます
+この2つのtraitを実装することでrandを通して使う事ができます：
 
 ```rust
 use rand::{Rng, FromEntropy};

@@ -29,7 +29,7 @@ version = "0.12.0"
 features = ["static"]
 ```
 
-いくつかポイントがあって
+いくつかポイントがあって：
 
 - `crate-type = ["cdylib"]` で共有ライブラリを作ります
 - `ndarray-linalg` に `features = ["static"]` をつけます。FFIでLAPACKを呼び出している為、その部分を静的に結合するためです。
@@ -88,7 +88,7 @@ fn pyo3_linalg_example(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 ```
 
-これをPyO3のパッケージャである [maturin](https://github.com/PyO3/maturin) を用いてパッケージするとwheelが出来上がります
+これをPyO3のパッケージャである [maturin](https://github.com/PyO3/maturin) を用いてパッケージするとwheelが出来上がります：
 
 ```shell
 pip install maturin
