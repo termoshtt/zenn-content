@@ -18,7 +18,7 @@ graph TD;
   C-->D;
 ```
 ~~~
-![gitlab-mermaid-image](https://raw.githubusercontent.com/termoshtt/zenn-content/rustdoc-mermaid/articles/gitlab-mermaid-graph-screenshot.png)
+![gitlab-mermaid-image](https://raw.githubusercontent.com/termoshtt/zenn-content/main/articles/gitlab-mermaid-graph-screenshot.png)
 
 この記事ではmermaidをrustdoc中で使う方法についてまとめます。
 
