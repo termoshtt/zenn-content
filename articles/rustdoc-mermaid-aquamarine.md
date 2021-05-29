@@ -60,7 +60,7 @@ pub fn example() {}
 ~~~
 
 つまりドキュメントのビルド時だけこのようにAttributeが展開されるわけです。
-この`aquamarine::aquamarine`はproc-macroで、ドキュメント句(`///`から始まる部分、`#[doc = "..."]`としてAttribute関数のAttributeとしてproc-macro側に渡される)を解析してその中の`mermaid`部分だけを抜き出してmermaid APIが読める形に変換します。mermaid APIはページロード時に`<div class="mermaid">`なHTML要素を置き換えるJavaScriptなので、これでrustdocの生成したHTMLをブラウザで開いたらMarkdown内のmermaidにしたがって図が描画されます。
+この`aquamarine::aquamarine`はproc-macroで、ドキュメント句(`///`から始まる部分、`#[doc = "..."]`として関数のAttributeとしてproc-macro側に渡される)を解析してその中の`mermaid`部分だけを抜き出してmermaid APIが読める形に変換します。mermaid APIはページロード時に`<div class="mermaid">`なHTML要素を置き換えるJavaScriptなので、これでrustdocの生成したHTMLをブラウザで開いたらMarkdown内のmermaidにしたがって図が描画されます。
 
 [aquamarine]: https://github.com/mersinvald/aquamarine
 [cfg_attr]: https://doc.rust-lang.org/reference/conditional-compilation.html#the-cfg_attr-attribute
