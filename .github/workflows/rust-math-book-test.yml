@@ -1,4 +1,4 @@
-name: intel-mkl
+name: rust-math-book-test
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - master
   pull_request: {}
 
+jobs:
   linux:
     runs-on: ubuntu-20.04
     steps:
