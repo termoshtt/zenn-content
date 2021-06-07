@@ -9,6 +9,7 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-20.04
+    container: ghcr.io/rust-math/intel-mkl-src/mkl-rust:1.49.0
     steps:
       - uses: actions/checkout@v1
       - name: Install latest nightly
