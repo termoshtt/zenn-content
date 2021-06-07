@@ -15,4 +15,4 @@ jobs:
         name: cargo test
         with:
           command: test
-          args: --doc --manifest-path=rust-math-book-test/
+          args: --doc --manifest-path=rust-math-book-test/Cargo.toml
