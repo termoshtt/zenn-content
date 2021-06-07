@@ -14,5 +14,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         name: cargo test
         with:
+          toolchain: nightly
           command: test
           args: --doc --manifest-path=rust-math-book-test/Cargo.toml
