@@ -12,7 +12,8 @@ Rustでは`+`等の演算子のオーバーロードもTraitとして実装さ�
 
 ```rust
 use std::ops::Add;
-fn calc<T: Add>(a: T, b: T) -> T {
+
+fn calc<T: Add<Output=T>>(a: T, b: T) -> T {
   a + b
 }
 ```
@@ -54,6 +55,8 @@ num_traits::Num
 `num_traits::NumOps`演算子だけ定義されいてるTraitです：
 
 ```rust
+use std::ops::*;
+
 pub trait NumOps<Rhs = Self, Output = Self>:
    Add<Rhs, Output = Output>
  + Sub<Rhs, Output = Output>
@@ -66,21 +69,26 @@ pub trait NumOps<Rhs = Self, Output = Self>:
 これで足し算・掛け算他が入ったので、単位元を定義できます：
 
 ```rust
+use std::ops::*;
+
 pub trait Zero: Sized + Add<Self, Output = Self> {
     fn zero() -> Self;
     fn is_zero(&self) -> bool;
-    fn set_zero(&mut self) { ... }
+    fn set_zero(&mut self) { todo!() }
 }
+
 pub trait One: Sized + Mul<Self, Output = Self> {
     fn one() -> Self;
-    fn is_one(&self) -> bool where Self: PartialEq { ... }
-    fn set_one(&mut self) { ... }
+    fn is_one(&self) -> bool where Self: PartialEq { todo!() }
+    fn set_one(&mut self) { todo!() }
 }
 ```
 
 これらに加えてさらに`PartialEq`を追加したものが`Num`です。
 
 ```rust
+use num_traits::{Zero, One, NumOps};
+
 pub trait Num: PartialEq + Zero + One + NumOps {
   // 略
 }
@@ -89,6 +97,8 @@ pub trait Num: PartialEq + Zero + One + NumOps {
 演算子には`+=`のように自己に代入するものもあり`num_traits::NumOpsAssign`が対応します。こちらは出力が`Self`で固定になるので`Output`はパラメータに存在しません。
 
 ```rust
+use std::ops::*;
+
 pub trait NumAssignOps<Rhs = Self>:
    AddAssign<Rhs>
  + SubAssign<Rhs>
@@ -101,6 +111,8 @@ pub trait NumAssignOps<Rhs = Self>:
 これを追加したのが `NumAssign` です：
 
 ```rust
+use num_traits::{Num, NumAssignOps};
+
 pub trait NumAssign: Num + NumAssignOps {}
 ```
 
@@ -114,18 +126,18 @@ num_traits::NumCast
 pub trait ToPrimitive {
     fn to_i64(&self) -> Option<i64>;
     fn to_u64(&self) -> Option<u64>;
-    fn to_isize(&self) -> Option<isize> { ... }
-    fn to_i8(&self) -> Option<i8> { ... }
-    fn to_i16(&self) -> Option<i16> { ... }
-    fn to_i32(&self) -> Option<i32> { ... }
-    fn to_i128(&self) -> Option<i128> { ... }
-    fn to_usize(&self) -> Option<usize> { ... }
-    fn to_u8(&self) -> Option<u8> { ... }
-    fn to_u16(&self) -> Option<u16> { ... }
-    fn to_u32(&self) -> Option<u32> { ... }
-    fn to_u128(&self) -> Option<u128> { ... }
-    fn to_f32(&self) -> Option<f32> { ... }
-    fn to_f64(&self) -> Option<f64> { ... }
+    fn to_isize(&self) -> Option<isize> { todo!() }
+    fn to_i8(&self) -> Option<i8> { todo!() }
+    fn to_i16(&self) -> Option<i16> { todo!() }
+    fn to_i32(&self) -> Option<i32> { todo!() }
+    fn to_i128(&self) -> Option<i128> { todo!() }
+    fn to_usize(&self) -> Option<usize> { todo!() }
+    fn to_u8(&self) -> Option<u8> { todo!() }
+    fn to_u16(&self) -> Option<u16> { todo!() }
+    fn to_u32(&self) -> Option<u32> { todo!() }
+    fn to_u128(&self) -> Option<u128> { todo!() }
+    fn to_f32(&self) -> Option<f32> { todo!() }
+    fn to_f64(&self) -> Option<f64> { todo!() }
 }
 ```
 
@@ -135,24 +147,25 @@ pub trait ToPrimitive {
 pub trait FromPrimitive: Sized {
     fn from_i64(n: i64) -> Option<Self>;
     fn from_u64(n: u64) -> Option<Self>;
-    fn from_isize(n: isize) -> Option<Self> { ... }
-    fn from_i8(n: i8) -> Option<Self> { ... }
-    fn from_i16(n: i16) -> Option<Self> { ... }
-    fn from_i32(n: i32) -> Option<Self> { ... }
-    fn from_i128(n: i128) -> Option<Self> { ... }
-    fn from_usize(n: usize) -> Option<Self> { ... }
-    fn from_u8(n: u8) -> Option<Self> { ... }
-    fn from_u16(n: u16) -> Option<Self> { ... }
-    fn from_u32(n: u32) -> Option<Self> { ... }
-    fn from_u128(n: u128) -> Option<Self> { ... }
-    fn from_f32(n: f32) -> Option<Self> { ... }
-    fn from_f64(n: f64) -> Option<Self> { ... }
+    fn from_isize(n: isize) -> Option<Self> { todo!() }
+    fn from_i8(n: i8) -> Option<Self> { todo!() }
+    fn from_i16(n: i16) -> Option<Self> { todo!() }
+    fn from_i32(n: i32) -> Option<Self> { todo!() }
+    fn from_i128(n: i128) -> Option<Self> { todo!() }
+    fn from_usize(n: usize) -> Option<Self> { todo!() }
+    fn from_u8(n: u8) -> Option<Self> { todo!() }
+    fn from_u16(n: u16) -> Option<Self> { todo!() }
+    fn from_u32(n: u32) -> Option<Self> { todo!() }
+    fn from_u128(n: u128) -> Option<Self> { todo!() }
+    fn from_f32(n: f32) -> Option<Self> { todo!() }
+    fn from_f64(n: f64) -> Option<Self> { todo!() }
 }
 ```
 
 これを使って統一的に扱えるようにしたのが`NumCast`です：
 
 ```rust
+use num_traits::ToPrimitive;
 pub trait NumCast: Sized + ToPrimitive {
     fn from<T: ToPrimitive>(n: T) -> Option<Self>;
 }
@@ -163,9 +176,12 @@ num_traits::PrimInt
 整数型の性質を抽象化したTraitです。ビット演算が多く実装されています。
 
 ```rust
+use std::ops::*;
+use num_traits::*;
+
 pub trait PrimInt:
    Sized + Copy + Num + NumCast + Bounded + PartialOrd + Ord + Eq + Not<Output = Self>
- + BitAnd<Output = Self> + BitOr<Output = Self> + BitXor<Output = Self> 
+ + BitAnd<Output = Self> + BitOr<Output = Self> + BitXor<Output = Self>
  + Shl<usize, Output = Self> + Shr<usize, Output = Self>
  + CheckedAdd<Output = Self> + CheckedSub<Output = Self> + CheckedMul<Output = Self> + CheckedDiv<Output = Self>
  + Saturating
@@ -197,6 +213,9 @@ pub trait PrimInt:
 続いて浮動小数点に特化したTraitです。標準的な数学関数が定義されています。
 
 ```rust
+use std::{num::FpCategory, ops::Neg};
+use num_traits::{Num, NumCast};
+
 pub trait Float: Num + Copy + NumCast + PartialOrd + Neg<Output = Self> {
     fn nan() -> Self;
     fn infinity() -> Self;
@@ -252,9 +271,9 @@ pub trait Float: Num + Copy + NumCast + PartialOrd + Neg<Output = Self> {
     fn acosh(self) -> Self;
     fn atanh(self) -> Self;
     fn integer_decode(self) -> (u64, i16, i8);
-    fn epsilon() -> Self { ... }
-    fn to_degrees(self) -> Self { ... }
-    fn to_radians(self) -> Self { ... }
+    fn epsilon() -> Self { todo!() }
+    fn to_degrees(self) -> Self { todo!() }
+    fn to_radians(self) -> Self { todo!() }
 }
 ```
 
@@ -288,6 +307,15 @@ pub type Complex64 = Complex<f64>;
 これを複素数と実数型を合わせて同じように使えるようにしたTraitが `cauchy::Scalar` です。
 
 ```rust
+use std::{
+  fmt::{Display, Debug, LowerExp, UpperExp},
+  iter::{Sum, Product},
+  ops::Neg,
+};
+use num_traits::*;
+use serde::{Serialize, Deserialize};
+use rand::Rng;
+
 pub trait Scalar:
     NumAssign + FromPrimitive + NumCast + Neg<Output = Self>
   + Copy + Clone
