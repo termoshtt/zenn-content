@@ -31,13 +31,14 @@ randでは乱数のビットを生成する乱数生成器(rng)と乱数の分�
 
 ```rust
 use rand::Rng;
+
 let mut rng = rand::thread_rng(); // デフォルトの乱数生成器を初期化します
 let i: i32 = rng.gen();           // genはRng traitに定義されている
 ```
 
 `thread_rng`はその環境で一番速いセキュアな擬似乱数生成器を選択するようになっています。`gen`は次のような定義になっており：
 
-```rust
+```rust:ignore
 trait Rng: ... {
     fn gen<T>(&mut self) -> T
     where
@@ -59,7 +60,8 @@ https://rust-random.github.io/rand/rand/distributions/struct.Standard.html
 
 ```rust
 use rand::distributions::{Bernoulli, Distribution};
-let d = Bernoulli::new(0.3);
+
+let d = Bernoulli::new(0.3).unwrap();
 let v = d.sample(&mut rand::thread_rng());
 ```
 https://rust-random.github.io/rand/rand/distributions/struct.Bernoulli.html
