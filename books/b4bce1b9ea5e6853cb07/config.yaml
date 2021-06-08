@@ -23,3 +23,4 @@ chapters:
   - cc
   - mkl
   - pyo3
+  - nom
