@@ -28,14 +28,14 @@ Rustで実装された多次元配列のライブラリです。N次元分のサ
 
 ```toml
 [dependencies]
-ndarray = "0.13"
-ndarray-linalg = { version = "0.12", features = ["openblas"] }
+ndarray = "0.14.0"
+ndarray-linalg = { version = "0.13.1", features = ["openblas"] }
 ```
 
 `features` にはBLAS/LAPACKのバックエンドが指定できて、[Intel (R) MKL](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) を使う場合は次の様に指定します：
 
 ```toml
-ndarray-linalg = { version = "0.12", features = ["intel-mkl"] }
+ndarray-linalg = { version = "0.13.1", features = ["intel-mkl"] }
 ```
 
 線型方程式

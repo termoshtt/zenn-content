@@ -12,7 +12,7 @@ LLVMに最適化させる： `target_feature` attribute
 
 RustはMIRと呼ばれる中間表現を経由してLLVM IRにコンパイルされますが、[LLVMによる自動ベクトル化機能](https://llvm.org/docs/Vectorizers.html)により、単純なfor文等をSIMDを用いて計算できます。しかしこの最適化を実行するにはSIMDの拡張命令を明示的に教える必要がありました。
 
-```
+```shell
 RUSTFLAGS='-C target-feature=+avx' cargo run --release
 ```
 
@@ -41,7 +41,7 @@ if cfg!(target_feature = "avx") {
 ([RFC 2325][RFC2325]より)加えて、実行時に検出することも出来ます：
 
 ```rust
-if is_target_feature_detected!("sse4.1") {
+if is_x86_feature_detected!("sse4.1") {
     println!("this cpu has sse4.1 features enabled!");
 }
 ```
@@ -114,6 +114,18 @@ unsafe fn hex_encode_sse41(mut src: &[u8], dst: &mut [u8]) {
 
     let i = i as usize;
     hex_encode_fallback(src, &mut dst[i * 2..]);
+}
+
+fn hex_encode_fallback(src: &[u8], dst: &mut [u8]) {
+    fn hex(byte: u8) -> u8 {
+        static TABLE: &[u8] = b"0123456789abcdef";
+        TABLE[byte as usize]
+    }
+
+    for (byte, slots) in src.iter().zip(dst.chunks_mut(2)) {
+        slots[0] = hex((*byte >> 4) & 0xf);
+        slots[1] = hex(*byte & 0xf);
+    }
 }
 ```
 
