@@ -20,3 +20,6 @@ rand = "0.7"
 
 # serialize
 serde = "1.0.126"
+
+# parser combinator
+nom = "6.1.2"
