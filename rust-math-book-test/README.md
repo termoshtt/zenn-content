@@ -13,14 +13,14 @@ How it works
 -------------
 Rustの属性：
 
-```
+```rust
 #[doc = "homhom"]
 mod sub_section {}
 ```
 
 はドキュメントに関する属性を設定するもので：
 
-```
+```rust
 /// homhom
 mod sub_section {}
 ```
@@ -34,7 +34,14 @@ mod sub_section {}
 How to add new section
 -----------------------
 Book本文中の各章毎にモジュールを作り、それのdocstringとしてテストを行います。
-基本的に`mod`でサブもジュールを`lib.rs`中に作成して、そこにZenn本文を挿入してください。
+基本的に`mod`でサブもジュールを[lib.rs](./src/lib.rs)中に作成して、そこに`include_str!`でZenn本文を挿入してください。
+
+```rust
+#[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/num_traits.md")]
+pub mod num_traits {}
+```
+
+これによって`cargo doc`でドキュメントが生成されますが、ZennとrustdocのMarkdown処理系は互換ではなく、この本はZennで表示することを前提としているためZennを優先します。rustdocはコードブロックに注釈が無い場合にはrustだと認識しますが、これを避けるため必ず本文のコードブロックには全て注釈を書いてください。
 
 注意事項
 ---------
