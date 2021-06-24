@@ -7,6 +7,7 @@ price: 0
 chapters:
   - about
   - intro
+  - versioning
   - num_traits
   - ndarray_linalg
   - eom
