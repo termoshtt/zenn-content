@@ -67,3 +67,11 @@ $ cat /proc/sys/kernel/perf_event_paranoid
 ```
 # echo -1 > /proc/sys/kernel/perf_event_paranoid
 ```
+
+Links
+------
+
+- [perf Examples](http://www.brendangregg.com/perf.html)
+  - [Systems Performance: Enterprise and the Cloud, 2nd Edition (2020)](http://www.brendangregg.com/systems-performance-2nd-edition-book.html)及び[BPF Performance Tools](http://www.brendangregg.com/bpf-performance-tools-book.html)の著者(Brendan Gregg氏)による用例集と機構の解説
+- [Perf Wiki](https://perf.wiki.kernel.org/index.php/Main_Page)
+  - Linuxカーネルの公式Wiki。この記事もこのWikiの[Tutorial](https://perf.wiki.kernel.org/index.php/Tutorial)の内容に基づいて書かれている。
