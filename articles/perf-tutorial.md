@@ -71,6 +71,68 @@ $ cat /proc/sys/kernel/perf_event_paranoid
 # echo -1 > /proc/sys/kernel/perf_event_paranoid
 ```
 
+以下は特に断りが無ければ`perf_event_paranoid=-1`での結果を示します。
+
+Counting mode (`perf stat`)
+-------------
+まず`perf stat`から見ていきましょう。このコマンドは引数でもらったサブコマンドを実行して、最後にそのプロセスを通してのパフォーマンスカウンタの合計値を出力します：
+
+```
+$ perf stat dd if=/dev/zero of=/dev/null count=1000000
+1000000+0 レコード入力
+1000000+0 レコード出力
+512000000 bytes (512 MB, 488 MiB) copied, 0.492335 s, 1.0 GB/s
+
+ Performance counter stats for 'dd if=/dev/zero of=/dev/null count=1000000':
+
+            491.90 msec task-clock                #    0.997 CPUs utilized  
+                49      context-switches          #    0.100 K/sec          
+                 0      cpu-migrations            #    0.000 K/sec          
+               116      page-faults               #    0.236 K/sec          
+     2,212,164,742      cycles                    #    4.497 GHz            
+     2,112,911,021      instructions              #    0.96  insn per cycle 
+       450,714,861      branches                  #  916.270 M/sec          
+         4,496,804      branch-misses             #    1.00% of all branches
+
+       0.493196734 seconds time elapsed
+
+       0.199588000 seconds user
+       0.292739000 seconds sys
+```
+
+この例では`dd if=/dev/zero of=/dev/null count=1000000`をサブプロセスとして起動していて最初の3行はその出力です。5行目からが`perf stat`による統計情報の表示です。`perf stat`に特に何を表示するかを指定していないためデフォルト設定の量が集計され表示されています。`#`の右に表示されているのは計測値から計算されたメトリクスです。
+
+同じコマンドを`perf_event_paranoid=2`で実行してみましょう：
+
+```
+$ cat /proc/sys/kernel/perf_event_paranoid
+2
+$ perf stat dd if=/dev/zero of=/dev/null count=1000000
+1000000+0 レコード入力
+1000000+0 レコード出力
+512000000 bytes (512 MB, 488 MiB) copied, 0.491174 s, 1.0 GB/s
+
+ Performance counter stats for 'dd if=/dev/zero of=/dev/null count=1000000':
+
+            491.60 msec task-clock:u              #    0.999 CPUs utilized  
+                 0      context-switches:u        #    0.000 K/sec          
+                 0      cpu-migrations:u          #    0.000 K/sec          
+               112      page-faults:u             #    0.228 K/sec          
+       209,743,680      cycles:u                  #    0.427 GHz            
+       298,844,447      instructions:u            #    1.42  insn per cycle 
+        70,289,118      branches:u                #  142.981 M/sec          
+            45,612      branch-misses:u           #    0.06% of all branches
+
+       0.492151900 seconds time elapsed
+
+       0.194119000 seconds user
+       0.297878000 seconds sys
+```
+
+表示されるイベント名にユーザー空間での値であることを示す`:u`がついて値が変化している事が分かります。`/dev/zero`や`/dev/null`はカーネルモジュールで作られるものであり、そこからの読み出しはカーネル内の操作になるため一般ユーザーではこの部分の処理のカウントはとれず合計値が小さい値になります。
+
+特定のイベントだけ集計するには`-e`フラグを使います：
+
 Links
 ------
 
