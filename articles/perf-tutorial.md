@@ -158,6 +158,8 @@ $ perf stat -e instructions:u dd if=/dev/zero of=/dev/null count=1000000
        0.320599000 seconds sys
 ```
 
+引数にとれるイベントのリストは`perf list`で確認できます。
+
 同じ処理を複数回繰り替えして統計をとるには`-r`(`--repeat`)を使います：
 
 ```
