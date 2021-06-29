@@ -129,9 +129,55 @@ $ perf stat dd if=/dev/zero of=/dev/null count=1000000
        0.297878000 seconds sys
 ```
 
-表示されるイベント名にユーザー空間での値であることを示す`:u`がついて値が変化している事が分かります。`/dev/zero`や`/dev/null`はカーネルモジュールで作られるものであり、そこからの読み出しはカーネル内の操作になるため一般ユーザーではこの部分の処理のカウントはとれず合計値が小さい値になります。
+表示されるイベント名にユーザー空間での値であることを示す`:u`がついて値が変化している事が分かります。`/dev/zero`や`/dev/null`はカーネルモジュールで作られるものであり、そこからの読み出しはカーネル内の操作になるため一般ユーザーではこの部分の処理のカウントはとれず合計値が小さい値になります。この`:u`の部分は他に次のものがあります：
 
-特定のイベントだけ集計するには`-e`フラグを使います：
+| Modifiers | Description | Example |
+|:---------:|:------------|:--------|
+| u | monitor at priv level 3, 2, 1 (user) | event:u |
+| k | monitor at priv level 0 (kernel) | event:k |
+| h | monitor hypervisor events on a virtualization environment | event:h |
+| H | monitor host machine on a virtualization environment | event:H |
+| G | monitor guest machine on a virtualization environment | event:G |
+
+
+特定のイベントだけ集計するには`-e`(`--event`)フラグを使います：
+
+```
+$ perf stat -e instructions:u dd if=/dev/zero of=/dev/null count=1000000
+1000000+0 レコード入力
+1000000+0 レコード出力
+512000000 bytes (512 MB, 488 MiB) copied, 0.486783 s, 1.1 GB/s
+
+ Performance counter stats for 'dd if=/dev/zero of=/dev/null count=1000000':
+
+       298,838,248      instructions:u
+
+       0.487783886 seconds time elapsed
+
+       0.166980000 seconds user
+       0.320599000 seconds sys
+```
+
+同じ処理を複数回繰り替えして統計をとるには`-r`(`--repeat`)を使います：
+
+```
+$ perf stat -r 5 sleep 1
+
+ Performance counter stats for 'sleep 1' (5 runs):
+
+     0.45 msec task-clock:u        #    0.000 CPUs utilized   ( +- 12.03% )
+        0      context-switches:u  #    0.000 K/sec           
+        0      cpu-migrations:u    #    0.000 K/sec           
+       62      page-faults:u       #    0.135 M/sec           ( +-  1.32% )
+  323,998      cycles:u            #    0.712 GHz             ( +-  2.01% )
+  238,024      instructions:u      #    0.73  insn per cycle  ( +-  0.00% )
+   54,507      branches:u          #  119.843 M/sec           ( +-  0.00% )
+    2,580      branch-misses:u     #    4.73% of all branches ( +-  0.35% )
+
+ 1.001081 +- 0.000107 seconds time elapsed  ( +-  0.01% )
+```
+
+平均値と分散の値を出力してくれます。
 
 Links
 ------
