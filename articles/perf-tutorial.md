@@ -167,19 +167,19 @@ $ perf stat -r 5 sleep 1
 
  Performance counter stats for 'sleep 1' (5 runs):
 
-     0.45 msec task-clock:u        #    0.000 CPUs utilized   ( +- 12.03% )
-        0      context-switches:u  #    0.000 K/sec           
-        0      cpu-migrations:u    #    0.000 K/sec           
-       62      page-faults:u       #    0.135 M/sec           ( +-  1.32% )
-  323,998      cycles:u            #    0.712 GHz             ( +-  2.01% )
-  238,024      instructions:u      #    0.73  insn per cycle  ( +-  0.00% )
-   54,507      branches:u          #  119.843 M/sec           ( +-  0.00% )
-    2,580      branch-misses:u     #    4.73% of all branches ( +-  0.35% )
+       0.36 msec task-clock        #    0.000 CPUs utilized   ( +-  3.21% )
+          1      context-switches  #    0.003 M/sec           
+          0      cpu-migrations    #    0.000 K/sec           
+         66      page-faults       #    0.185 M/sec           ( +-  1.00% )
+  1,263,237      cycles            #    3.532 GHz             ( +-  1.05% )
+    967,275      instructions      #    0.77  insn per cycle  ( +-  0.62% )
+    203,808      branches          #  569.824 M/sec           ( +-  0.62% )
+      6,567      branch-misses     #    3.22% of all branches ( +-  1.06% )
 
- 1.001081 +- 0.000107 seconds time elapsed  ( +-  0.01% )
+  1.0009503 +- 0.0000363 seconds time elapsed  ( +-  0.00% )
 ```
 
-平均値と分散の値を出力してくれます。
+これは`sleep 1`を5回実行するため約5秒かかります。各統計量について平均値と分散の値を出力してくれます。
 
 Links
 ------
