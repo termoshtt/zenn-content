@@ -336,33 +336,7 @@ $ perf report --stdio -i perf.data.g
                |          |          
                |          |--23.29%--entry_SYSCALL_64_after_hwframe
                |          |          |          
-               |          |          |--17.63%--do_syscall_64
-               |          |          |          |          
-               |          |          |          |--15.43%--ksys_read
-               |          |          |          |          |          
-               |          |          |          |          |--13.43%--vfs_read
-               |          |          |          |          |          |          
-               |          |          |          |          |          |--6.96%--read_zero
-               |          |          |          |          |          |          |          
-               |          |          |          |          |          |           --4.76%--__clear_user
-               |          |          |          |          |          |          
-               |          |          |          |          |          |--3.90%--__fsnotify_parent
-               |          |          |          |          |          |          
-               |          |          |          |          |           --1.18%--security_file_permission
-               |          |          |          |          |          
-               |          |          |          |           --1.02%--__fdget_pos
-               |          |          |          |                     |          
-               |          |          |          |                      --0.87%--__fget_light
-               |          |          |          |          
-               |          |          |          |--0.92%--syscall_trace_enter.constprop.0
-               |          |          |          |          
-               |          |          |           --0.67%--__x64_sys_read
-               |          |          |          
-               |          |           --4.07%--syscall_exit_to_user_mode
-               |          |                     |          
-               |          |                      --2.48%--syscall_exit_work
-               |          |                                |          
-               |          |                                 --1.97%--__audit_syscall_exit
+               |          |          (略)
                |          |          
                |          |--13.27%--syscall_return_via_sysret
                |          |          
@@ -374,29 +348,7 @@ $ perf report --stdio -i perf.data.g
                |          |          
                |          |--16.71%--entry_SYSCALL_64_after_hwframe
                |          |          |          
-               |          |          |--11.25%--do_syscall_64
-               |          |          |          |          
-               |          |          |          |--8.59%--ksys_write
-               |          |          |          |          |          
-               |          |          |          |          |--5.77%--vfs_write
-               |          |          |          |          |          |          
-               |          |          |          |          |          |--2.13%--__fsnotify_parent
-               |          |          |          |          |          |          
-               |          |          |          |          |           --1.33%--write_null
-               |          |          |          |          |          
-               |          |          |          |           --1.49%--__fdget_pos
-               |          |          |          |                     |          
-               |          |          |          |                      --1.33%--__fget_light
-               |          |          |          |          
-               |          |          |          |--1.44%--syscall_trace_enter.constprop.0
-               |          |          |          |          
-               |          |          |           --0.71%--__x64_sys_write
-               |          |          |          
-               |          |           --3.64%--syscall_exit_to_user_mode
-               |          |                     |          
-               |          |                      --2.66%--syscall_exit_work
-               |          |                                |          
-               |          |                                 --2.51%--__audit_syscall_exit
+               |          |          (略)
                |          |          
                |          |--11.92%--__entry_text_start
                |          |          
@@ -407,7 +359,7 @@ $ perf report --stdio -i perf.data.g
                 --0.51%--0x55a1d35518cf
 ```
 
-最初のツリーだけを表示しています。先程の結果と違い、`Children`列と`dd`コマンドのうち`libc`の`read`に使っている時間が`51%`で`__GI___libc_write`(これは`write`システムコールのラッパー)に使っている時間が`42%`です。`dd`なので読み込みと書き込みでほとんどの時間を使っているのは正しそうですね。そこからさらに`read`と`write`の内訳がグラフになっています。
+最初のツリーだけをさらに省略して表示しています。先程の結果と違い、`Children`列と`dd`コマンドのうち`libc`の`read`に使っている時間が`51%`で`__GI___libc_write`(これは`write`システムコールのラッパー)に使っている時間が`42%`です。`dd`なので読み込みと書き込みでほとんどの時間を使っているのは正しそうですね。そこからさらに`read`と`write`の内訳がグラフになっています。
 
 このグラフだと項目が増えると見づらい為、これを一枚のSVGにまとめたものが[flamegraph](https://github.com/brendangregg/FlameGraph)です：
 
