@@ -17,9 +17,8 @@ perfには大きく分けて次の機能があります：
   - シンボルレベルでの解析(`perf report`)
   - コード行レベルでの解析(`perf annotate`)
 
-CPUのパフォーマンスカウンタはあくまで事象に応じてカウンタを増やす事しかしてくれないので集計はperfが行います。[Countingモード][counting]ではperfはプロセス中に発生したイベントの回数を単に集めていきます。[Samplingモード][sampling]ではperfはCPUのパフォーマンスカウンタがオーバーフローした際の割り込みを利用してその時のCPUの情報、特に命令のポインタ(プログラムカウンタ)を記録します。これにより実行時間の増加をある程度抑えたままどの命令を実行する時にどのイベントが発生しているかを統計的に評価できます。この情報は一旦`perf.data`ファイルに記録され、デバッグ情報を元にシンボル名や行の位置に翻訳されます。
+CPUのパフォーマンスカウンタはあくまで事象に応じてカウンタを増やす事しかしてくれないので集計はperfが行います。
 
-[ftrace]: https://www.kernel.org/doc/html/latest/trace/ftrace.html
 [counting]: https://perf.wiki.kernel.org/index.php/Tutorial#Counting_with_perf_stat
 [sampling]: https://perf.wiki.kernel.org/index.php/Tutorial#Sampling_with_perf_record
 
@@ -180,6 +179,141 @@ $ perf stat -r 5 sleep 1
 ```
 
 これは`sleep 1`を5回実行するため約5秒かかります。各統計量について平均値と分散の値を出力してくれます。
+
+Sampling mode (`perf record`)
+--------------
+SamplingモードではperfはCPUのパフォーマンスカウンタがオーバーフローした際の割り込み(PMU interrupt)を利用してその時のCPUの情報、特に命令のポインタ(プログラムカウンタ)を記録します。これにより実行時間の増加をある程度抑えたままどの命令を実行する時にどのイベントが発生しているかを統計的に評価できます。この情報は一旦`perf.data`ファイルに記録され、デバッグ情報を元にシンボル名や行の位置に翻訳されます。
+
+Samplingを行うには`perf record`コマンドを使います：
+
+```
+$ perf record dd if=/dev/zero of=/dev/null count=1000000
+1000000+0 レコード入力
+1000000+0 レコード出力
+512000000 bytes (512 MB, 488 MiB) copied, 0.487976 s, 1.0 GB/s
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.096 MB perf.data (1932 samples) ]
+```
+
+これで`perf.data`ファイルが作成されました。もし既に`perf.data`が存在している場合は古いものを`perf.data.old`に変更して新しく`perf.data`を作ります。`-o`(`--output`)フラグで出力ファイル名を変更することもできます。
+
+`perf record`はデフォルトではコールグラフの情報を収集しません。例えば関数`a()`と`b()`がそれぞれ関数`c()`を呼び出しているとき、コールグラフ無しでは`c()`の中に居る事しか分からないため`a()`から呼び出された分と`b()`から呼び出された分を区別することが出来ません。コールグラフを収集させるには`-g`オプションを使います：
+
+```
+$ perf record -g -o perf.data.g dd if=/dev/zero of=/dev/null count=1000000
+1000000+0 レコード入力
+1000000+0 レコード出力
+512000000 bytes (512 MB, 488 MiB) copied, 0.488534 s, 1.0 GB/s
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.202 MB perf.data.g (1951 samples) ]
+```
+
+以降の作業の為に別名`perf.data.g`として保存しました。コールグラフの取得はフレームポインタを使う方法(`fp`)とデバッグ情報([DWARF][dwarf])を使う方法(`dwarf`)、さらにLast Branch Record (LBR)を使う方法(`lbr`)があるようです。詳しくは`man perf-record`を参照してください。
+
+[dwarf]: http://dwarfstd.org/
+
+### Symbol level analysis (`perf report`)
+
+`perf.data`はバイナリ形式になっているので直接は読めませんが`perf record`には中身を読み出す機能が備わっています：
+
+```
+$ perf report -D --header-only
+# ========
+# captured on    : Wed Jun 30 18:02:06 2021
+# header version : 1
+# data offset    : 336
+# data size      : 100528
+# feat offset    : 100864
+# hostname : my_super_machine_name
+# os release : 5.12.13-arch1-2
+# perf version : 5.12.g9f4ad9e425a1
+# arch : x86_64
+# nrcpus online : 12
+# nrcpus avail : 12
+# cpudesc : Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz
+# cpuid : GenuineIntel,6,158,10
+# total memory : 49255656 kB
+# cmdline : /usr/bin/perf record dd if=/dev/zero of=/dev/null count=1000000 
+# event : name = cycles, , id = { 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 }, size = 120, { sample_period, sample_freq } = 4000, sample_type = IP|TID|TIME|PERIOD, read_format = ID, disabled = 1, inherit = 1, mmap = 1, comm = 1, freq = 1, enable_on_exec = 1, task = 1, precise_ip = 3, sample_id_all = 1, exclude_guest = 1, mmap2 = 1, comm_exec = 1, ksymbol = 1, bpf_event = 1
+# pmu mappings: intel_pt = 8, software = 1, power = 20, uncore_cbox_4 = 15, uprobe = 7, uncore_imc = 10, cpu = 4, cstate_core = 18, uncore_cbox_2 = 13, breakpoint = 5, uncore_cbox_0 = 11, tracepoint = 2, cstate_pkg = 19, uncore_arb = 17, kprobe = 6, uncore_cbox_5 = 16, msr = 9, uncore_cbox_3 = 14, uncore_cbox_1 = 12
+# time of first sample : 44812.047071
+# time of last sample : 44812.535261
+# sample duration :    488.190 ms
+# cpu pmu capabilities: branches=32, max_precise=3, pmu_name=skylake
+# missing features: TRACING_DATA BRANCH_STACK GROUP_DESC AUXTRACE STAT CLOCKID DIR_FORMAT COMPRESSED CLOCK_DATA 
+# ========
+```
+
+このようなヘッダ情報に加えてサンプリングの結果が保存されています。
+
+```
+$ perf report -D
+
+0x150 [0x38]: event: 79
+.
+. ... raw event: size 56 bytes
+.  0000:  4f 00 00 00 00 00 38 00 1f 00 00 00 00 00 00 00  O.....8.........
+.  0010:  8c d2 a1 22 00 00 00 00 20 aa d0 f6 a7 20 00 00  .ҡ"....  ..
+.  0020:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+.  0030:  01 00 00 00 00 00 00 00                          ........        
+
+0 0x150 [0x38]: PERF_RECORD_TIME_CONV: unhandled!
+
+0x188 [0x50]: event: 1
+.
+. ... raw event: size 80 bytes
+.  0000:  01 00 00 00 01 00 50 00 ff ff ff ff 00 00 00 00  ......P.....
+.  0010:  00 00 40 a2 ff ff ff ff f7 20 e0 00 00 00 00 00  ..@ .....
+.  0020:  00 00 40 a2 ff ff ff ff 5b 6b 65 72 6e 65 6c 2e  ..@[kernel.
+.  0030:  6b 61 6c 6c 73 79 6d 73 5d 5f 74 65 78 74 00 00  kallsyms]_text..
+.  0040:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+0 0x188 [0x50]: PERF_RECORD_MMAP -1/0: [0xffffffffa2400000(0xe020f7) @ 0xffffffffa2400000]: x [kernel.kallsyms]_text
+
+(以下同じような出力が続く)
+```
+
+この生情報を見ても分からないので`perf report`に集計してもらいましょう：
+
+```
+$ perf report --stdio
+
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles'
+# Event count (approx.): 2204433912
+#
+# Overhead  Command  Shared Object      Symbol                             
+# ........  .......  .................  ...................................
+#
+    26.31%  dd       [kernel.kallsyms]  [k] syscall_return_via_sysret
+    20.64%  dd       [kernel.kallsyms]  [k] __entry_text_start
+     6.22%  dd       [kernel.kallsyms]  [k] __fsnotify_parent
+     4.18%  dd       [kernel.kallsyms]  [k] __clear_user
+     2.83%  dd       [kernel.kallsyms]  [k] __audit_syscall_exit
+     2.78%  dd       [kernel.kallsyms]  [k] syscall_exit_to_user_mode
+     2.68%  dd       [kernel.kallsyms]  [k] __fget_light
+     2.34%  dd       libc-2.33.so       [.] read
+     2.31%  dd       [kernel.kallsyms]  [k] syscall_enter_from_user_mode
+     2.09%  dd       [kernel.kallsyms]  [k] vfs_write
+     1.96%  dd       [kernel.kallsyms]  [k] read_zero
+     1.94%  dd       libc-2.33.so       [.] __GI___libc_write
+     1.89%  dd       [kernel.kallsyms]  [k] entry_SYSCALL_64_after_hwframe
+     1.84%  dd       libc-2.33.so       [.] __memmove_avx_unaligned_erms
+     1.69%  dd       [kernel.kallsyms]  [k] vfs_read
+     1.44%  dd       [kernel.kallsyms]  [k] entry_SYSCALL_64_safe_stack
+     1.30%  dd       [kernel.kallsyms]  [k] __audit_syscall_entry
+     1.19%  dd       [kernel.kallsyms]  [k] syscall_trace_enter.constprop.0
+     1.14%  dd       [kernel.kallsyms]  [k] ksys_read
+(以下省略)
+```
+
+`perf report`は標準出力がTTYだとTUIを立ち上げるので`--stdio`の結果を示しています。
+
+- `Overhead`列の値がそのシンボル中にサンプルが存在した割合で、そのシンボル中で消費された時間に対応します。`perf.data`の方にはコールグラフがついていないのでどのような経路でそのシンボルに入ってるか分からないので単純に合算した値が出力されます。
+- `Command`列は実行ファイルの名前になっています。プロセスに対して`perf record`しているのでここは常にコマンド名になりますが、perfは`CPU`全体でSamplingする事も出きるのでその場合はここに個別のコマンドが表示されます。
+- `Shared Object`は実際にシンボルが存在する共有ライブラリを表示しています
+- `Symbol`にはシンボル名が表示されています。先頭の`[k]`はカーネル内のものであることを、`[.]`はユーザーレベルのシンボルであることを示します
 
 Links
 ------
