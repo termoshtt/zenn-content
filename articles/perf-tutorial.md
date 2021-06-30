@@ -197,7 +197,7 @@ $ perf record dd if=/dev/zero of=/dev/null count=1000000
 
 これで`perf.data`ファイルが作成されました。もし既に`perf.data`が存在している場合は古いものを`perf.data.old`に変更して新しく`perf.data`を作ります。`-o`(`--output`)フラグで出力ファイル名を変更することもできます。
 
-`perf record`はデフォルトではコールグラフの情報を収集しません。例えば関数`a()`と`b()`がそれぞれ関数`c()`を呼び出しているとき、コールグラフ無しでは`c()`の中に居る事しか分からないため`a()`から呼び出された分と`b()`から呼び出された分を区別することが出来ません。コールグラフを収集させるには`-g`オプションを使います：
+`perf record`はデフォルトではコールグラフの情報を収集しません。例えば関数`a()`と`b()`がそれぞれ関数`c()`を呼び出しているとき、コールグラフ無しでは`c()`の中に居る事しか分からないため`a()`経由の分と`b()`経由の分を区別することが出来ません。コールグラフを収集させるには`-g`オプションを使います：
 
 ```
 $ perf record -g -o perf.data.g dd if=/dev/zero of=/dev/null count=1000000
@@ -314,6 +314,110 @@ $ perf report --stdio
 - `Command`列は実行ファイルの名前になっています。プロセスに対して`perf record`しているのでここは常にコマンド名になりますが、perfは`CPU`全体でSamplingする事も出きるのでその場合はここに個別のコマンドが表示されます。
 - `Shared Object`は実際にシンボルが存在する共有ライブラリを表示しています
 - `Symbol`にはシンボル名が表示されています。先頭の`[k]`はカーネル内のものであることを、`[.]`はユーザーレベルのシンボルであることを示します
+
+次にコールグラフの情報を保存した場合を見ていきます。`perf report`は`-i`(`--input`)で解析する`perf.data`を変更できます：
+
+```
+$ perf report --stdio -i perf.data.g
+
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles'
+# Event count (approx.): 2187200828
+#
+# Children      Self  Command  Shared Object      Symbol                                
+# ........  ........  .......  .................  ......................................
+#
+    96.14%     0.00%  dd       [unknown]          [k] 0000000000000000
+            |
+            ---0
+               |          
+               |--51.57%--read
+               |          |          
+               |          |--23.29%--entry_SYSCALL_64_after_hwframe
+               |          |          |          
+               |          |          |--17.63%--do_syscall_64
+               |          |          |          |          
+               |          |          |          |--15.43%--ksys_read
+               |          |          |          |          |          
+               |          |          |          |          |--13.43%--vfs_read
+               |          |          |          |          |          |          
+               |          |          |          |          |          |--6.96%--read_zero
+               |          |          |          |          |          |          |          
+               |          |          |          |          |          |           --4.76%--__clear_user
+               |          |          |          |          |          |          
+               |          |          |          |          |          |--3.90%--__fsnotify_parent
+               |          |          |          |          |          |          
+               |          |          |          |          |           --1.18%--security_file_permission
+               |          |          |          |          |          
+               |          |          |          |           --1.02%--__fdget_pos
+               |          |          |          |                     |          
+               |          |          |          |                      --0.87%--__fget_light
+               |          |          |          |          
+               |          |          |          |--0.92%--syscall_trace_enter.constprop.0
+               |          |          |          |          
+               |          |          |           --0.67%--__x64_sys_read
+               |          |          |          
+               |          |           --4.07%--syscall_exit_to_user_mode
+               |          |                     |          
+               |          |                      --2.48%--syscall_exit_work
+               |          |                                |          
+               |          |                                 --1.97%--__audit_syscall_exit
+               |          |          
+               |          |--13.27%--syscall_return_via_sysret
+               |          |          
+               |          |--11.57%--__entry_text_start
+               |          |          
+               |           --1.74%--entry_SYSCALL_64_safe_stack
+               |          
+               |--42.06%--__GI___libc_write
+               |          |          
+               |          |--16.71%--entry_SYSCALL_64_after_hwframe
+               |          |          |          
+               |          |          |--11.25%--do_syscall_64
+               |          |          |          |          
+               |          |          |          |--8.59%--ksys_write
+               |          |          |          |          |          
+               |          |          |          |          |--5.77%--vfs_write
+               |          |          |          |          |          |          
+               |          |          |          |          |          |--2.13%--__fsnotify_parent
+               |          |          |          |          |          |          
+               |          |          |          |          |           --1.33%--write_null
+               |          |          |          |          |          
+               |          |          |          |           --1.49%--__fdget_pos
+               |          |          |          |                     |          
+               |          |          |          |                      --1.33%--__fget_light
+               |          |          |          |          
+               |          |          |          |--1.44%--syscall_trace_enter.constprop.0
+               |          |          |          |          
+               |          |          |           --0.71%--__x64_sys_write
+               |          |          |          
+               |          |           --3.64%--syscall_exit_to_user_mode
+               |          |                     |          
+               |          |                      --2.66%--syscall_exit_work
+               |          |                                |          
+               |          |                                 --2.51%--__audit_syscall_exit
+               |          |          
+               |          |--11.92%--__entry_text_start
+               |          |          
+               |          |--9.80%--syscall_return_via_sysret
+               |          |          
+               |           --2.04%--entry_SYSCALL_64_safe_stack
+               |          
+                --0.51%--0x55a1d35518cf
+```
+
+最初のツリーだけを表示しています。先程の結果と違い、`Children`列と`dd`コマンドのうち`libc`の`read`に使っている時間が`51%`で`__GI___libc_write`(これは`write`システムコールのラッパー)に使っている時間が`42%`です。`dd`なので読み込みと書き込みでほとんどの時間を使っているのは正しそうですね。そこからさらに`read`と`write`の内訳がグラフになっています。
+
+このグラフだと項目が増えると見づらい為、これを一枚のSVGにまとめたものが[flamegraph](https://github.com/brendangregg/FlameGraph)です：
+
+```
+$ perf script -i perf.data.g | stackcollapse-perf.pl | flamegraph.pl > out.svg
+```
+
+flamegraphは他にも`dtrace`などの様々なログに対応しており、`stackcollapse-xxx.pl`で一旦ログを共通の形式に変換して`flamegraph.pl`でSVGを生成しているようです。このSVGはインタラクティブに動作しカーソルを合わせると詳細が表示されクリックするとその部分にズームします。
+
+[![flamegraph](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)
 
 Links
 ------
