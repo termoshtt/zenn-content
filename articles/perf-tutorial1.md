@@ -24,7 +24,7 @@ CPUのパフォーマンスカウンタはあくまで事象に応じてカウ�
 
 Install
 -------
-これはLinuxカーネルの機能であるためLinuxのみが対象です。ほとんどのLinux distributionではカーネル側の`perf_events`インタフェースを使うために特別な設定をする必要は無いはずです。`perf`コマンドはLinuxカーネルの付属ツールとして別名で配布されている事があるので以下にDistribution毎のパッケージ名をまとめておきます：
+perfはLinuxカーネルの機能なのでLinuxのみが対象です。ほとんどのLinux distributionではカーネル側の`perf_events`インタフェースを使うために特別な設定をする必要は無いはずです。`perf`コマンドはLinuxカーネルの付属ツールとして別名で配布されている事があるので以下にDistribution毎のパッケージ名をまとめておきます：
 
 | Distribution | Package name |
 |:------------:|:------------:|
@@ -32,7 +32,7 @@ Install
 | Debian       | [linux-perf](https://packages.debian.org/buster/linux-perf) |
 | Arch Linux   | [perf](https://archlinux.org/packages/community/x86_64/perf/) |
 
-この記事の最後で使う可視化用のスクリプト群である[flamegraph][flamegraph]は各Distributionでは配布されていないようです。ArchLinuxでは[AUR](https://aur.archlinux.org/packages/flamegraph/)に存在していますが、これはユーザーが投稿するリポジトリなので自己責任でお願いします。特に依存の無いPerlスクリプト群であるため、[First Tagged Release (19-Aug-2017)](https://github.com/brendangregg/FlameGraph/releases/tag/v1.0)をからスクリプトを取得して`PATH`に追加するのが良いでしょう。
+この記事の最後で使う可視化用のスクリプト群[flamegraph][flamegraph]は各Distributionでは配布されていないようです。ArchLinuxでは[AUR](https://aur.archlinux.org/packages/flamegraph/)に存在していますが、これはユーザーが投稿するリポジトリなので自己責任でお願いします。特に依存の無いPerlスクリプト群なので、[First Tagged Release (19-Aug-2017)](https://github.com/brendangregg/FlameGraph/releases/tag/v1.0)をからスクリプトを取得して`PATH`に追加するのが良いでしょう。
 
 Docker等のコンテナ仮想化を使った場合ゲスト側はホスト側とLinuxカーネルを共有するため注意が必要です。例えばArchLinux(5.12.13-arch1)上で[`ubuntu:20.04`][ubuntu-20.04]コンテナを使って次に示すように`linux-tools-generic`をインストールした場合：
 
@@ -130,7 +130,7 @@ $ perf stat dd if=/dev/zero of=/dev/null count=1000000
        0.297878000 seconds sys
 ```
 
-表示されるイベント名にユーザー空間での値であることを示す`:u`がついて値が変化している事が分かります。`/dev/zero`や`/dev/null`はカーネルモジュールで作られるものであり、そこからの読み出しはカーネル内の操作になるため一般ユーザーではこの部分の処理のカウントはとれず合計値が小さい値になります。この`:u`の部分は他に次のものがあります：
+表示されるイベント名にユーザー空間での値なことを示す`:u`がついて値が変化している事が分かります。`/dev/zero`や`/dev/null`はカーネルモジュールで作られ、そこからの読み出しはカーネル内の操作になるため一般ユーザーではこの部分の処理のカウントはとれず合計値が小さい値になります。この`:u`の部分は他に次のものがあります：
 
 | Modifiers | Description | Example |
 |:---------:|:------------|:--------|
@@ -197,7 +197,7 @@ $ perf record dd if=/dev/zero of=/dev/null count=1000000
 [ perf record: Captured and wrote 0.096 MB perf.data (1932 samples) ]
 ```
 
-これで`perf.data`ファイルが作成されました。もし既に`perf.data`が存在している場合は古いものを`perf.data.old`に変更して新しく`perf.data`を作ります。`-o`(`--output`)フラグで出力ファイル名を変更することもできます。
+これで`perf.data`ファイルが作成されました。もし既に`perf.data`が存在している場合は古いものを`perf.data.old`に変更して新しく`perf.data`を作ります。`-o`(`--output`)フラグで出力ファイル名を変更できます。
 
 `perf record`はデフォルトではコールグラフの情報を収集しません。例えば関数`a()`と`b()`がそれぞれ関数`c()`を呼び出しているとき、コールグラフ無しでは`c()`の中に居る事しか分からないため`a()`経由の分と`b()`経由の分を区別することが出来ません。コールグラフを収集させるには`-g`オプションを使います：
 
@@ -312,10 +312,10 @@ $ perf report --stdio
 
 `perf report`は標準出力がTTYだとTUIを立ち上げるので`--stdio`の結果を示しています。
 
-- `Overhead`列の値がそのシンボル中にサンプルが存在した割合で、そのシンボル中で消費された時間に対応します。`perf.data`の方にはコールグラフがついていないのでどのような経路でそのシンボルに入ってるか分からないので単純に合算した値が出力されます。
-- `Command`列は実行ファイルの名前になっています。プロセスに対して`perf record`しているのでここは常にコマンド名になりますが、perfは`CPU`全体でSamplingする事も出きるのでその場合はここに個別のコマンドが表示されます。
-- `Shared Object`は実際にシンボルが存在する共有ライブラリを表示しています
-- `Symbol`にはシンボル名が表示されています。先頭の`[k]`はカーネル内のものであることを、`[.]`はユーザーレベルのシンボルであることを示します
+- `Overhead`列の値がそのシンボル中にサンプルが存在した割合で、そのシンボル中で消費された時間に対応する。`perf.data`の方にはコールグラフがついていないのでどのような経路でそのシンボルに入ってるか分からないので単純に合算した値が出力される。
+- `Command`列は実行ファイルの名前。プロセスに対して`perf record`しているのでここは常にコマンド名だが、perfはCPU全体でSamplingする事も出きるのでその場合はここに個別のコマンドが表示される
+- `Shared Object`は実際にシンボルが存在する共有ライブラリを表示する
+- `Symbol`にはシンボル名が表示される。先頭の`[k]`はカーネル内のものなことを、`[.]`はユーザーレベルのシンボルなことを示します
 
 次にコールグラフの情報を保存した場合を見ていきます。`perf report`は`-i`(`--input`)で解析する`perf.data`を変更できます：
 
