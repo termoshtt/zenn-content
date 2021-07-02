@@ -1,5 +1,5 @@
 ---
-title: "Perf Tutorial"
+title: "Perf Tutorial 1"
 emoji: "🔖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Linux", "perf"]
@@ -15,7 +15,7 @@ perfには大きく分けて次の機能があります：
 - プロセス全体でのパフォーマンス計測([Counting][counting], `perf stat`)
 - 命令レベルでのプロファイリング([Sampling][sampling], `perf record`)
   - シンボルレベルでの解析(`perf report`)
-  - コード行レベルでの解析(`perf annotate`)
+  - コード行レベルでの解析(`perf annotate`, これは次回)
 
 CPUのパフォーマンスカウンタはあくまで事象に応じてカウンタを増やす事しかしてくれないので集計はperfが行います。
 
