@@ -3,7 +3,7 @@ title: "Perf Tutorial 1"
 emoji: "🔖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Linux", "perf"]
-published: false
+published: true
 ---
 
 [perf][perf]はLinuxにおけるCPUのパフォーマンスカウンタに基づいたプロファイラツールです。CPUにはその上で実行された命令やキャッシュミスの回数、分岐予測の成否の回数を記録しておくレジスタがハードウェア上に存在しています。典型的には各イベント毎にレジスタの値を1つインクリメントします。例えば命令を1つ実行したら`instructions`のカウンタを1つ増やし、L2キャッシュミスが発生したら`l2_cache_miss`のカウンタを1つ増やすといった方法で実装されています。我々は実際のCPUの内部状態について基本的に知り得ないのでこれが一次情報になります。これはCPUのアーキテクチャに強く依存する為CPUベンダーから提供されますが、Linuxカーネルの`perf_events`インタフェースはこれをハードウェアに依らない形で提供してくれています。`perf`コマンドはこの機能を使ってユーザー空間から操作するツールです。
@@ -371,7 +371,7 @@ $ perf script -i perf.data.g | stackcollapse-perf.pl | flamegraph.pl > out.svg
 
 flamegraphは他にも`dtrace`などの様々なログに対応しており、`stackcollapse-xxx.pl`で一旦ログを共通の形式に変換して`flamegraph.pl`でSVGを生成しているようです。このSVGはJavaScriptが含まれておりインタラクティブに動作しカーソルを合わせると詳細が表示されクリックするとその部分にズームします。
 
-[![flamegraph](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)
+[![flamegraph](https://raw.githubusercontent.com/termoshtt/zenn-content/main/articles/perf-tutorial.svg)](https://raw.githubusercontent.com/termoshtt/zenn-content/main/articles/perf-tutorial.svg)
 
 [flamegraph]: https://github.com/brendangregg/FlameGraph
 
