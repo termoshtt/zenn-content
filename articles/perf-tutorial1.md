@@ -32,6 +32,8 @@ Install
 | Debian       | [linux-perf](https://packages.debian.org/buster/linux-perf) |
 | Arch Linux   | [perf](https://archlinux.org/packages/community/x86_64/perf/) |
 
+この記事の最後で使う可視化用のスクリプト群である[flamegraph][flamegraph]は各Distributionでは配布されていないようです。ArchLinuxでは[AUR](https://aur.archlinux.org/packages/flamegraph/)に存在していますが、これはユーザーが投稿するリポジトリなので自己責任でお願いします。特に依存の無いPerlスクリプト群であるため、[First Tagged Release (19-Aug-2017)](https://github.com/brendangregg/FlameGraph/releases/tag/v1.0)をからスクリプトを取得して`PATH`に追加するのが良いでしょう。
+
 Docker等のコンテナ仮想化を使った場合ゲスト側はホスト側とLinuxカーネルを共有するため注意が必要です。例えばArchLinux(5.12.13-arch1)上で[`ubuntu:20.04`][ubuntu-20.04]コンテナを使って次に示すように`linux-tools-generic`をインストールした場合：
 
 ```
@@ -361,7 +363,7 @@ $ perf report --stdio -i perf.data.g
 
 最初のツリーだけをさらに省略して表示しています。先程の結果と違い、`Children`列と`dd`コマンドのうち`libc`の`read`に使っている時間が`51%`で`__GI___libc_write`(これは`write`システムコールのラッパー)に使っている時間が`42%`です。`dd`なので読み込みと書き込みでほとんどの時間を使っているのは正しそうですね。そこからさらに`read`と`write`の内訳がグラフになっています。
 
-このグラフだと項目が増えると見づらい為、これを一枚のSVGにまとめたものが[flamegraph](https://github.com/brendangregg/FlameGraph)です：
+このグラフだと項目が増えると見づらい為、これを一枚のSVGにまとめたものが[flamegraph][flamegraph]です：
 
 ```
 $ perf script -i perf.data.g | stackcollapse-perf.pl | flamegraph.pl > out.svg
@@ -370,6 +372,8 @@ $ perf script -i perf.data.g | stackcollapse-perf.pl | flamegraph.pl > out.svg
 flamegraphは他にも`dtrace`などの様々なログに対応しており、`stackcollapse-xxx.pl`で一旦ログを共通の形式に変換して`flamegraph.pl`でSVGを生成しているようです。このSVGはJavaScriptが含まれておりインタラクティブに動作しカーソルを合わせると詳細が表示されクリックするとその部分にズームします。
 
 [![flamegraph](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)
+
+[flamegraph]: https://github.com/brendangregg/FlameGraph
 
 Links
 ------
