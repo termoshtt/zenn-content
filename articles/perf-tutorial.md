@@ -367,7 +367,7 @@ $ perf report --stdio -i perf.data.g
 $ perf script -i perf.data.g | stackcollapse-perf.pl | flamegraph.pl > out.svg
 ```
 
-flamegraphは他にも`dtrace`などの様々なログに対応しており、`stackcollapse-xxx.pl`で一旦ログを共通の形式に変換して`flamegraph.pl`でSVGを生成しているようです。このSVGはインタラクティブに動作しカーソルを合わせると詳細が表示されクリックするとその部分にズームします。
+flamegraphは他にも`dtrace`などの様々なログに対応しており、`stackcollapse-xxx.pl`で一旦ログを共通の形式に変換して`flamegraph.pl`でSVGを生成しているようです。このSVGはJavaScriptが含まれておりインタラクティブに動作しカーソルを合わせると詳細が表示されクリックするとその部分にズームします。
 
 [![flamegraph](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)](https://raw.githubusercontent.com/termoshtt/zenn-content/perf-tutorial/articles/perf-tutorial.svg)
 
