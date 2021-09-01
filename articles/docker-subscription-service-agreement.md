@@ -1,6 +1,6 @@
 ---
 title: "Docker Subscription Service Agreement"
-emoji: "🔖"
+emoji: "🐳"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Docker"]
 published: true
