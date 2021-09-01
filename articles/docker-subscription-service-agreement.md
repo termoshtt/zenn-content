@@ -6,7 +6,7 @@ topics: ["Docker"]
 published: true
 ---
 
-Docker Desktop 4.0のリリースと共に新たなサービス利用規約、[Docker Subscription Service Aggreement](https://www.docker.com/legal/docker-subscription-service-agreement)(以下DSSAと略す)が発表された
+Docker Desktop 4.0のリリースと共に新たなサービス利用規約、[Docker Subscription Service Agreement](https://www.docker.com/legal/docker-subscription-service-agreement)(以下DSSAと略す)が発表された
 
 ## 前提知識
 まず利用規約の話に行く前にいくつか基本的な事をおさらいしておこう
