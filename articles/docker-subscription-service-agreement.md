@@ -11,7 +11,7 @@ Docker Desktop 4.0のリリースと共に新たなサービス利用規約、[D
 ## 前提知識
 まず利用規約の前にいくつか基本的な事をおさらいしておこう：
 
-- Dockerは[Docekr, Inc.](https://www.docker.com/company)が開発し配布しているソフトウェア
+- Dockerは[Docker, Inc.](https://www.docker.com/company)が開発し配布しているソフトウェア
   - なので基本的にはプロプライエタリソフトウェア
 - その一部はOSSライセンス(Apache License 2.0)で配布されている
   - この部分は[moby](https://github.com/moby/moby)とも呼ばれる
@@ -30,7 +30,7 @@ Docker Desktop 4.0のリリースと共に新たなサービス利用規約、[D
 https://docs.docker.com/engine/
 これはDSSA必要なくmobyの一部としてApache License version 2.0で引き続き利用できる。
 
-Linuxユーザーにとって最もなじみのあるであろう`docker`コマンド、及び`docker`コマンドと通信しコンテナの面倒を見てくれるデーモン`docekrd`はこのDocker Engineの一部である。ちなみにDockerのRootless化というのは`dockerd`がroot以外の権限で実行できるようになったことを指す。`docker`/`dockerd`のクライアント+サーバー構成の為、`docker`コマンドはそのホスト以外で動作している`dockerd`に対してネットワーク経由で命令を発行できる。これにより例えばWindowsホスト上からHyper-V内のLinuxで動作している`dockerd`に命令を発行するなどが可能になる。
+Linuxユーザーにとって最もなじみのあるであろう`docker`コマンド、及び`docker`コマンドと通信しコンテナの面倒を見てくれるデーモン`dockerd`はこのDocker Engineの一部である。ちなみにDockerのRootless化というのは`dockerd`がroot以外の権限で実行できるようになったことを指す。`docker`/`dockerd`のクライアント+サーバー構成の為、`docker`コマンドはそのホスト以外で動作している`dockerd`に対してネットワーク経由で命令を発行できる。これにより例えばWindowsホスト上からHyper-V内のLinuxで動作している`dockerd`に命令を発行するなどが可能になる。
 
 ### Docker Compose (v1)
 https://docs.docker.com/compose/
