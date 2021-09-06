@@ -14,7 +14,7 @@ title: 多次元配列、線形代数 (ndarray, ndarray-linalg crate)
 
 ```toml
 [dependencies]
-ndarray = "0.14.0"
+ndarray = "0.15.0"
 ```
 
 Rustで実装された多次元配列のライブラリです。N次元分のサイズと、その次元の方向に進むときどれだけindexを増やすか (stride)、及び実際のデータを1列に並べたものを保持します。演算はRustで実装されていますが、 `features = ["blas"]` によってBLAS演算を `blas` crate (これはOpenBLASやIntel MKLへのFFI) のものを使うこともできます。
@@ -28,14 +28,14 @@ Rustで実装された多次元配列のライブラリです。N次元分のサ
 
 ```toml
 [dependencies]
-ndarray = "0.14.0"
-ndarray-linalg = { version = "0.13.1", features = ["openblas"] }
+ndarray = "0.15.0"
+ndarray-linalg = { version = "0.14.0", features = ["openblas"] }
 ```
 
 `features` にはBLAS/LAPACKのバックエンドが指定できて、[Intel (R) MKL](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) を使う場合は次の様に指定します：
 
 ```toml
-ndarray-linalg = { version = "0.13.1", features = ["intel-mkl"] }
+ndarray-linalg = { version = "0.14.0", features = ["intel-mkl"] }
 ```
 
 線型方程式
