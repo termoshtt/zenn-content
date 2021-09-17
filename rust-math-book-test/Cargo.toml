@@ -8,15 +8,15 @@ edition = "2018"
 
 [dependencies]
 # Basic traits for numbers
-num-complex = "0.3.1"
+num-complex = "0.4.0"
 num-traits = "0.2.14"
 
 # ndarray and linear algebra implementations
-ndarray = "0.14"
-ndarray-linalg = { version = "0.13.1", features = ["intel-mkl-static"] }
+ndarray = "0.15.3"
+ndarray-linalg = { version = "0.14.1", features = ["intel-mkl-static"] }
 
 # random number generator
-rand = "0.7"
+rand = "0.8.4"
 
 # serialize
-serde = "1.0.126"
+serde = "1.0.130"
