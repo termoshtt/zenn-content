@@ -68,6 +68,22 @@ https://rust-random.github.io/rand/rand/distributions/struct.Bernoulli.html
 
 のように`Distribution::sample`に対してRNGの`&mut`を渡す事で乱数を生成します。この部分のインタフェースが0.5で大きく変ったので注意してください。
 
+乱数列を固定する
+---------------
+
+上で述べた `rand::thread_rng()` はシステムから得た乱数で安全に初期化を行おうとしますが、用途によっては乱数列を再現したい場合もあります。その場合 `thread_rng` はアルゴリズムが一致することが保証されないので、特定のアルゴリズムを指定して、シード値を使って初期化します：
+
+```rust
+use rand::{Rng, SeedableRng};
+
+fn main() {
+    let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(10);
+    println!("Random f32: {}", rng.gen::<f32>());
+}
+```
+
+ここで `seed_from_u64` はセキュアな用途には使ってはいけないことに注意してください。
+
 参考リンク
 ----------
 
