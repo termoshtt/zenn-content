@@ -35,7 +35,7 @@ Singularityというプロジェクトはやや込み入った状況がありま
 この記事ではArchLinuxで行った場合について書きます
 
 ```
-pacman -S apptainer
+pacman -Sy apptainer
 ```
 
 https://archlinux.org/packages/community/x86_64/apptainer/
@@ -47,3 +47,15 @@ https://archlinux.org/packages/community/x86_64/apptainer/
 既にSingularityを使っていた場合、設定ファイル等を更新する必要があります
 
 https://apptainer.org/docs/admin/main/singularity_migration.html
+
+```
+WARNING: /etc/singularity/ exists, migration to apptainer by system administrator is not complete
+```
+
+設定ファイルはsingularityという名前が入っているもの以外はほとんどがそのまま使えるはずです。詳しくは上記の管理者マニュアルを見てください。
+
+## Apptainerの使い方
+
+はまた次の記事で
+
+https://apptainer.org/docs/user/main/
