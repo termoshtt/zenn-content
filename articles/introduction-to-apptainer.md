@@ -3,7 +3,7 @@ title: "Apptainer導入"
 emoji: "📦"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["singularity", "apptainer", "container"]
-published: false
+published: true
 ---
 
 ## Linux Foundationへの移管とApptainerへの改名
