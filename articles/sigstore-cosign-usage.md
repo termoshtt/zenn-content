@@ -10,7 +10,7 @@ published: true
 -----
 
 - cosignというsigstoreの提供するツールを使ってコンテナに署名して同じレジストリに保存する事が出来る
-- sigstoreではkeylessで署名を行う為の仕組みを構築しているが、cosignにはkeyを管理する方法もあるのでここではこれを説明する
+- sigstoreではkeylessで署名する為の仕組みを構築しているが、cosignにはkeyを管理する方法もあるのでここではこれを説明する
 
 cosignのインストール
 ---------------------
@@ -55,15 +55,12 @@ go build -tags=pivkey,pkcs11key ./cmd/cosign
 鍵の生成
 ---------
 sigstoreではkeyless署名を実現するために色々な試みが行われていますが、鍵を管理する方式がデフォルトです。
-
 ```shell
 cosign generate-key-pair
 ```
-
 で秘密鍵のパスワードを入力した後、現在のディレクトリに`cosign.key`(秘密鍵)と`cosign.pub`(公開鍵)を生成されます。
 
-また手元に秘密鍵をおかずにGitLab CIの変数として保存しておくことも出来ます:
-
+また手元に秘密鍵をおかずにGitLab CIの変数として保存しておくことも出来ます：
 ```shell
 export GITLAB_TOKEN=glpat-xxxxxxxxxxxxxx  # apiの権限が必要
 cosign generate-key-pair gitlab://termoshtt/sigstore-testing
@@ -75,7 +72,7 @@ cosign generate-key-pair gitlab://termoshtt/sigstore-testing
 署名
 -----
 
-まず署名に使うコンテナを用意します。[前回](https://zenn.dev/termoshtt/articles/ttlsh-ephemeral-container-registry)で説明した[ttl.sh](https://ttl.sh)を使います:
+まず署名に使うコンテナを用意します。[前回](https://zenn.dev/termoshtt/articles/ttlsh-ephemeral-container-registry)で説明した[ttl.sh](https://ttl.sh)を使います：
 
 ```shell
 echo "FROM alpine" > Dockerfile
@@ -84,14 +81,11 @@ docker build -t ttl.sh/${IMAGE_NAME}:1h .
 docker push ttl.sh/${IMAGE_NAME}:1h
 ```
 
-このコンテナに署名するには秘密鍵として`cosign.key`ファイルを使う場合は:
-
+このコンテナに署名するには秘密鍵として`cosign.key`ファイルを使う場合は：
 ```shell
 cosign sign --key cosign.key ttl.sh/${IMAGE_NAME}:1h
 ```
-
-GitLabに保存した鍵を使う場合は`--key`に`generate-key-pair`と同じように`gitlab://<user>/<repo>`を指定します:
-
+GitLabに保存した鍵を使う場合は`--key`に`generate-key-pair`と同じように`gitlab://<user>/<repo>`を指定します：
 ```shell
 cosign sign --key gitlab://termoshtt/sigstore-testing ttl.sh/${IMAGE_NAME}:1h
 ```
@@ -103,23 +97,19 @@ GitHubでも同じ様にGitHub Actionsの変数として生成することは出
 `cosign sign`は署名した内容を同じレジストリの別タグに保存します。タグはコンテナイメージのdigestを使って決めます。digestはImage IDとは別に振られるハッシュ値なので注意です。
 https://docs.docker.jp/engine/reference/commandline/images.html#digest
 
-```
+```shell
 cosign triangulate ttl.sh/${IMAGE_NAME}:1h
 ```
-
-で書き込まれるコンテナのイメージ名(タグ込み)が表示されます。triangulate(三角測量)なのはコンテナのイメージとdigestから署名のタグを定めているからなのでしょうか？このイメージはtarになっていないので`docker pull`することは出来ません。例えば[crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)などを使ってメタデータを表示できます:
-
-```
+で書き込まれるコンテナのイメージ名(タグ込み)が表示されます。triangulate(三角測量)なのはコンテナのイメージとdigestから署名のタグを定めているからなのでしょうか？　このイメージはtarになっていないので`docker pull`することは出来ません。例えば[crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)などを使ってメタデータを表示できます:：
+```shell
 crane manifest $(cosign triangulate ttl.sh/${IMAGE_NAME}:1h) | jq
 ```
 
 検証
 -----
 
-コンテナの署名を検証するには公開鍵を指定します:
-
+コンテナの署名を検証するには公開鍵を指定します：
 ```shell
 cosign verify --key cosign.pub ttl.sh/${IMAGE_NAME}:1h
 ```
-
-これは指定された公開鍵に対して一つでも有効な署名があったら正常終了します。というのも、コンテナには複数の鍵で署名することが可能です。例えば上で説明した通りローカルに生成した鍵とGitLabに生成した鍵でそれぞれ署名した場合、同じタグに二つの署名が保存されます(これはコンテナのレイヤーとして処理されます)。`verify`コマンドはこれの内一つでも有効な署名があるかどうかを検証します。
+これは指定された公開鍵に対して1つでも有効な署名があったら正常終了します。というのも、コンテナには複数の鍵で署名できます。例えば上で説明した通りローカルに生成した鍵とGitLabに生成した鍵でそれぞれ署名した場合、同じタグに2つの署名が保存されます(これはコンテナのレイヤーとして処理されます)。`verify`コマンドはこれの内1つでも有効な署名があるかどうかを検証します。
