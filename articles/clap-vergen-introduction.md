@@ -60,6 +60,8 @@ https://github.com/rustyhorde/vergen
 
 埋め込まれた情報をCLIアプリケーションに表示させるには他の機能に混ぜ込むより独立したサブコマンドを用意するといいでしょう。この目的の為に`version`サブコマンドを作るのが[clap-vergen](https://github.com/termoshtt/clap-vergen)の目的です。
 
+https://github.com/termoshtt/clap-vergen
+
 clapの[Derive API](https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html)を使って次のように書きます：
 
 ```rust
