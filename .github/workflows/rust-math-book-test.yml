@@ -9,17 +9,11 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-20.04
-    container: ghcr.io/rust-math/intel-mkl-src/mkl-rust:1.49.0
+    container: ghcr.io/rust-math/rust-mkl:1.62.1-2020.1
     steps:
       - uses: actions/checkout@v1
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
       - uses: actions-rs/cargo@v1
         name: cargo test
         with:
-          toolchain: nightly
           command: test
           args: --doc --manifest-path=rust-math-book-test/Cargo.toml
