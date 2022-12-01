@@ -45,6 +45,38 @@ flowchart TB
   Input-- "a, b" -->Output[Generated Rust code]
 ```
 
+einsum入門
+-----------
+実装の解説を始める前にeinsumの機能について少し見てみましょう。
+
+理論物理等の文脈に置いて、アインシュタインの縮約記法というのは複数のテンソルを取る演算で和の記号$\sum$を省略、あるいは逆に補完するルールです。例えば$N$次元ユークリッド空間の二つのベクトル$x, y \in \mathbb{R}^N$の内積
+
+$$
+(x, y) = \sum_{i=1}^N x_i y_i
+$$
+
+を和の記号を省略して$x_i y_i$の様に表記します。逆に二つのベクトル$x, y \in \mathbb{R}^N$が与えられたとき、$x_i y_i$と書いたら上の和を考える事にします。添字に対する和は常に取りうる全ての値について取る事にして、例えば最初の二つだけ和を取る $x_1 y_1 + x_2 y_2$の様な処理は考えない事にします。他にも3つの$N \times N$行列$A, B, C \in M_N(\mathbb{R})$の積
+
+$$
+(ABC)_{il} = \sum_{j, k} A_{ij}B_{jk}C_{kl}
+$$
+
+を単に$A_{ij}B_{jk}C_{kl}$の様に表記します。複数回現れる添字についてのみ和を取ることにし、一回だけ現れる添字については和を取らない事にします。
+
+上記の様な代表的な演算に付いては線形代数ライブラリ側にも対応した関数が用意されますが、このように複数のテンソルを受け取ってある添字に対して和を取る関数は非常にたくさん存在します。ではこれらの関数は自動的に作れないのでしょうか？そこでアインシュタインの縮約記法における和の補完規則の方に着目します。つまり$x_i y_i$と書くと二つのベクトルに対して内積を計算する演算を表すわけですが、これをさらに組$(x, y)$から$x_i y_i$に与える関数
+
+$$
+\mathbb{R}^N \times \mathbb{R}^N \ni (x, y) \longmapsto x_i y_i \in \mathbb{R}
+$$
+
+だと思って、この関数を`i,i->`と書くことにします。添字はアルファベット一文字であれば何でもよく、`i,i->`と`j,j->`は同じ関数を表すことにします。同じように3つの行列を引数に行列-行列-行列積を計算する関数
+
+$$
+M_N(\mathbb{R}) \times M_N(\mathbb{R}) \times M_N(\mathbb{R}) \ni (A, B, C) \longmapsto A_{ij}B_{jk}C_{kl} \in M_N(\mathbb{R})
+$$
+
+を`ij,jk,kl->il`と書きます。このように縮約記法でかける操作を、その添字のパターンを記述することで文字列として関数を指定する事ができます。この文字列を解釈して追加の引数としてもらったテンソルに対して実行する処理系の事をeinsumと呼びます。
+
 手続きマクロによるコード生成
 -----------------------------
 Rustには標準で手続きマクロ(procedural macro, proc-macroとよく呼ばれる)と呼ばれる、Rustのコードを生成するコードをRustで記述できる機能が存在します。上の例で言えば `einsum!("ij,jk->ik", a, b)`の部分が手続きマクロの呼び出しに対応していて、これにより`"ij,jk->ik", a, b`を入力がRustのコードの構文木(というかトークン列)を出力とする関数
@@ -191,4 +223,52 @@ il,l->i   | out2,arg3->out0
 
 コード生成
 -----------
-最後に求まった`Path`からRustのコードを生成します。 TODO: `ij,jk->ik`は関数に対応する/einsumとアインシュタイン縮約記法の違い
+最後に求まった`Path`からRustのコードを生成します。上述した様にeinsumのsubscriptは関数を表すので、例えば`ij,jk->ik`は二つの2次元配列を受け取り2次元配列を返す関数に展開されます。Rustの関数の識別子として`,`や`->`は使えないので、この部分をエスケープして関数名にします
+
+```rust
+fn ij_jk__ik<T, S0, S1>(
+    arg0: ndarray::ArrayBase<S0, ndarray::Ix2>,
+    arg1: ndarray::ArrayBase<S1, ndarray::Ix2>,
+) -> ndarray::Array<T, ndarray::Ix2>
+where
+    T: ndarray::LinalgScalar,
+    S0: ndarray::Data<Elem = T>,
+    S1: ndarray::Data<Elem = T>,
+{ ... }
+```
+
+この関数は`einsum!`マクロのユーザーからは直接見えてほしくないので、スコープを作ってその中で定義します。つまり
+
+```rust
+let c = einsum!("ij,jk->ik", a, b);
+```
+
+を次の様に展開します：
+
+```rust
+let c = {
+    // 必要な関数を定義する
+    // この関数はこのスコープの外からは見えない
+    fn ij_jk__ik<T, S0, S1>(
+        arg0: ndarray::ArrayBase<S0, ndarray::Ix2>,
+        arg1: ndarray::ArrayBase<S1, ndarray::Ix2>,
+    ) -> ndarray::Array<T, ndarray::Ix2>
+    where
+        T: ndarray::LinalgScalar,
+        S0: ndarray::Data<Elem = T>,
+        S1: ndarray::Data<Elem = T>,
+    { ... }
+
+    // マクロの引数の名前を整理
+    let arg0 = a;
+    let arg1 = b;
+
+    // ↑で作った関数を呼び出し
+    let out0 = ij_jk__ik(arg0, arg1);
+
+    // ブロックから値を返す
+    out0
+};
+```
+
+複数のeinsumに分解されているときは対応する関数をまず定義して、上で議論したテンソルの名前を頼りに順番にそれらを呼び出していきます。
