@@ -32,12 +32,17 @@ https://github.com/termoshtt/einsum-derive
 
 なお現在の実装では前回説明した省略記号`...`を含むeinsumはサポート出来ていません。またBLAS演算に置き換える操作もまだ実装されておらず、素朴なループによる実装を生成しています。
 
+全体像は次の通りです：
+
 ```mermaid
-graph TD;
-  A-->B;
-  A-->C;
-  B-->D;
-  C-->D;
+flowchart TB
+  Input["einsum!(ij,jk->ik, a, b)"]-- "ij,jk->ik" -->Parser
+  subgraph codegen["einsum_codgen crate"]
+    Parser["Parse subscripts"]-- "Subscripts" -->Factorize
+    Factorize["Factorize subscripts"]-- "Path" -->Codegen
+  end
+  Codegen["Code generation"]-->Output
+  Input-- "a, b" -->Output[Generated Rust code]
 ```
 
 RustによるRustのコード生成
