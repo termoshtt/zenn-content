@@ -134,7 +134,17 @@ pub fn einsum(input: TokenStream) -> TokenStream { ... }
 
 Subscriptのパース
 -----------------
-TODO: nomを使ってパースするよ(´・ω・｀)
+Rustの代表的なパーサコンビネータライブラリである[nom](https://github.com/Geal/nom)を使ってパーサーを書きます。省略記号`...`は今回サポートしていないと書きましたが、将来的にはサポート予定なのでパーサー部分には入っていて、後段の処理に行くところでエラーにしています。BNF-likeに書くと次のようになります：
+
+```
+ellipsis   = ...
+index      = a | b | c | d | e | f | g | h | i | j | k | l | m
+           | n | o | p | q | r | s | t | u | v | w | x | y | z;
+subscript  = { index } [ ellipsis { index } ];
+subscripts = subscript {, subscript} [ -> subscript ]
+```
+
+
 
 einsumの分解
 -------------
@@ -272,3 +282,11 @@ let c = {
 ```
 
 複数のeinsumに分解されているときは対応する関数をまず定義して、上で議論したテンソルの名前を頼りに順番にそれらを呼び出していきます。
+
+Roadmap
+--------
+今後の開発予定は次の通りです。他に機能要望などあれば[GitHub issue](https://github.com/termoshtt/einsum-derive/issues)までどうぞ。
+
+- BLAS演算への置き換え
+  - 現状は素朴なfor-loopで実装しているので計算量は正しいがBLASに比べると随分遅い
+- 省略記号`...`とブロードキャスティングのサポート
