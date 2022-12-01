@@ -6,6 +6,10 @@ topics: ["rust", "ndarray", "einsum"]
 published: true
 ---
 
+この記事は[数値計算Advent Calendar 2022](https://qiita.com/advent-calendar/2022/numerical_analysis)の1日目の記事です。
+
+----
+
 [前回の記事](./numpy-einsum)では既存実装としてNumPyにおける`numpy.einsum`の仕様を見ていきましたが、今回はRustの[ndarray crate](https://crates.io/crates/ndarray)向けにeinsumを作っていきます。完成形は次のようになります：
 
 ```rust
