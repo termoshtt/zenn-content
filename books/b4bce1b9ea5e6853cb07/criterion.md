@@ -10,9 +10,13 @@ title: 計算時間を計測する
 
 という内訳になっている場合、メモリ上での計算が半分の時間で行えるようになったとしても、全体の処理時間は0.8倍にしかなりません。これは[アムダールの法則](https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%A0%E3%83%80%E3%83%BC%E3%83%AB%E3%81%AE%E6%B3%95%E5%89%87)として知られているものの例です。
 
+残念ながらあなたのプログラムの処理時間の内訳はおそらくあなたの想像とは異なります。プログラムの高速化において最も重要な事はまず正確に現在の処理時間を計測する事です。どの処理にどのくらいの時間を使っているかを把握さえできれば解決方法は自ずと明らかになります。
+
 手動で計測する
 --------------
-この記事ではいくつか便利な方法を紹介していきますが、最も簡単な方法は自分で計測するコードを追加する方法です。[std::time](https://doc.rust-lang.org/std/time/index.html)を使うと次の様に測れます：
+この記事ではいくつか便利な方法を紹介していきますが、最も簡単な方法は自分で計測するコードを追加する方法です。
+
+[std::time](https://doc.rust-lang.org/std/time/index.html)を使うと次の様に測れます：
 
 ```rust
 use std::{thread, time};
@@ -30,16 +34,18 @@ fn main() {
 }
 ```
 
-出力は例えば次のようになります：
+[`now.elapsed()`](https://doc.rust-lang.org/std/time/struct.Instant.html#method.elapsed)は[std::time::Duration](https://doc.rust-lang.org/std/time/struct.Duration.html)型を返します。この型は`Debug` traitを実装しているので、出力は例えば次のようになります：
 
 ```
 10.077057ms
 ```
 
-このように数行コードを挿入するだけで専用のツールの使い方を覚えずとも目的である処理毎の所要時間が計測できます。この出力結果を紙のノートにメモっておけば結果も比較出来ます。まずは測り初めましょう。
+他にも[Duration::as_secs()](https://doc.rust-lang.org/std/time/struct.Duration.html#method.as_secs)で秒数に変換したりもできます。このように数行コードを挿入するだけで専用のツールの使い方を覚えずとも目的である処理毎の所要時間が計測できます。この出力結果を紙のノートにメモっておけば結果も比較出来ます。まずは測り初めましょう。
 
 cargo-bench
 ------------
+全体の経過時間の内訳でなく、関数なりの単位に切り出した個々の処理の時間だけを比較したい場合は`cargo-bench`と次に説明するマイクロベンチマークフレームワーク`criterion`が便利です。
+
 cargoには[cargo-bench](https://doc.rust-lang.org/cargo/commands/cargo-bench.html)というサブコマンドが存在して、[Cargo.toml](https://doc.rust-lang.org/cargo/reference/manifest.html)の[`[[bench]]`ターゲット](https://doc.rust-lang.org/cargo/reference/cargo-targets.html#benchmarks)で設定してあるベンチマークを実行します。
 
 ```toml:Cargo.toml
@@ -57,8 +63,10 @@ cargo bench bench-test
 
 コマンドで`benches/test.rs`の`main`関数が開始されます。ベンチマーク名`bench-test`を省略すると登録されている全ての`[[bench]]`ターゲットを実行します。
 
-`harness`というのはRustの標準ライブラリの中(libtest)にあるベンチマークの実行環境の事で、`harness = true`にするとそれを使いますが、この実行環境はNightly環境が必要なので今回は割愛します。`harness = false`の時は`[[bin]]`のターゲットと同様に`main`関数を開始します。
+`harness`というのはRustの標準ライブラリの中(libtest)にあるベンチマークの実行環境の事で、`harness = true`にするとそのターゲットに含まれる`#[bench]`で修飾された関数に対してベンチマークを行います。`#[test]`の挙動と基本的に同じですが、ベンチマークについてはNightly環境が必要なので今回は割愛します。詳しくは[cargoにおけるターゲット](https://zenn.dev/termoshtt/articles/cargo-targets)を見てください。`harness = false`の時は`[[bin]]`のターゲットと同様に`main`関数を開始します。
 
-criterion.rs
--------------
-TODO
+criterion
+----------
+libtestに変わってベンチマークを実行して計測データを集計してくれるフレームワークが`criterion` crateです。
+
+https://github.com/bheisler/criterion.rs
