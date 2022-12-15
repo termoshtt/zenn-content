@@ -16,8 +16,8 @@ chapters:
   - simd
   - sfmt
   - rayon
-  - flamegraph
   - criterion
+  - flamegraph
   - plotlib
   - rug
   - cc
