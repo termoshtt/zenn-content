@@ -77,7 +77,7 @@ criterion = { version = "0.4.0", features = ["html_reports"] }
 
 `0.4`から以下で述べるHTML出力機能がオプションになったので、これも追加しておきます。
 
-例えばフィボナッチ数を求めるテストは次の様に記述します：
+例えばフィボナッチ数を求めるコードのベンチマークは次の様に記述します：
 
 ```rust
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -108,15 +108,22 @@ criterion_main!(benches);
 これを実行すると例えば次のような出力が得られます：
 
 ```text
-     Running target/release/deps/example-423eedc43b2b3a93
-fib 20                  time:   [26.029 us 26.251 us 26.505 us]
-Found 11 outliers among 99 measurements (11.11%)
-  6 (6.06%) high mild
-  5 (5.05%) high severe
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/fib.rs (target/release/deps/fib-8882abd757a2f848)
+fib 20                  time:   [14.316 µs 14.354 µs 14.402 µs]
+Found 10 outliers among 100 measurements (10.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  7 (7.00%) high severe
+
+
 ```
 
-`criterion`が生成する`main`関数がベンチマークに登録された関数の実行時間を計測して統計的に評価してくれます。現代の計算機では基本的に単一のプロセスCPUを占有している時間は短く複数のプロセスが互いに実行時間を奪い合っているので、処理時間は一般的に他のプロセスの影響を受けてバラつきます。上の例では99回の測定のうち11回の外れ値が出たことが報告されています。
+`criterion`が生成する`main`関数がベンチマークに登録された関数の実行時間を計測して統計的に評価してくれます。現代の計算機では基本的に単一のプロセスCPUを占有している時間は短く複数のプロセスが互いに実行時間を奪い合っているので、処理時間は一般的に他のプロセスの影響を受けてバラつきます。上の例では100回の測定のうち10回の外れ値が出たことが報告されています。
 
-### Report
-`criterion`はベンチマーク結果のレポートをHTMLに出力してくれます。この際[Gnuplot](http://www.gnuplot.info/)か[plotters](https://github.com/plotters-rs/plotters)を使ってグラフを書きます。
+`criterion`はベンチマーク結果のレポートをHTMLに出力してくれます。`cargo bench`を実行すると`target/criterion/report/index.html`にレポートが生成されているはずです。このエントリページに`fib 20`というリンクが出来ているのでそれを見ると、次のようなグラフが表示されます：
 
+![fib20](https://github.com/termoshtt/zenn-content/blob/0eb4e282dcd895682b35eb62a7748fa9260dd1af/images/criterion_fib20.png?raw=true)
+
+左の図は横軸経過時間に対する確率密度を推定したもので、右の図はイテレーション回数に対する全経過時間を表示しています。
