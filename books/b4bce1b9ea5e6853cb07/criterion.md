@@ -80,24 +80,24 @@ criterion = { version = "0.4.0", features = ["html_reports"] }
 例えばフィボナッチ数を求めるコードのベンチマークは次の様に記述します：
 
 ```rust
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::*;
 
 // フィボナッチ数を求める
 fn fibonacci(n: u64) -> u64 {
     match n {
         0 => 1,
         1 => 1,
-        n => fibonacci(n-1) + fibonacci(n-2),
+        n => fibonacci(n - 1) + fibonacci(n - 2),
     }
 }
 
 // ラムダ関数の形でベンチマークを登録する
-fn criterion_benchmark(c: &mut Criterion) {
+fn fib_bench(c: &mut Criterion) {
     c.bench_function("fib 20", |b| b.iter(|| fibonacci(black_box(20))));
 }
 
 // ベンチマークグループを定義する
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(benches, fib_bench);
 
 // main関数を用意
 criterion_main!(benches);
@@ -116,8 +116,6 @@ Found 10 outliers among 100 measurements (10.00%)
   1 (1.00%) low mild
   2 (2.00%) high mild
   7 (7.00%) high severe
-
-
 ```
 
 `criterion`が生成する`main`関数がベンチマークに登録された関数の実行時間を計測して統計的に評価してくれます。現代の計算機では基本的に単一のプロセスCPUを占有している時間は短く複数のプロセスが互いに実行時間を奪い合っているので、処理時間は一般的に他のプロセスの影響を受けてバラつきます。上の例では100回の測定のうち10回の外れ値が出たことが報告されています。
@@ -127,3 +125,42 @@ Found 10 outliers among 100 measurements (10.00%)
 ![fib20](https://github.com/termoshtt/zenn-content/blob/0eb4e282dcd895682b35eb62a7748fa9260dd1af/images/criterion_fib20.png?raw=true)
 
 左の図は横軸経過時間に対する確率密度を推定したもので、右の図はイテレーション回数に対する全経過時間を表示しています。
+
+### 複数の条件で計測した結果を比較する
+上の例では20項目のフィボナッチ数を計算しましたが、これの項数が違うとどうなるのかを一つのグラフで比較してみましょう。次の様に変更します：
+
+```rust
+use criterion::*;
+
+// フィボナッチ数を求める
+fn fibonacci(n: u64) -> u64 {
+    match n {
+        0 => 1,
+        1 => 1,
+        n => fibonacci(n - 1) + fibonacci(n - 2),
+    }
+}
+
+// 複数の入力に対してベンチマークを取る
+fn fib_bench_with_input(c: &mut Criterion) {
+    let mut group = c.benchmark_group("fib");
+    for n in [6, 8, 10, 12, 14, 16, 18, 20] {
+        group.bench_with_input(BenchmarkId::new("fib", n), &n, |bench, n| {
+            bench.iter(|| {
+                fibonacci(black_box(*n));
+            })
+        });
+    }
+    group.finish();
+}
+
+// ベンチマークグループを定義する
+criterion_group!(benches, fib_bench_with_input);
+
+// main関数を用意
+criterion_main!(benches);
+```
+
+`bench_with_input`を使って入力とセットでベンチマークを登録します。これで次のようなラインチャートが生成されます：
+
+![fib_with_input](https://github.com/termoshtt/zenn-content/blob/d0cd06f51dc44370a3f902bada44f38124177532/images/criterion_fib_with_input.png?raw=true)
