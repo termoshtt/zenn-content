@@ -30,3 +30,8 @@ criterion = { version = "0.4.0", features = ["html_reports"] }
 [[bench]]
 name = "fib"
 harness = false  # disable libtest harness
+
+# See benches/fib_with_input.rs
+[[bench]]
+name = "fib_with_input"
+harness = false  # disable libtest harness
