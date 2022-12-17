@@ -26,6 +26,10 @@ serde = "1.0.144"
 # For benchmarking
 criterion = { version = "0.4.0", features = ["html_reports"] }
 
+[lib]
+# skip unittest from `cargo bench`
+bench = false
+
 # See benches/fib.rs
 [[bench]]
 name = "fib"
