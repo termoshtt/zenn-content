@@ -97,7 +97,7 @@ proc-macro = true
 cargo bench -- --save-baseline main
 ```
 
-中間の`--`は`cargo-bench`に与える引数と、`cargo-bench`が起動したプログラムに対する引数を区別する仕切りです。この時`[lib]`の`bench` fieldはデフォルトで`true`なので、`cargo bench`によってたとえ`#[bench]`で修飾された関数が一つも無くても`[lib]`を対象としてベンチマークを実行されます。すると上の引数はサポートされていないので実行に失敗します。これを防ぐには次の様にします：
+中間の`--`は`cargo-bench`に与える引数と、`cargo-bench`が起動したプログラムに対する引数を区別する仕切りです。この時`[lib]`の`bench` fieldはデフォルトで`true`なので、`cargo bench`によってたとえ`#[bench]`で修飾された関数が1つも無くても`[lib]`を対象としてベンチマークを実行されます。すると上の引数はサポートされていないので実行に失敗します。これを防ぐには次の様にします：
 
 ```toml:Cargo.toml
 [lib]
