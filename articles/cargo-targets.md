@@ -91,6 +91,21 @@ proc-macro = true
 -----------------------
 それぞれ`cargo-test`及び`cargo-bench`コマンドで実行するかどうかを変更できます。`test = true`の場合、`cargo-test`を実行するとそのターゲットに含まれる`#[test]`で修飾された関数を探してそれを実行します。同じように`bench = true`だと`#[bench]`で修飾された関数を探してそのベンチマークをとりますが、この機能はnightlyの為stable toolchainでは使えません。この`#[test]`や`#[bench]`を順番に実行して結果を表示するランタイムの事を`harness`と呼んでいます。
 
+独自のテストやベンチマークフレームワークを使う場合、実行ファイルに追加で引数を与えるケースがあります。例えば次に述べる`criterion`ではベンチマーク結果に名前をつけて保存する場合にその名前(例えば`main`)を次の様に指定します：
+
+```shell
+cargo bench -- --save-baseline main
+```
+
+中間の`--`は`cargo-bench`に与える引数と、`cargo-bench`が起動したプログラムに対する引数を区別する仕切りです。この時`[lib]`の`bench` fieldはデフォルトで`true`なので、`cargo bench`によってたとえ`#[bench]`で修飾された関数が1つも無くても`[lib]`を対象としてベンチマークを実行されます。すると上の引数はサポートされていないので実行に失敗します。これを防ぐには次の様にします：
+
+```toml:Cargo.toml
+[lib]
+bench = false
+```
+
+他のfieldは空のままにしておけばデフォルトの値が使われます。
+
 `harness` field
 ----------------
 Rust toolchainに含まれる`libtest`によるテスト・ベンチマークのドライバを使用するかどうか変更できます。`harness = false`にすると`#[test]`や`#[bench]`を収集せずに、`path`に指定されたファイルの`main`関数を実行します。この機能により独自のテストやベンチマークスイートを言語ランタイムでなくサードパーティで実装できます。例えば代表的なベンチマークスイートである[criterion](https://github.com/bheisler/criterion.rs)はこの機能を使って実現されています。

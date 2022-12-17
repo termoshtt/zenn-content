@@ -1,5 +1,5 @@
 ---
-title: プロファイリングを行う (cargo-flamegraph)
+title: FlameGraphを生成する
 ---
 
 [ferrous-systems/flamegraph](https://github.com/ferrous-systems/flamegraph)を使ってRustプログラムの性能評価を行っていきます。

@@ -21,3 +21,21 @@ rand_chacha = "0.3.1"
 
 # serialize
 serde = "1.0.144"
+
+[dev-dependencies]
+# For benchmarking
+criterion = { version = "0.4.0", features = ["html_reports"] }
+
+[lib]
+# skip unittest from `cargo bench`
+bench = false
+
+# See benches/fib.rs
+[[bench]]
+name = "fib"
+harness = false  # disable libtest harness
+
+# See benches/fib_with_input.rs
+[[bench]]
+name = "fib_with_input"
+harness = false  # disable libtest harness
