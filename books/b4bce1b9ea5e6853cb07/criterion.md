@@ -122,7 +122,7 @@ Found 10 outliers among 100 measurements (10.00%)
 
 `criterion`はベンチマーク結果のレポートをHTMLに出力してくれます。`cargo bench`を実行すると`target/criterion/report/index.html`にレポートが生成されているはずです。このエントリページに`fib 20`というリンクが出来ているのでそれを見ると、次のようなグラフが表示されます：
 
-![fib20](https://github.com/termoshtt/zenn-content/blob/0eb4e282dcd895682b35eb62a7748fa9260dd1af/images/criterion_fib20.png?raw=true)
+![fib20](https://raw.githubusercontent.com/termoshtt/zenn-content/0eb4e282dcd895682b35eb62a7748fa9260dd1af/images/criterion_fib20.png)
 
 左の図は横軸経過時間に対する確率密度を推定したもので、右の図はイテレーション回数に対する全経過時間を表示しています。
 
@@ -163,6 +163,50 @@ criterion_main!(benches);
 
 `bench_with_input`を使って入力とセットでベンチマークを登録します。これで次のようなラインチャートが生成されます：
 
-![fib_with_input](https://github.com/termoshtt/zenn-content/blob/d0cd06f51dc44370a3f902bada44f38124177532/images/criterion_fib_with_input.png?raw=true)
+![fib_with_input](https://raw.githubusercontent.com/termoshtt/zenn-content/d0cd06f51dc44370a3f902bada44f38124177532/images/criterion_fib_with_input.png)
 
+前回の結果と比較する
+--------------------
 
+criterionは自動的に前回のベンチマーク結果と比較しようとしますが、`baseline`というベンチマーク結果を名前をつけて保存しておきそれと比較する機能があります。比較結果はHTMLレポートで次の様に表示されます：
+
+![compare](https://raw.githubusercontent.com/termoshtt/zenn-content/95a9f8bbf84d7912378b23e6b55feedccdbf4936/images/criterion_fib_compare.png)
+
+例えば`base`という名前で結果を保存するには次のようにします：
+
+```shell
+cargo bench -- --save-baseline base
+```
+
+この際`[lib]`ターゲットに対しても0個のベンチマークを実行しようとして`--save-baseline`という引数は知らないとエラーが出る場合は次のように無効化します：
+
+```toml:Cargo.toml
+[lib]
+bench = false
+```
+
+保存したベンチマーク結果に対して比較を行う場合は次のように`--baseline`を使います：
+
+```shell
+cargo bench -- --baseline base
+```
+
+典型的にはブランチ名で結果を保存してブランチ間で性能を比較するなどのパターンが実用的です。
+
+```shell
+git checkout master
+cargo bench -- --save-baseline master
+git checkout feature
+cargo bench -- --save-baseline feature
+git checkout optimizations
+
+# Some optimization work here
+
+# Measure again
+cargo bench
+# Now compare against the stored baselines without overwriting it or re-running the measurements
+cargo bench -- --load-baseline new --baseline master
+cargo bench -- --load-baseline new --baseline feature
+```
+
+https://bheisler.github.io/criterion.rs/book/user_guide/command_line_options.html#baselines
