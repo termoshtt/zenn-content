@@ -1,6 +1,6 @@
 ---
 title: "Landlock: ユーザ権限によるアクセス制御"
-emoji: "📦"
+emoji: "🏝️"
 type: "tech"
 topics: ["rust", "linux", "container", "landlock"]
 published: true
