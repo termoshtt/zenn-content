@@ -35,7 +35,7 @@ example:
 LL_FS_RO="/bin:/lib:/usr:/proc:/etc:/dev/urandom" LL_FS_RW="/dev/null:/dev/full:/dev/zero:/dev/pts:/tmp" target/debug/examples/sandboxer bash -i
 ```
 
-二つの環境変数`LL_FS_RO`と`LL_FS_RW`にそれぞれ読み込み専用にしたいパスと読み書きできるパスを指定して、引数に起動するプログラムを指定します。例を示してくれているので起動してみましょう：
+2つの環境変数`LL_FS_RO`と`LL_FS_RW`にそれぞれ読み込み専用にしたいパスと読み書きできるパスを指定して、引数に起動するプログラムを指定します。例を示してくれているので起動してみましょう：
 
 ```shell
 LL_FS_RO="/bin:/lib:/usr:/proc:/etc:/dev/urandom" \
@@ -109,4 +109,4 @@ sandboxer.rs
 コメントは私が追加しています。処理は単純で、`handle_access`と[`add_rules`](https://landlock.io/rust-landlock/landlock/trait.RulesetCreatedAttr.html#method.add_rules)によってルールセットを作り、[`restrict_self`](https://landlock.io/rust-landlock/landlock/struct.RulesetCreated.html#method.restrict_self)によって現在のプロセスにルールを適用し、サブプロセスを起動しています。サブプロセスには自動的に制約が継承されます。所々`abi`を引数にもらっているのは互換性の為です。
 
 ### `PathFd`, `O_PATH` in open(2)
-処理は名前から期待される通りでドキュメントを順番に見れば詳細は分かりますが、一つ気になる点として[`PathFd`](https://landlock.io/rust-landlock/landlock/struct.PathFd.html)というのが出てきます。[`add_rules`](https://landlock.io/rust-landlock/landlock/trait.RulesetCreatedAttr.html#method.add_rules)にはパスとアクセス権の組を表す構造体である[`PathBeneath`](https://landlock.io/rust-landlock/landlock/struct.PathBeneath.html)を渡しますが、これはパスの表現としてファイルディスクリプタを使います。これは[`std::os::unix::io::AsRawFd`](https://doc.rust-lang.org/1.65.0/std/os/unix/io/trait.AsRawFd.html)を使ってファイルディスクリプタをもらうAPIになっており、例えば`std::fs::File`もこれは実装していますが、ここで代わりに`PathFd`を使うようになっています。これは何故かというとLandlockに渡すファイルディスクリプタはファイルシステム上でのファイルの位置さえ分かればよく、ユーザーが実際にこのファイルを開く権限が無くても使えるようになっています。そのような用途のために`O_PATH`というオプションが`open`システムコールには存在し、`PathFd`はそれを使うようになっています。
+処理は名前から期待される通りでドキュメントを順番に見れば詳細は分かりますが、1つ気になる点として[`PathFd`](https://landlock.io/rust-landlock/landlock/struct.PathFd.html)というのが出てきます。[`add_rules`](https://landlock.io/rust-landlock/landlock/trait.RulesetCreatedAttr.html#method.add_rules)にはパスとアクセス権の組を表す構造体である[`PathBeneath`](https://landlock.io/rust-landlock/landlock/struct.PathBeneath.html)を渡しますが、これはパスの表現としてファイル記述子を使います。これは[`std::os::unix::io::AsRawFd`](https://doc.rust-lang.org/1.65.0/std/os/unix/io/trait.AsRawFd.html)を使ってファイル記述子をもらうAPIになっており、例えば`std::fs::File`もこれは実装していますが、ここで代わりに`PathFd`を使うようになっています。これは何故かというとLandlockに渡すファイル記述子はファイルシステム上でのファイルの位置さえ分かればよく、ユーザーが実際にこのファイルを開く権限が無くても使えるようになっています。そのような用途のために`O_PATH`というオプションが`open`システムコールには存在し、`PathFd`はそれを使うようになっています。
