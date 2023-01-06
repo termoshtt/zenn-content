@@ -17,7 +17,7 @@ Rust強い制約によって強い保証を得るタイプの言語なのでそ�
 - [実践Rust入門](https://gihyo.jp/book/2019/978-4-297-10559-4)
 - ...
 
-Rustに関する日本語コミュニティとして [rust-jp slack](http://rust-jp.slack.com/) があります。 [参加リンク](https://join.slack.com/t/rust-jp/shared_invite/enQtODAyODY0MDkyMjU5LTI1YmQxMjQxZGI2MTBkMzZhZTIzYzZmMjBiYmY2MmQyYWE5ZWZjZmVmMzljYWE5ZjM1YTBlYjY3ZjYzMmI5OWI) から誰でも参加することが出来ます。
+Rustに関する日本語コミュニティとして [rust-jp (Zulip)](https://rust-lang-jp.zulipchat.com/) があります。 これは誰でも参加することが出来、またログインせずにほとんどの投稿を見ることも出来ます。
 
 Rustを使う
 -----------
