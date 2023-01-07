@@ -2,7 +2,7 @@
 title: データ並列 (rayon crate)
 ---
 
-[nikomatsakis/rayon](https://github.com/nikomatsakis/rayon)はデータ並列なコードをiterator形式で簡単に実装するためのライブラリです。C/C++/FortranにおいてOpenMPで並列化していたような部分の代替と考えられます。バックエンドの実装方式としては[Intel Clik](https://www.cilkplus.org/)と同様のwork stealingによります。イテレータを分割してスレッドプールを用いてそれぞれに対して処理を実行します。
+[rayon](https://github.com/rayon-rs/rayon)はデータ並列なコードをiterator形式で簡単に実装するためのライブラリです。C/C++/FortranにおいてOpenMPで並列化していたような部分の代替と考えられます。バックエンドの実装方式としては[Intel Clik](https://www.cilkplus.org/)と同様のwork stealingによります。イテレータを分割してスレッドプールを用いてそれぞれに対して処理を実行します。
 
 簡単な使い方
 ------------
