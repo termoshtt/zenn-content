@@ -52,12 +52,14 @@ name = "b"
 | `path`              | *            | *         | *             | *          | *           |
 | `test`              | true         | true      | false         | true       | false       |
 | `bench`             | true         | true      | false         | false      | true        |
+| `doc`               | true         | true      | false         | false      | false       |
+| `doctest`           | true         | -         | -             | -          | -           |
 | `proc-macro`        | false        | -         | -             | -          | -           |
 | `harness`           | true         | true      | true          | true       | true        |
 | `crate-type`        | `["lib"]`    | -         | `["bin"]`     | -          | -           |
 | `required-features` | -            | `[]`      | `[]`          | `[]`       | `[]`        |
 
-加えて`doc`, `doctest`, `plugin`, `edition`がありますが、これらはほぼ使うことは無いので省略します。
+加えて`plugin`, `edition`がありますが、これらはほぼ使うことは無いので省略します。
 
 `name`, `path` fields
 ----------------------
@@ -86,6 +88,12 @@ proc-macro = true
 ```
 
 この場合`crate-type`は強制的に`["proc-macro"]`になります。
+
+`doc` field
+------------
+`cargo-doc`コマンドでドキュメントを生成するかどうかを変更できます。
+
+`[lib]`と`[[bin]]`の場合にはデフォルトで`true`になり他では`false`になりますが、特殊ルールとして`[[bin]]`の場合にターゲット名がcrate名と一致する場合はデフォルト値が`false`になります。
 
 `test`, `bench` fields
 -----------------------
