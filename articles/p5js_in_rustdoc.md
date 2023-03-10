@@ -83,3 +83,7 @@ Roadmap
 - 現在は1つのドキュメントに一つの図しか挿入できません
   - [Issue](https://github.com/termoshtt/p5doc/issues/3)は立ててありますが、複数の図を書く場合[Globalモードでなくinstanceモードを使う必要がある](https://github.com/processing/p5.js/wiki/Global-and-instance-mode)ので何かしらの変換機構をつくるか、ユーザーに常にinstanceモードで書かせることにするか、設計の選択があるので一旦放置です。
 
+Links
+------
+https://zenn.dev/termoshtt/articles/rustdoc-mermaid-aquamarine
+https://zenn.dev/termoshtt/articles/rustdoc-katexit
