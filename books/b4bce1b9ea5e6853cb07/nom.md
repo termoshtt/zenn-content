@@ -94,6 +94,71 @@ assert!(uint::<u64>("abcd").finish().is_err());
 
 パーサコンビネータでは個別のパーサのレベルで入力文字列にマッチしなくてもより上の所で復帰出来る事があります。フォーマットの仕様によっては文字列が来ても整数が来てもいい場所というのはよくあります。例えば上のVTK Legacyでは`DATASET`として複数の複雑なコンポーネントが複数回続く可能性があります。このような場合一旦整数としてパースしてみて違うなら文字列として受け入れる、という処理を行います。その為にエラー型`nom::Err`にはコンビネータ内で復帰可能な`Err::Error`と復帰不可能な`Err::Failure`があります。例えば`u32`整数としてパースしないといけないけど`u32`では収まらない整数が来た場合は復帰不可能なエラー`Err::Failure`を返します。そして`nom::Finish`によってこれらを通常の`Result`に変換します。
 
+いくつか基本的な応用例をあげていきましょう。
+
+- `# vtk DataFile Version x.x` という文字列をパースしてバージョンの整数を取得する
+  ```rust
+  use nom::{
+    bytes::complete::tag,
+    character::complete::{char, space0, space1},
+    sequence::tuple,
+    Parser
+  };
+  use rust_math_book_test::nom::{Result, uint};
+
+  pub fn head_line(input: &str) -> Result<(u64, u64)> {
+      // 複数の要素に連続してマッチしたい場合は`tuple`を使う
+      let (input, _) = tuple((
+          char('#'),   // `#`一文字
+          space0,      // 0個以上のスペース
+          tag("vtk"),  // 決まった文字列
+          space1,      // 1個以上のスペース
+          tag("DataFile"),
+          space1,
+          tag("Version"),
+          space1,
+      ))
+      .parse(input)?; // ここで一括してパースして、失敗したら一番最初に戻る
+
+      tuple((uint, char('.'), uint))
+          .map(|(major, _dot /* `.`は要らないので捨てる */, minor)|
+            (major, minor)
+          )
+          .parse(input)
+  }
+  ```
+
+- `ASCII`か`BINARY`のどちらかの文字列にマッチさせる
+  ```rust
+  use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{char, space0},
+    sequence::tuple,
+    Parser
+  };
+  use rust_math_book_test::nom::Result;
+
+  // enumとしてどっちにマッチしたのかを返す
+  #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+  pub enum Format {
+      ASCII,
+      BINARY,
+  }
+  pub fn format(input: &str) -> Result<Format> {
+      // 先頭のスペースは捨てる
+      let (input, _) = space0(input)?;
+      // タプルで指定されたどれかにマッチさせる
+      // 前から順番にマッチさせていき成功した段階で返す
+      alt((
+          // 文字列にマッチした場合はenumに変換する
+          tag("ASCII").map(|_| Format::ASCII),
+          tag("BINARY").map(|_| Format::BINARY),
+      ))
+      .parse(input)
+  }
+  ```
+
 Link
 -----
 
