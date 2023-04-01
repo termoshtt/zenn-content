@@ -18,7 +18,7 @@ let x = i32::from_str(s).unwrap();
 assert_eq!(5, x);
 ```
 
-のように文字列からその型に変換することができます。これは上の例の`i32`のように組み込み型には一通り実装されており、またユーザーが自由に実装することが出来ます。また文字列側にも[str::parse](https://doc.rust-lang.org/stable/std/primitive.str.html#method.parse)という関数が生えているので
+のように文字列からその型に変換できます。これは上の例の`i32`のように組み込み型には一通り実装されており、またユーザーが自由に実装することが出来ます。また文字列側にも[str::parse](https://doc.rust-lang.org/stable/std/primitive.str.html#method.parse)という関数が生えているので
 
 ```rust
 let four: u32 = "4".parse().unwrap();
