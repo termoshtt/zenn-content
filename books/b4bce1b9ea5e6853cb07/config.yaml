@@ -16,6 +16,7 @@ chapters:
   - simd
   - sfmt
   - rayon
+  - nom
   - criterion
   - flamegraph
   - plotlib
