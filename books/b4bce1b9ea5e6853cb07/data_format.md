@@ -15,7 +15,43 @@ title: ディスクにデータを保存する
 
 JSON
 -----
-まずは単純なJSONから見ていきましょう。
+まずは単純なJSONから見ていきましょう。JSONは単純なテキストで構造化された記述できるフォーマットです。例えば
+```json
+{
+  "input": "data.json",
+  "step": 2,
+  "field": [0.0, 0.0, 0.0, 0.1]
+}
+```
+のように文字列や整数、浮動小数点数とそのリスト及びマップを表現出来ます。JSONと言う名前はJavaScript Object Notationの略称ですが、現在ではJavaScriptに限らず非常に広い範囲で使われています。
+
+RustからJSONを使うには[serde_json](https://docs.rs/serde_json/latest/serde_json/index.html) crateが便利です。
+
+```rust
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Data {
+  input: String,
+  step: usize,
+  field: Vec<f64>,
+}
+
+let data: Data = serde_json::from_str(r#"
+{
+  "input": "data.json",
+  "step": 2,
+  "field": [0.0, 0.0, 0.0, 0.1]
+}
+"#).unwrap();
+assert_eq!(data, Data {
+  input: "data.json".to_string(),
+  step: 2,
+  field: vec![0.0, 0.0, 0.0, 0.1]
+});
+```
+
+このように構造体を定義して、`#[derive(serde::Serialize)]`を付けるとシリアライズコードを、`#[derive(Deserialize)]`を付けるとデシリアライズ(シリアライズしたものから復元する)コードを生成してくれるので、`serde_json::from_str`で文字列から`Data`型にデシリアライズすることができます。
 
 Protocol Buffers
 ----------------
