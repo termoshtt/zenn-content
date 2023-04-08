@@ -37,6 +37,7 @@ struct Data {
   field: Vec<f64>,
 }
 
+// JSON文字列からDataを作る
 let data: Data = serde_json::from_str(r#"
 {
   "input": "data.json",
@@ -49,9 +50,15 @@ assert_eq!(data, Data {
   step: 2,
   field: vec![0.0, 0.0, 0.0, 0.1]
 });
+
+// DataからJSON文字列にする
+let data_str = serde_json::to_string(&data).unwrap();
+assert_eq!(data_str, r#"{"input":"data.json","step":2,"field":[0.0,0.0,0.0,0.1]}"#);
 ```
 
 このように構造体を定義して、`#[derive(serde::Serialize)]`を付けるとシリアライズコードを、`#[derive(Deserialize)]`を付けるとデシリアライズ(シリアライズしたものから復元する)コードを生成してくれるので、`serde_json::from_str`で文字列から`Data`型にデシリアライズすることができます。
+
+serdeというのはユーザー定義の構造体に対してJSONに限らず様々なシリアライズ・デシリアライズ実装をするためのフレームワークです。上の例では`serde::Serialize`が`Data`型に対して実装されていて、これはserde_jsonが提供しているのは`serde_json::from_str`と`serde_json::to_string`だけであることに注意してください。serdeではこのように外部のcrateによってデータフォーマットを追加することができます。JSONの他にも[YAML](https://github.com/dtolnay/serde-yaml)や[TOML](https://docs.rs/toml/latest/toml/)といった設定ファイルによく使われるフォーマットやバイナリ形式のJSONとも言える[MessagePack](https://github.com/3Hren/msgpack-rust)や[BSON](https://github.com/mongodb/bson-rust)、あるいは[PythonのPickleへの変換出来るcrate](https://github.com/birkenfeld/serde-pickle)が開発されています。詳しくは[serdeのドキュメント](https://docs.rs/serde/latest/serde/index.html#data-formats)を見てください。
 
 Protocol Buffers
 ----------------
