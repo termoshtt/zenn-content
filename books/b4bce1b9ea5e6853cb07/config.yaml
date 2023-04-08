@@ -9,6 +9,7 @@ chapters:
   - intro
   - versioning
   - num_traits
+  - ndarray
   - ndarray_linalg
   - eom
   - fftw
