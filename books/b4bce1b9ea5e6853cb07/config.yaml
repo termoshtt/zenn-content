@@ -17,6 +17,7 @@ chapters:
   - sfmt
   - rayon
   - nom
+  - data_format
   - criterion
   - flamegraph
   - plotlib
