@@ -21,6 +21,8 @@ rand_chacha = "0.3.1"
 
 # serialize
 serde = "1.0.144"
+prost = "0.11"
+prost-types = "0.11"
 
 # parser combinator
 nom = "7.1.1"
@@ -29,6 +31,9 @@ serde_json = "1.0.95"
 [dev-dependencies]
 # For benchmarking
 criterion = { version = "0.4.0", features = ["html_reports"] }
+
+[build-dependencies]
+prost-build = "*"
 
 [lib]
 # skip unittest from `cargo bench`

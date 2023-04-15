@@ -62,7 +62,46 @@ serdeというのはユーザー定義の構造体に対してJSONに限らず�
 
 Protocol Buffers
 ----------------
-次に代表的なスキーマ付きのデータフォーマットであるProtocol Buffersを見てみましょう。
+次に代表的なスキーマ付きのデータフォーマットであるProtocol Buffersを見てみましょう。JSONと大きく異なる点として、Protocol Buffersではまず保存するデータを`.proto`の拡張子のついたファイルに記述していきます。
+
+```proto
+syntax = "proto3";
+
+package rust_math_book.items;
+
+message Data {
+  string input = 1;
+  int64 step = 2;
+  repeated double field = 3;
+}
+```
+
+これを`src/items.proto`として保存し、`build.rs`内でコードを生成します。
+
+```rust:build.rs
+fn main() -> std::io::Result<()> {
+    prost_build::compile_protos(&["src/items.proto"], &["src/"])?;
+    Ok(())
+}
+```
+
+これでコンパイル時の環境変数`OUT_DIR`で指定される位置にRustのコードが生成されるので、`include!`マクロにより読み込みます。
+
+```rust
+mod rust_math_book {
+    include!(concat!(env!("OUT_DIR"), "/rust_math_book.items.rs"));
+}
+```
+
+この時のファイル名`rust_math_book.items.rs`は`items.proto`の`package rust_math_book.items`を反映しています。
+
+このようなデータ形式を記述するものをインターフェース定義言語(Interface Description Language; IDL)と呼びます。IDLから各言語向けにそのデータ構造を扱うためのコードが自動生成されます。Protocol Buffersでは公式の`protoc`コマンドによってRustのコードを生成することも出来ますが、今回は[prost](https://docs.rs/prost/latest/prost/) crateを使って生成しましょう。
+
+serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じ役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義する事ができます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
+https://github.com/onnx/onnx
+
+### バイナリデータの互換性
+数値計算では研究が進むにつれて保存するデータが増えたり減ったりすることがよくあります。すると保存されたデータ形式毎の互換性の問題が発生します。例えばあるバージョンにおいては存在していた`"time"`という浮動小数点数の値が別のバージョンでは無くなっていて代わりに整数のステップ数`"step"`になっているかもしれません。
 
 Tar
 ----
