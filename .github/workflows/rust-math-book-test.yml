@@ -12,6 +12,8 @@ jobs:
     container: ghcr.io/rust-math/rust-mkl:1.62.1-2020.1
     steps:
       - uses: actions/checkout@v1
+      - name: Install protoc
+        run: apt update && apt install -y protobuf-compiler
       - uses: actions-rs/cargo@v1
         name: cargo test
         with:

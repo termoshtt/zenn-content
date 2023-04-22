@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package rust_math_book.items;
+
+message Data {
+  string input = 1;
+  int64 step = 2;
+  repeated double field = 3;
+}
