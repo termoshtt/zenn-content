@@ -11,11 +11,11 @@ title: ディスクにデータを保存する
 
 等の操作を別々のプロセス・プログラムで行うことが出来ます。例えば時間発展は性能が必要なのでRustで行って可視化はPythonやParaViewのような専用のソフトウェアを使うこともあるでしょう。この時データをどうやって保存するのかが重要になります。
 
-ディスク上にデータを保存するには、データをシリアライズ(直列化)する必要があります。用途に応じて様々なデータフォーマットが提案され使用されています。それらの性質によって分類して議論する事も可能ですが、まずはよく普及している具体例を見ていきましょう。
+ディスク上にデータを保存するには、データをシリアライズ(直列化)する必要があります。用途に応じて様々なデータフォーマットが提案され使用されています。それらの性質によって分類して議論する事もできますが、まずはよく普及している具体例を見ていきましょう。
 
 JSON
 -----
-まずは単純なJSONから見ていきましょう。JSONは単純なテキストで構造化された記述できるフォーマットです。例えば
+まずは単純なJSONから見ていきましょう。JSONは単純なテキストで構造化された記述できるフォーマットです。例えば：
 ```json
 {
   "input": "data.json",
@@ -58,11 +58,11 @@ assert_eq!(data_str, r#"{"input":"data.json","step":2,"field":[0.0,0.0,0.0,0.1]}
 
 このように構造体を定義して、`#[derive(serde::Serialize)]`を付けるとシリアライズコードを、`#[derive(Deserialize)]`を付けるとデシリアライズ(シリアライズしたものから復元する)コードを生成してくれるので、`serde_json::from_str`で文字列から`Data`型にデシリアライズできます。
 
-serdeというのはユーザー定義の構造体に対してJSONに限らず様々なシリアライズ・デシリアライズ実装をするためのフレームワークです。上の例では`serde::Serialize`が`Data`型に対して実装されていて、これはserde_jsonが提供しているのは`serde_json::from_str`と`serde_json::to_string`だけであることに注意してください。serdeではこのように外部のcrateによってデータフォーマットを追加できます。JSONの他にも[YAML](https://github.com/dtolnay/serde-yaml)や[TOML](https://docs.rs/toml/latest/toml/)といった設定ファイルによく使われるフォーマットやバイナリ形式のJSONとも言える[MessagePack](https://github.com/3Hren/msgpack-rust)や[BSON](https://github.com/mongodb/bson-rust)、あるいは[PythonのPickleへの変換出来るcrate](https://github.com/birkenfeld/serde-pickle)が開発されています。詳しくは[serdeのドキュメント](https://docs.rs/serde/latest/serde/index.html#data-formats)を見てください。
+serdeというのはユーザー定義の構造体に対してJSONに限らず様々なシリアライズ・デシリアライズ実装をするためのフレームワークです。上の例では`serde::Serialize`が`Data`型に対して実装されていて、これはserde_jsonが提供しているのは`serde_json::from_str`と`serde_json::to_string`なことに注意してください。serdeではこのように外部のcrateによってデータフォーマットを追加できます。JSONの他にも[YAML](https://github.com/dtolnay/serde-yaml)や[TOML](https://docs.rs/toml/latest/toml/)といった設定ファイルによく使われるフォーマットやバイナリ形式のJSONとも言える[MessagePack](https://github.com/3Hren/msgpack-rust)や[BSON](https://github.com/mongodb/bson-rust)、あるいは[PythonのPickleへの変換出来るcrate](https://github.com/birkenfeld/serde-pickle)が開発されています。詳しくは[serdeのドキュメント](https://docs.rs/serde/latest/serde/index.html#data-formats)を見てください。
 
 Protocol Buffers
 ----------------
-次に代表的なスキーマ付きのデータフォーマットであるProtocol Buffersを見てみましょう。JSONと大きく異なる点として、Protocol Buffersではまず保存するデータを`.proto`の拡張子のついたファイルに記述していきます。例えば上のJSONの場合の構造体は次のように記述します：
+次に代表的なスキーマ付きのデータフォーマットのProtocol Buffersを見てみましょう。JSONと大きく異なる点として、Protocol Buffersではまず保存するデータを`.proto`の拡張子のついたファイルに記述していきます。例えば上のJSONの場合の構造体は次のように記述します：
 
 ```protobuf:src/items.proto
 // proto2からproto3で文法の非互換があるのでどちらで書くか指定する
@@ -129,13 +129,13 @@ assert_eq!(data2, data);
 ```
 
 ### データスキーマ
-重要な視点は、アプリケーション(例えば具体的な数値計算プログラム)がどんなデータを保存する必要があるかという部分と、どうやってデータをファイルに保存するかは独立して考える事が出きるという点です。例えば数値計算の設定ファイルを設計するとき、ユーザーはそのファイルに複数の事項を記入してプログラム側でそれを解釈する必要がありますが、この時プログラムは次の二つをチェックする必要があります：
+重要な視点は、アプリケーション(例えば具体的な数値計算プログラム)がどんなデータを保存する必要があるかという部分と、どうやってデータをファイルに保存するかは独立して考える事が出きるという点です。例えば数値計算の設定ファイルを設計するとき、ユーザーはそのファイルに複数の事項を記入してプログラム側でそれを解釈する必要がありますが、この時プログラムは次の2つをチェックする必要があります：
 
 - どこからどこまでが何の情報かが分かる
 - 計算に必要な情報を含んでいる
 
 まず前者はほとんどのアプリケーションにおいて共通です。これが例えばJSONのような共通のデータフォーマットが普及した理由で、この段階では可能な限りどんなデータでも入れる事が出きるように設計されています。一方で後者を解決するためのものがスキーマです。典型的には入力の検査は必要な名前を持ったフィールドが例えば整数のような特定の型を持っているかどうかを調べる事になり、これはほとんど自動的に生成できます。
 
-serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じIDLの役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義できます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
+serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたので、ある意味Rustの構造体の定義が`.proto`ファイルと同じIDLの役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義できます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
 https://github.com/onnx/onnx
 同じような事がJSONを使う場合でも[JSON Schema](https://json-schema.org/)を使うと可能です。
