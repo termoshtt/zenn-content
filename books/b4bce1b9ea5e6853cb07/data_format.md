@@ -107,6 +107,7 @@ fn main() -> std::io::Result<()> {
 
 ```rust
 mod rust_math_book {
+    // ファイル名`rust_math_book.items.rs`は`items.proto`の`package rust_math_book.items`を反映している
     include!(concat!(env!("OUT_DIR"), "/rust_math_book.items.rs"));
 }
 
@@ -127,7 +128,14 @@ let data2: Data = Message::decode(encoded.as_slice()).unwrap();
 assert_eq!(data2, data);
 ```
 
-この時のファイル名`rust_math_book.items.rs`は`items.proto`の`package rust_math_book.items`を反映しています。
+### データスキーマ
+重要な視点は、アプリケーション(例えば具体的な数値計算プログラム)がどんなデータを保存する必要があるかという部分と、どうやってデータをファイルに保存するかは独立して考える事が出きるという点です。例えば数値計算の設定ファイルを設計するとき、ユーザーはそのファイルに複数の事項を記入してプログラム側でそれを解釈する必要がありますが、この時プログラムは次の二つをチェックする必要があります：
 
-serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じ役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義できます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
+- どこからどこまでが何の情報かが分かる
+- 計算に必要な情報を含んでいる
+
+まず前者はほとんどのアプリケーションにおいて共通です。これが例えばJSONのような共通のデータフォーマットが普及した理由で、この段階では可能な限りどんなデータでも入れる事が出きるように設計されています。一方で後者を解決するためのものがスキーマです。典型的には入力の検査は必要な名前を持ったフィールドが例えば整数のような特定の型を持っているかどうかを調べる事になり、これはほとんど自動的に生成できます。
+
+serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じIDLの役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義できます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
 https://github.com/onnx/onnx
+同じような事がJSONを使う場合でも[JSON Schema](https://json-schema.org/)を使うと可能です。
