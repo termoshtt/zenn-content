@@ -56,9 +56,9 @@ let data_str = serde_json::to_string(&data).unwrap();
 assert_eq!(data_str, r#"{"input":"data.json","step":2,"field":[0.0,0.0,0.0,0.1]}"#);
 ```
 
-このように構造体を定義して、`#[derive(serde::Serialize)]`を付けるとシリアライズコードを、`#[derive(Deserialize)]`を付けるとデシリアライズ(シリアライズしたものから復元する)コードを生成してくれるので、`serde_json::from_str`で文字列から`Data`型にデシリアライズすることができます。
+このように構造体を定義して、`#[derive(serde::Serialize)]`を付けるとシリアライズコードを、`#[derive(Deserialize)]`を付けるとデシリアライズ(シリアライズしたものから復元する)コードを生成してくれるので、`serde_json::from_str`で文字列から`Data`型にデシリアライズできます。
 
-serdeというのはユーザー定義の構造体に対してJSONに限らず様々なシリアライズ・デシリアライズ実装をするためのフレームワークです。上の例では`serde::Serialize`が`Data`型に対して実装されていて、これはserde_jsonが提供しているのは`serde_json::from_str`と`serde_json::to_string`だけであることに注意してください。serdeではこのように外部のcrateによってデータフォーマットを追加することができます。JSONの他にも[YAML](https://github.com/dtolnay/serde-yaml)や[TOML](https://docs.rs/toml/latest/toml/)といった設定ファイルによく使われるフォーマットやバイナリ形式のJSONとも言える[MessagePack](https://github.com/3Hren/msgpack-rust)や[BSON](https://github.com/mongodb/bson-rust)、あるいは[PythonのPickleへの変換出来るcrate](https://github.com/birkenfeld/serde-pickle)が開発されています。詳しくは[serdeのドキュメント](https://docs.rs/serde/latest/serde/index.html#data-formats)を見てください。
+serdeというのはユーザー定義の構造体に対してJSONに限らず様々なシリアライズ・デシリアライズ実装をするためのフレームワークです。上の例では`serde::Serialize`が`Data`型に対して実装されていて、これはserde_jsonが提供しているのは`serde_json::from_str`と`serde_json::to_string`だけであることに注意してください。serdeではこのように外部のcrateによってデータフォーマットを追加できます。JSONの他にも[YAML](https://github.com/dtolnay/serde-yaml)や[TOML](https://docs.rs/toml/latest/toml/)といった設定ファイルによく使われるフォーマットやバイナリ形式のJSONとも言える[MessagePack](https://github.com/3Hren/msgpack-rust)や[BSON](https://github.com/mongodb/bson-rust)、あるいは[PythonのPickleへの変換出来るcrate](https://github.com/birkenfeld/serde-pickle)が開発されています。詳しくは[serdeのドキュメント](https://docs.rs/serde/latest/serde/index.html#data-formats)を見てください。
 
 Protocol Buffers
 ----------------
@@ -82,7 +82,7 @@ message Data {
 }
 ```
 
-詳しい文法は[公式ページ](https://protobuf.dev/programming-guides/proto3/)を見てください。このようなデータ形式を記述するものをインターフェース定義言語(Interface Description Language; IDL)と呼びます。IDLから各言語向けにそのデータ構造を扱うためのコードが自動生成されます。今回は[prost](https://docs.rs/prost/latest/prost/) crateを使ってRustコードを生成します。これはProtocol Buffersのコンパイラ`protoc`をサブプロセスとして呼び出すので`protoc`コマンドが存在している必要があります。Ubuntuでは
+詳しい文法は[公式ページ](https://protobuf.dev/programming-guides/proto3/)を見てください。このようなデータ形式を記述するものをインタフェース定義言語(Interface Description Language; IDL)と呼びます。IDLから各言語向けにそのデータ構造を扱うためのコードが自動生成されます。今回は[prost](https://docs.rs/prost/latest/prost/) crateを使ってRustコードを生成します。これはProtocol Buffersのコンパイラ`protoc`をサブプロセスとして呼び出すので`protoc`コマンドが存在している必要があります。Ubuntuでは
 
 ```shell
 sudo apt install protobuf-compiler
@@ -129,5 +129,5 @@ assert_eq!(data2, data);
 
 この時のファイル名`rust_math_book.items.rs`は`items.proto`の`package rust_math_book.items`を反映しています。
 
-serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じ役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義する事ができます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
+serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じ役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義できます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
 https://github.com/onnx/onnx
