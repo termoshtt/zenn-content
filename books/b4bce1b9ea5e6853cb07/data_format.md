@@ -62,21 +62,39 @@ serdeというのはユーザー定義の構造体に対してJSONに限らず�
 
 Protocol Buffers
 ----------------
-次に代表的なスキーマ付きのデータフォーマットであるProtocol Buffersを見てみましょう。JSONと大きく異なる点として、Protocol Buffersではまず保存するデータを`.proto`の拡張子のついたファイルに記述していきます。
+次に代表的なスキーマ付きのデータフォーマットであるProtocol Buffersを見てみましょう。JSONと大きく異なる点として、Protocol Buffersではまず保存するデータを`.proto`の拡張子のついたファイルに記述していきます。例えば上のJSONの場合の構造体は次のように記述します：
 
-```proto
+```protobuf:src/items.proto
+// proto2からproto3で文法の非互換があるのでどちらで書くか指定する
 syntax = "proto3";
 
+// パッケージという単位で管理する
 package rust_math_book.items;
 
+// データ構造はmessageと呼ぶ
 message Data {
+  // 文字列型のメンバーを追加する。通し番号`1`を付けることで将来の定義変更に備える
   string input = 1;
+  // 整数型はサイズを含めた名前になっている
   int64 step = 2;
+  // `repeated`は0回以上の繰り返しを表す
   repeated double field = 3;
 }
 ```
 
-これを`src/items.proto`として保存し、`build.rs`内でコードを生成します。
+詳しい文法は[公式ページ](https://protobuf.dev/programming-guides/proto3/)を見てください。このようなデータ形式を記述するものをインターフェース定義言語(Interface Description Language; IDL)と呼びます。IDLから各言語向けにそのデータ構造を扱うためのコードが自動生成されます。今回は[prost](https://docs.rs/prost/latest/prost/) crateを使ってRustコードを生成します。これはProtocol Buffersのコンパイラ`protoc`をサブプロセスとして呼び出すので`protoc`コマンドが存在している必要があります。Ubuntuでは
+
+```shell
+sudo apt install protobuf-compiler
+```
+
+macOS/Homebrewでは
+
+```shell
+brew install protobuf
+```
+
+Windowsでは[Releaseページ](https://github.com/protocolbuffers/protobuf/releases)からインストーラをダウンロードします。これを`src/items.proto`として保存し、`build.rs`内でコードを生成します。
 
 ```rust:build.rs
 fn main() -> std::io::Result<()> {
@@ -91,19 +109,25 @@ fn main() -> std::io::Result<()> {
 mod rust_math_book {
     include!(concat!(env!("OUT_DIR"), "/rust_math_book.items.rs"));
 }
+
+// include!したファイルの中で定義されている構造体
+use rust_math_book::Data;
+// prostが生成した構造体はMessage traitを実装しているのでこれで操作する
+use prost::Message;
+
+let data = Data {
+  input: "data.bin".to_string(),
+  step: 2,
+  field: vec![0.0, 0.0, 0.0, 0.1]
+};
+// バイナリデータにシリアライズする
+let encoded: Vec<u8> = data.encode_to_vec();
+// バイナリデータから復元する
+let data2: Data = Message::decode(encoded.as_slice()).unwrap();
+assert_eq!(data2, data);
 ```
 
 この時のファイル名`rust_math_book.items.rs`は`items.proto`の`package rust_math_book.items`を反映しています。
 
-このようなデータ形式を記述するものをインターフェース定義言語(Interface Description Language; IDL)と呼びます。IDLから各言語向けにそのデータ構造を扱うためのコードが自動生成されます。Protocol Buffersでは公式の`protoc`コマンドによってRustのコードを生成することも出来ますが、今回は[prost](https://docs.rs/prost/latest/prost/) crateを使って生成しましょう。
-
 serdeではRustの構造体からデータのシリアライザ・デシリアライザが導出されていたのである意味Rustの構造体の定義が`.proto`ファイルと同じ役割を果たしていたと言えます。Protocol Buffersのようにスキーマが独立して存在することにより特定の言語に依存しないデータ形式を定義する事ができます。例えばPyTorch等のライブラリ間でNeural Networkのモデルを交換するためのOpen Neural Network Exchange (ONNX)でもProtocol Buffersが採用されています。
 https://github.com/onnx/onnx
-
-### バイナリデータの互換性
-数値計算では研究が進むにつれて保存するデータが増えたり減ったりすることがよくあります。すると保存されたデータ形式毎の互換性の問題が発生します。例えばあるバージョンにおいては存在していた`"time"`という浮動小数点数の値が別のバージョンでは無くなっていて代わりに整数のステップ数`"step"`になっているかもしれません。
-
-Tar
-----
-少し趣向を変えてアーカイブ方式であるTarについて見てみましょう。シリアライズ方式としてTarを見るとこれは個別にシリアライズされたデータを一つのファイルとしてまとめる役割があります。例えば時系列データを保存することを考えると、各時間ステップに応じてデータがあるのでそれらを個別にシリアライズした後全体をまとめるものが必要です。
-
