@@ -9,7 +9,7 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-20.04
-    container: ghcr.io/rust-math/rust-mkl:1.63.0-2020.1
+    container: ghcr.io/rust-math/rust-mkl:latest
     steps:
       - uses: actions/checkout@v1
       - name: Install protoc
