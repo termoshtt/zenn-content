@@ -13,7 +13,7 @@ num-traits = "0.2.15"
 
 # ndarray and linear algebra implementations
 ndarray = "0.15.6"
-ndarray-linalg = { version = "0.15.0", features = ["intel-mkl-system"] }
+ndarray-linalg = { version = "0.15.0", features = ["intel-mkl"] }
 
 # random number generator
 rand = "0.8.5"
