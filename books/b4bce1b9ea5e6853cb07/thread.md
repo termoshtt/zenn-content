@@ -21,16 +21,43 @@ TODO: ここにスレッド割り当ての図を入れる
 
 # スレッドの作成
 
-スレッドの起動はOSにスレッドを起動するように指示することになるのでOSに依存した処理ですが、Rustでは標準ライブラリがOSに依存した処理を隠蔽して、プログラムからはOSに依存した処理を意識することなくスレッドを起動できるようになっています。スレッドを起動するには `std::thread::spawn` 関数を使います。
+スレッドの起動はOSにスレッドを起動するように指示することになるのでOSに依存した処理ですが、Rustでは標準ライブラリがOSに依存した処理を隠蔽して、プログラムからはOSに依存した処理を意識することなくスレッドを起動できるようになっています。スレッドを起動するには[`std::thread::spawn`](https://doc.rust-lang.org/std/thread/fn.spawn.html)関数を使います。
 
 ```rust
-let thread = std::thread::spawn(/* 新たに起動するスレッドで行う処理を記述する */ || {
+let thread = std::thread::spawn(|| {
+    // ここは新しいスレッドで実行される
+
     // まず1秒待つ
     std::thread::sleep(std::time::Duration::from_secs(1));
+
+    // 新しいスレッドからのメッセージを表示する
+    println!("Hello from new Thread!");
+
     // 1を返す
     return 1;
 });
 
+// ここは新しいスレッドを生成した直後にメインスレッドで実行される
+println!("Hello from main Thread!");
+
+// 新しいスレッドの終了を待つ。新しいスレッドにあげた関数の戻り値がもらえる
 let result = thread.join().unwrap();
 assert_eq!(result, 1);
 ```
+
+メインスレッドは新しいスレッドを起動した後、その処理が終わるのを待たずに次の処理に移ります。スレッドを起動したときにもらった[`JoinHandle`](https://doc.rust-lang.org/std/thread/struct.JoinHandle.html)を`join()`することによって起動したスレッドの処理が終わるを待ち、渡した関数の戻り値をもらうことができます。全体の流れを図にすると次のようになります：
+
+```mermaid
+sequenceDiagram
+    participant main as Main Thread
+    participant new as New Thread
+    main->>+new: std::thread::spawn
+    main->>main: Hello
+    new-->>new: sleep 1s
+    main-->>main: waiting...
+    new->>new: Hello
+    new->>-main: Return 1
+```
+
+# スレッド間でのデータのやりとり
+先ほど同じプロセスに所属しているスレッドは同じメモリを共有しているといいましたが、Rustではこの機能を大きく制限しています。というのも同時に動いている複数のスレッドから共有されたメモリを正しく読み書きすることは非常に難しい処理で、これをユーザーの責任にしてしまうと発見が困難な多くのバグが発生してしまうからです。しかしこれでは並列処理が[The Art of Multiproessor Programming](https://www.sciencedirect.com/book/9780124159501/the-art-of-multiprocessor-programming)を通読したプロだけのものになってしまいます。そこでRustはコンパイラの責任において正しくない共有メモリの読み書きを禁止するような型システムとその中で正しいコードを簡単に書けるようなAPIを提供しています。
