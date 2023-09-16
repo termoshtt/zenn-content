@@ -61,7 +61,7 @@ sequenceDiagram
 ```
 
 # スレッド間でのデータのやりとり
-先ほど同じプロセスに所属しているスレッドは同じメモリを共有しているといいましたが、Rustではこの機能を大きく制限しています。というのも、同時に動作している複数のスレッドから共有されたメモリを正しく読み書きすることは非常に難しい処理で、これをユーザーの責任にすると発見が困難な多くのバグが発生してしまうからです。しかしこうしたアプローチでは、並列処理が [The Art of Multiprocessor Programming](https://www.sciencedirect.com/book/9780124159501/the-art-of-multiprocessor-programming) を通読したプロフェッショナルのものに制約されてしまいます。そこで、Rustはコンパイラの責任において正しくない共有メモリの読み書きを禁止する型システムと、その中で正しいコードを簡単に記述できるAPIを提供しています。
+先ほど同じプロセスに所属しているスレッドは同じメモリを共有しているといいましたが、Rustではこの機能を大きく制限しています。というのも、同時に動作している複数のスレッドから共有されたメモリを正しく読み書きすることは非常に難しい処理で、これをユーザーの責任にすると発見すら困難な多くのバグが発生してしまうからです。こうしたアプローチでは、並列処理が [The Art of Multiprocessor Programming](https://www.sciencedirect.com/book/9780124159501/the-art-of-multiprocessor-programming) を通読したプロフェッショナルだけのものに制約されてしまいます。そこで、Rustはコンパイラの責任において正しくない共有メモリの読み書きを禁止する型システムと、その中で正しいコードを簡単に記述できるAPIを提供しています。
 
 ## Shared XOR mutability
 複数のスレッドでデータを受け渡す最も簡単な方法は、スレッド起動時にデータを渡し、終了時に回収する方法です。こうすれば同時に複数のスレッドからアクセスされることはないため、常に安全だと思うかもしれませんが、これにも問題が存在します。
@@ -82,7 +82,7 @@ Rustでは、全ての型に対してマーカーであるTrait `Send` と `Sync
 - `T: Send`: 型`T`の変数は別のスレッドに渡すことができます。
 - `T: Sync`: 型`T`の変数は複数のスレッドで共有できます。つまり、任意の `'a` に対して `&'a T: Send` であることが必要です。
 
-これらのトレイトは通常のTrait境界と同じように使用できます。
+これらのトレイトはユーザーが定義した型も含めて自動的に実装され、通常のTrait境界と同じように使用できます。
 
 ```rust
 fn f<T: Send>(_: T) {
@@ -95,9 +95,7 @@ fn main() {
 }
 ```
 
-前述の説明のように、基本的にはポインタは複数のスレッドで共有することが危険なため、`*mut T` 型に対しては `impl !Send for *mut T` および `impl !Sync for *mut T` となっています。この `!` は否定の意味を持ち、一部の組み込みTraitに
-
-のみ許可されています。例えば、Cで提供されるライブラリのFFIを使用してマルチスレッド環境で利用する場合は、ライブラリのマニュアルに従って `Send` および `Sync` を実装する必要がありますが、この処理は `unsafe impl` という特殊な構文を使用します。
+前述の説明のように、基本的にはポインタは複数のスレッドで共有することが危険なため、`*mut T` 型に対しては `impl !Send for *mut T` および `impl !Sync for *mut T` となっています。この `!` は否定の意味を持ち、一部の組み込みTraitにのみ許可されています。例えば、Cで提供されるライブラリのFFIを使用してマルチスレッド環境で利用する場合は、そのライブラリのマニュアルに従ってスレッドセーフになるように `Send` および `Sync` を実装する必要がありますが、この処理は `unsafe impl` という特殊な構文を使用します。
 
 `Send` トレイトを活用することで、新しいスレッドを起動する関数 `std::thread::spawn` は次のように定義されます。
 
@@ -149,4 +147,47 @@ let new_s = f();
 dbg!(new_s); // "Hello World!"
 ```
 
-この場合、`f` の型は参照が必要なくなり、寿命は `'static` になります。また、一度呼び出すと `s` は消費されるため、`FnOnce` になります。
+この場合、`f` の型は参照が必要なくなり、寿命は `'static` になります。また、一度呼び出すと `s` は消費されるため、`FnOnce` になります。さらにキャプチャされる変数が全て `Send` の場合は自動的にクロージャも `Send` になります。こうして `spawn` の引数である `F: FnOnce() -> + Send + 'static` が満たされるクロージャが得られます。
+
+## チャンネル
+次にスレッドの途中でデータを送る方法について説明しましょう。それにはチャンネルを使います。チャンネルは送信する側と受信する側の2つのエンドポイントから構成されます。チャンネルを作成するには [`std::sync::mpsc::channel`](https://doc.rust-lang.org/std/sync/mpsc/fn.channel.html) 関数を使用します。
+
+```rust
+let (sender, receiver) = std::sync::mpsc::channel();
+
+// Spawn off an expensive computation
+std::thread::spawn(move || {
+    let one_s = std::time::Duration::from_secs(1);
+
+    // 1秒毎に3回値を送る
+    std::thread::sleep(one_s);
+    sender.send(1).unwrap();
+
+    std::thread::sleep(one_s);
+    sender.send(2).unwrap();
+
+    std::thread::sleep(one_s);
+    sender.send(3).unwrap();
+
+    // receiverがドロップされ、チャンネルが閉じられる
+});
+
+loop {
+    // チャンネルからの値を待つ
+    if let Ok(value) = receiver.recv() {
+        println!("Got {}", value);
+    } else {
+        // チャンネルが閉じられたら `recv()` は `Err` を返すので終了する
+        break;
+    }
+}
+```
+
+これはMulti-Producer Single-Consumerの略でMPSCチャンネルと呼ばれ、多数の送信者と一人の受信者からなります。なので送信用のエンドポイント `sender` は複製することができ、複数のスレッドから送ることができますが、受信用のエンドポイント `receiver` は一つしか存在できません。`sender`がドロップされると`recv()`に`ReceiveError`が発生し、逆に`receiver`がドロップされると`sender`から`send`する際に`SendError`が発生します。このチャンネルは "Unbound" つまりデータをいくらでも送ることができ、それらはメモリ上にバッファリングされます。これに対して、[`std::sync::mpsc::sync_channel`](https://doc.rust-lang.org/std/sync/mpsc/fn.sync_channel.html) はバッファリングされたデータが一定数を超えると送信側がブロックされるチャンネルです。
+
+# データを共有とロック
+以上は片方のスレッドから他方のスレッドにデータを送るという形をとっていましたが、実際には両方のスレッドでデータを読み書きする必要がある場合もあります。この場合の方法としてAtomicなデータ型とMutexがあります。
+
+## Atomic
+
+## `Arc`と`Mutex`
