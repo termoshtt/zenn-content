@@ -186,8 +186,94 @@ loop {
 これはMulti-Producer Single-Consumerの略でMPSCチャンネルと呼ばれ、多数の送信者と一人の受信者からなります。なので送信用のエンドポイント `sender` は複製することができ、複数のスレッドから送ることができますが、受信用のエンドポイント `receiver` は一つしか存在できません。`sender`がドロップされると`recv()`に`ReceiveError`が発生し、逆に`receiver`がドロップされると`sender`から`send`する際に`SendError`が発生します。このチャンネルは "Unbound" つまりデータをいくらでも送ることができ、それらはメモリ上にバッファリングされます。これに対して、[`std::sync::mpsc::sync_channel`](https://doc.rust-lang.org/std/sync/mpsc/fn.sync_channel.html) はバッファリングされたデータが一定数を超えると送信側がブロックされるチャンネルです。
 
 # データを共有とロック
-以上は片方のスレッドから他方のスレッドにデータを送るという形をとっていましたが、実際には両方のスレッドでデータを読み書きする必要がある場合もあります。この場合の方法としてAtomicなデータ型とMutexがあります。
+以上は片方のスレッドから他方のスレッドにデータを送るという形をとっていましたが、実際には両方のスレッドでデータを読み書きする必要がある場合もあります。複数のスレッドにそれぞれ送信用・受信用のチャンネルを用意することもできますが、スレッド数が増えるとチャンネルの管理が難しくなります。そこで、複数のスレッドから同時にデータを読み書きする場合は、どのスレッドからでも読み書きできるメモリを用意し、そのメモリにアクセスする際に排他制御を行うのが一般的です。この場合の方法としてAtomicなデータ型とMutexがあります。
 
 ## Atomic
+例えば複数のスレッドである型のオブジェクトをたくさん生成して、それらに通し番号をつけたいとします。逐次的に生成する時はまず整数のカウンタを一つ用意して、一つオブジェクトを作る毎に `+1` していけばこれが番号になります。同じようにして複数のスレッドで生成する場合にも一つ作るたびに共有しているカウンタの値を `+1` することにしましょう。しかしこの時問題が発生します。例えばカウンタの値が `2` であるときに同時に二つのスレッドから `+1` しようとしたとしましょう。それぞれのスレッドは
+
+- まずカウンタの値を読み込み
+- 一つ増やし
+- カウンタに書き込む
+
+という処理を行います。もしスレッドAが `2` を読み込んでから `3` を書きこむまでの間にスレッドBがカウンタの値を読み込んでしまった場合、スレッドB側でも同じく `2` を読み込んで `3` を書き込むことになるので、新しいオブジェクトは二つ増えたのにカウンタの値が１しか増えていないことになります。このような状態をデータ競合と言います。幸いRustではこのような危険な処理は `unsafe` 句を使って明示的に行わない限り禁止されています。
+
+上の操作は値の読み込みと書き込みの間に他の処理が入らないことが保証できれば回避できます。特に整数についてはこの保証がある命令がCPUに用意されており、それを利用することで高速に操作しつつデータ競合を回避できます。例えば上のカウンタの例 [`AtomicUsize`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html)は `fetch_add` という命令を使って次のように書くことができます。
+
+```rust
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+// Aをいくつ生成したかを覚えておくカウンタ
+static COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+struct A {
+    id: usize,
+}
+impl A { 
+    fn new() -> A {
+        // 読みこみとインクリメントを同時に行う
+        let id = COUNTER.fetch_add(1, Ordering::Relaxed);
+        A { id }
+    }
+}
+
+let thread = std::thread::spawn(|| {
+    let a = A::new();
+    println!("Hello from new Thread! id: {}", a.id);
+});
+
+let a = A::new();
+println!("Hello from main Thread! id: {}", a.id);
+
+thread.join().unwrap();
+
+// 両方のスレッドでAが生成されたので2になってるはず
+assert_eq!(COUNTER.load(Ordering::Relaxed), 2);
+```
+
+ここで `COUNTER` が `static mut` になっていないのは `AtomicUsize::fetch_add` が値を増やすにも関わらず `&mut self` でなく `&self` を要求するからです。これは`RefCell<T>`型などで用いられる内部可変性と同じで、型システムのレベルではなくAPIのレベルで安全性を保証しているからです。詳しくは公式ドキュメントの[RefCell<T>と内部可変性パターン](https://doc.rust-jp.rs/book-ja/ch15-05-interior-mutability.html)等を見てください。`Ordering`についてはアトミック性を保証するだけなら最も弱い`Ordering::Relaxed`を使えば十分ですが、詳しくは[リファレンス](https://doc.rust-lang.org/std/sync/atomic/enum.Ordering.html)を読んでください。
 
 ## `Arc`と`Mutex`
+浮動小数点数やユーザー定義型についてはアトミック命令は存在しないので、他のスレッドが同じメモリ領域を同時に操作できないように、ロックという同時に一つのスレッドしか取得できない仕組みを使います。
+
+```rust
+use std::sync::{Arc, Mutex};
+
+// 'static で他のスレッドに渡すためにArcでラップする
+let sum_main = Arc::new(Mutex::new(0.0));
+// 新しいスレッドにあげるための参照
+let sum_new = Arc::clone(&sum_main);
+
+let thread = std::thread::spawn(move || {
+    // Lockを取得する
+    let mut sum = sum_new.lock().unwrap();
+
+    // Lockを取得している間は他のスレッドはLockを取得できない
+
+    // sumはMutexGuardという型で、Derefを実装しているので、
+    // `*sum` で中身を取り出せる
+    *sum += 1.0;
+
+    // `sum` がドロップされるときに自動的にロックが解除される
+});
+
+{
+    // メインスレッドでもロックを取得する
+    // もし別スレッドでロックを取得している場合はここで待機する
+    let mut sum = sum_main.lock().unwrap();
+
+    *sum += 1.0;
+
+    // `sum` がドロップされるときに自動的にロックが解除される
+}
+
+// 新しいスレッドの終了を待つ
+// もしメインスレッドでロックを持ったまま待機してしまうとデッドロックする
+thread.join().unwrap();
+
+let sum = sum_main.lock().unwrap();
+assert_eq!(*sum, 2.0);
+```
+
+ロックを取得するには[`Mutex`](https://doc.rust-lang.org/std/sync/struct.Mutex.html)の他に読み取りロックと書き込みロックを区別する[`RwLock`](https://doc.rust-lang.org/std/sync/struct.RwLock.html)があります。またロックを取得できなかった場合に待機せずに`Err`を即座に返す[`try_lock`](https://doc.rust-lang.org/std/sync/struct.Mutex.html#method.try_lock)関数もあります。
+
+もし別スレッドが処理を行う前にメインスレッドがロックを保持し、そのまま別スレッドの終了を待機してしまった場合、両方のスレッドが先に進めなくなるためデッドロックと呼ばれる状況になります。残念ながらこれを防ぐのはプログラマの責任です。
