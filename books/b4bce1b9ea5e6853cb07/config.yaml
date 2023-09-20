@@ -15,6 +15,7 @@ chapters:
   - rand
   - simd
   - sfmt
+  - thread
   - rayon
   - nom
   - data_format
