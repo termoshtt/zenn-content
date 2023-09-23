@@ -15,7 +15,7 @@ Rust強い制約によって強い保証を得るタイプの言語なのでそ�
 
 - [実践Rustプログラミング入門](https://www.shuwasystem.co.jp/book/9784798061702.html)
 - [実践Rust入門](https://gihyo.jp/book/2019/978-4-297-10559-4)
-- ...
+- ... (他にも多数)
 
 Rustに関する日本語コミュニティとして [rust-jp (Zulip)](https://rust-lang-jp.zulipchat.com/) があります。 これは誰でも参加することが出来、またログインせずにほとんどの投稿を見ることも出来ます。
 
@@ -43,3 +43,17 @@ Rustを使うべきで無い場合
 [nvidia]: https://developer.nvidia.com/cuda-toolkit
 [SX]: https://jpn.nec.com/hpc/sxauroratsubasa/index.html
 [FX]: https://www.fujitsu.com/jp/products/computing/servers/supercomputer/
+
+この本の構成
+------------
+
+この本は以下の4章からなります。
+
+- 言語機能の補足と応用
+- ソフトウェア開発技術
+- 数値計算用ライブラリ紹介
+- 別言語との相互運用
+
+これらの章は互いに独立しており、さらにそれらに含まれる個々のページも独立しています。この本は前述のとおり数値計算を題材としてRustを学ぶための本ではなく、Rustを使って数値計算の実務を行う人を対象としています。読者は自分の興味に応じて章の順序を入れ替えて、あるいは特定のページだけを読むことが出来ます。
+
+なおZennにはチャプターを階層化する機能がないので、これらの章は開始チャプターを用意することで実現しています。それぞれの開始チャプターはタイトルの先頭に絵文字が入っています。
