@@ -7,22 +7,34 @@ price: 0
 chapters:
   - about
   - intro
-  - versioning
+
+  # 言語機能
+  - language
+  - thread
+  - simd
   - num_traits
+
+  # 開発技術
+  - development
+  - versioning
+  - criterion
+  - flamegraph
+  - nom
+  - data_format
+
+  # ライブラリ紹介
+  - library
   - ndarray_linalg
   - eom
   - fftw
   - rand
-  - simd
   - sfmt
-  - thread
   - rayon
-  - nom
-  - data_format
-  - criterion
-  - flamegraph
   - plotlib
   - rug
-  - cc
   - mkl
+
+  # 相互運用
+  - interop
+  - cc
   - pyo3
