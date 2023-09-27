@@ -9,7 +9,7 @@ title: ドキュメントを書く
 
 # ドキュメントを生成する
 
-```
+```shell
 cargo doc --open
 ```
 
@@ -18,3 +18,30 @@ cargo doc --open
 https://github.com/4U6U57/wsl-open
 
 を試してみるといいでしょう。
+
+# サンプルコードを書く
+まずはサンプルコードを書いていきましょう。例えば `cargo new --lib` で生成されるコードに対してサンプルコードを書いてみましょう：
+
+```rust
+/// ```rust
+/// use document_example::add;
+/// assert_eq!(add(1, 2), 3);
+/// ```
+pub fn add(left: usize, right: usize) -> usize {
+    left + right
+}
+```
+
+Rustにはいくつかコメントの種類がありますが、主に使うのは次の3つです
+
+- `//` から始まる行コメント
+- `///` から始まるドキュメントコメント
+- `//!` から始まるモジュールドキュメントコメント
+
+いずれも本体の実装に影響しないのは同じですが、後者二つはドキュメントに含まれます。ドキュメントコメントはMarkdown形式で記述します。\`\`\`で囲われている部分がサンプルコードになります。この時`cargo doc`でHTMLファイルを生成すると次のようになります：
+
+![](https://storage.googleapis.com/zenn-user-upload/7a93168fe844-20230928.png)
+
+:::message
+残念ながら一般的にMarkdownと呼ばれる書式に共通の定義はなく処理系に応じて様々な独自の拡張があります。例えば[GitHub flavored Markdown](https://github.github.com/gfm/)やこの文章を記述している[ZennのMarkdown記法](https://zenn.dev/zenn/articles/markdown-guide)などがあります。Rustのドキュメントを処理する `rustdoc` は[CommonMark](https://commonmark.org/)に基づいています。
+:::

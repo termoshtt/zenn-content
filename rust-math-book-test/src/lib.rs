@@ -16,6 +16,17 @@ pub mod thread {}
 #[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/data_format.md")]
 pub mod data_format {}
 
+#[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/document.md")]
+pub mod document {
+    /// ```rust
+    /// use rust_math_book_test::document::add;
+    /// assert_eq!(add(1, 2), 3);
+    /// ```
+    pub fn add(left: usize, right: usize) -> usize {
+        left + right
+    }
+}
+
 #[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/criterion.md")]
 pub mod criterion {}
 
