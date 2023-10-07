@@ -36,5 +36,6 @@ chapters:
 
   # 相互運用
   - interop
+  - link
   - cc
   - pyo3
