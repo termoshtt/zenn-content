@@ -9,15 +9,13 @@ title: ドキュメントを書く
 
 # ドキュメントを生成する
 
+Cargoで管理されているRustのプロジェクトでは
+
 ```shell
-cargo doc --open
+cargo doc
 ```
 
-とすると `target/doc` 以下にドキュメントが生成され、ブラウザで開かれます。`--open`を除くと生成だけ行います。仮想環境内だとブラウザが発見できないかもしれません。例えばWSLだと
-
-https://github.com/4U6U57/wsl-open
-
-を試してみるといいでしょう。
+とすると `target/doc` 以下にドキュメントが生成されます。生成されたHTMLをブラウザで開くには`cargo doc --open`のように`--open`オプションをつけます。この時依存しているライブラリのドキュメントも一緒に生成するので、必要ない場合は `cargo doc --no-deps` とします。この時はcrateのメタデータに登録されているURLが参照されます。多くの場合はRustの公式チームの一つである[Docs.rs team](https://www.rust-lang.org/governance/teams/dev-tools#docs-rs)によって管理されている <https://docs.rs/> にホストされています。このサイトはRustの公式パッケージレジストリ <https://crates.io/> にパッケージがアップロードされると自動的にそのドキュメントを生成してホストしてくれます。
 
 # サンプルコードを書く
 まずはサンプルコードを書いていきましょう。例えば `cargo new --lib` で生成されるコードに対してサンプルコードを書いてみましょう：
