@@ -95,3 +95,74 @@ pub fn add(left: usize, right: usize) -> usize {
 }
 ```
 
+# 数式や図を書く
+さてドキュメントは読まずにまずはサンプルコードをコピペして動かすとは言いましたが、これでは動かし方が分かっても何を計算してくれるものなのか分からないことも多いでしょう。この時ヒントになるのはまず関数名と引数・戻り値の型です。例えば `add` という関数名は和を計算することを示唆しています。また引数と戻り値の型が `usize` であることから、この関数は整数の和を計算することが分かります。こうなれば何を計算しているかは明らかです。わざわざ英語や日本語ような自然言語で何かを説明する必要はないでしょう。自然言語による説明より型による説明の方が正確で簡潔になり、さらにコンパイラが型をチェックしてくれるので間違いが減ります。
+
+それぞれの関数が名前と型から自明に処理が分かるように設計する技術というのは非常に重要ですが、それでも全てが型で表現できるわけではありません。そうなるといよいよ自然言語でドキュメントを書くことになります。ドキュメントを書く際に気を付けるべきことは、一度自然言語で書いたドキュメントは人間がそれを読んで意味を把握し現在のコードの状況を理解して更新していかなければならないという点です。しかもこの作業はおそらくあなたが面白い研究のアイディアを思いついて、それを実現するために修正している最中に起こります。どうしても説明しないといけないことを端的に説明する必要があり、論文を書くように長々と書くことはできません。
+
+端的に必要なことを説明するにはどうすればいいでしょう？研究集会で自分の研究を短い時間で聴衆に伝えるときどうしていますか？数式や図を多用するはずです。なのでドキュメントでも数式や図が簡単に書けなくてはいけません。ここではその方法を説明します。
+
+ドキュメントはブラウザで見ることになるので、ブラウザで動く技術をドキュメントを記述するために使うことができます。ドキュメントコメントはMarkdownで書くといいましたが、Markdownには[生のHTML片を埋め込む機能](https://spec.commonmark.org/0.30/#raw-html)があるので、HTMLをそのまま埋め込むことができるだけでなく `<script>` 句を埋め込むこともできるので、これにより多くのJavaScriptライブラリをそのまま使うことができます。つまりフロンドエンドの全ての技術をドキュメントを記述するために使うことができます！
+
+## 数式を書く
+数値計算の本なので、まずは数式を書く方法を説明しましょう。ブラウザで数式を表示するにはKaTeXの[Auto-render機能](https://katex.org/docs/autorender)を使います。
+
+https://katex.org/
+
+```rust
+/// Test of $\KaTeX$ document
+///
+/// $$
+/// A = LU
+/// $$
+///
+/// where $A \in R^{n \times n}$ is input matrix,
+/// and lower triangular matrix $L \in R^{n \times n}$ and upper triangular matrix $U \in R^{n \times n}$ will be returned.
+///
+/// <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+/// <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+/// <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+/// <script>
+///     document.addEventListener("DOMContentLoaded", function() {
+///         renderMathInElement(document.body, {
+///           // customised options
+///           // • auto-render specific keys, e.g.:
+///           delimiters: [
+///               {left: '$$', right: '$$', display: true},
+///               {left: '$', right: '$', display: false},
+///               {left: '\\(', right: '\\)', display: false},
+///               {left: '\\[', right: '\\]', display: true}
+///           ],
+///           // • rendering keys, e.g.:
+///           throwOnError : false
+///         });
+///     });
+/// </script>
+///
+pub fn lu(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
+    todo!()
+}
+```
+
+これで次のようなドキュメントが生成されます
+
+![](https://storage.googleapis.com/zenn-user-upload/ed4e0c662345-20231014.png)
+
+この `<script>` 句はちょっと邪魔ですね。これを手続きマクロで挿入してくれるcrateが[katexit](https://github.com/termoshtt/katexit)です。
+
+```rust
+#[cfg_attr(doc, katexit::katexit)]
+/// Test of $\KaTeX$ document
+///
+/// $$
+/// A = LU
+/// $$
+///
+/// where $A \in R^{n \times n}$ is input matrix,
+/// and lower triangular matrix $L \in R^{n \times n}$ and upper triangular matrix $U \in R^{n \times n}$ will be returned.
+pub fn lu_(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
+    todo!()
+}
+```
+
+実は手続きマクロはドキュメント部分も操作することができます。
