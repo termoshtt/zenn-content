@@ -110,6 +110,8 @@ pub fn add(left: usize, right: usize) -> usize {
 https://katex.org/
 
 ```rust
+use ndarray::Array2;
+
 /// Test of $\KaTeX$ document
 ///
 /// $$
@@ -151,6 +153,8 @@ pub fn lu(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
 この `<script>` 句はちょっと邪魔ですね。これを手続きマクロで挿入してくれるcrateが[katexit](https://github.com/termoshtt/katexit)です。
 
 ```rust
+use ndarray::Array2;
+
 #[cfg_attr(doc, katexit::katexit)]
 /// Test of $\KaTeX$ document
 ///
@@ -165,4 +169,4 @@ pub fn lu_(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
 }
 ```
 
-実は手続きマクロはドキュメント部分も操作することができます。
+だいぶ簡潔に書けるようになりました。実は手続きマクロはドキュメント部分も操作することができます。
