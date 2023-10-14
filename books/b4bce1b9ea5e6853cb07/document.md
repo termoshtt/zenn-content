@@ -170,3 +170,57 @@ pub fn lu_(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
 ```
 
 だいぶ簡潔に書けるようになりました。実は手続きマクロはドキュメント部分も操作することができます。
+
+## mermaid.jsでフロー図を書く
+
+[![](https://mermaid.js.org/header.png)](https://mermaid.js.org/intro/)
+
+[mermaid.js](https://mermaid.js.org/)はフロー図やシーケンス図などをテキストで記述してブラウザで表示するためのライブラリです。最近はGitHubやZennでも採用されているので使ったことがある人も多いでしょう。これを使うと次のような図を簡単に書くことができます。
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+このような簡易的な図はドキュメントに書くときには非常に便利です。これもKaTeXと同様に[aquamarine](https://github.com/mersinvald/aquamarine)という補助crateを使って次のように書くことができます。
+
+```rust
+#[cfg_attr(doc, aquamarine::aquamarine)]
+/// ```mermaid
+/// graph TD;
+///     A-->B;
+///     A-->C;
+///     B-->D;
+///     C-->D;
+/// ```
+pub fn example() {}
+```
+
+これで次のようなドキュメントが生成されます：
+
+![](https://storage.googleapis.com/zenn-user-upload/6cf0d93598ad-20231014.png)
+
+## p5.jsで複雑な図を書く
+
+数値計算で必要になる議論の中では込み入った理解が必要なものもありますが、この時優れた図が一枚あるだけで理解が格段に進むことがあります。論文などでは例えば[TikZ](https://tikz.dev/)等のツールを用いて図を記述する人が多いでしょうが、TikZは残念ながらブラウザでは動作しません。SVGを直接記述するという事も可能ですが、一つの代替となりうる選択肢として [p5.js](https://p5js.org/) があります。p5.jsはProcessingというJavaベースのグラフィックスライブラリをJavaScriptに移植したものです。同じように[p5doc](https://github.com/termoshtt/p5doc)という補助crateを使うと次のように書くことができます。
+
+```rust
+#[cfg_attr(doc, p5doc::p5doc)]
+/// Some function!
+///
+/// ```p5doc:200x100
+/// background(220);
+/// ellipse(50,50,80,80);
+/// ```
+///
+pub fn p5doc_test() {}
+```
+
+これで次のようなドキュメントが生成されます：
+
+![](https://storage.googleapis.com/zenn-user-upload/a3535355ef12-20231014.png)
+
+この図はブラウザ上で生成されていることに注意してください。

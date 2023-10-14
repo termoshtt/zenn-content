@@ -73,6 +73,29 @@ pub mod document {
     pub fn lu_(a: Array2<f64>) -> (Array2<f64>, Array2<f64>) {
         todo!()
     }
+
+    #[cfg_attr(doc, aquamarine::aquamarine)]
+    /// Test mermaid.js
+    ///
+    /// ```mermaid
+    /// graph TD;
+    ///     A-->B;
+    ///     A-->C;
+    ///     B-->D;
+    ///     C-->D;
+    /// ```
+    ///
+    pub fn mermaid_test() {}
+
+    #[cfg_attr(doc, p5doc::p5doc)]
+    /// Test p5.js
+    ///
+    /// ```p5doc:200x100
+    /// background(220);
+    /// ellipse(50,50,80,80);
+    /// ```
+    ///
+    pub fn p5doc_test() {}
 }
 
 #[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/criterion.md")]
