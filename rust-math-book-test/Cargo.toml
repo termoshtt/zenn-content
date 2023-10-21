@@ -30,6 +30,8 @@ serde_json = "1.0.95"
 katexit = "0.1.4"
 aquamarine = "0.3.2"
 p5doc = "0.1.0"
+rayon = "1.8.0"
+maplit = "1.0.2"
 
 [dev-dependencies]
 # For benchmarking
