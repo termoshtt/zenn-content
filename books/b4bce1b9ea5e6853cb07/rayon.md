@@ -2,10 +2,10 @@
 title: データ並列 (rayon crate)
 ---
 
-[rayon](https://github.com/rayon-rs/rayon)はデータ並列のためのライブラリです。そのために次の二つが必要になり、Rayonはこれらを提供してくれます。
+[rayon](https://github.com/rayon-rs/rayon)はデータ並列のためのライブラリです。そのために次の2つが必要になり、Rayonはこれらを提供してくれます。
 
 - スレッドプール実装
-- 安全で便利にスレッドプールで並列処理を記述する事ができるAPI
+- 安全で便利にスレッドプールで並列処理を記述できるAPI
 
 # Parallel Iterator
 
