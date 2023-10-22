@@ -1,11 +1,10 @@
-title: "cmake-book"
-summary: "cmake-book"
+title: "cmake tutorial"
+summary: "基本的なcmakeの使い方を解説する"
 topics: ["cmake"]
 published: true
 allow_override: true
 price: 0
 chapters:
-  - about
   - cmake
   - first_cmake
   - directories
