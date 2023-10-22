@@ -1,0 +1,16 @@
+title: "cmake tutorial"
+summary: "基本的なcmakeの使い方を解説する"
+topics: ["cmake"]
+published: true
+allow_override: true
+price: 0
+chapters:
+  - cmake
+  - first_cmake
+  - directories
+  - out_of_source
+  - shell
+  - option
+  - flags
+  - git_submodule
+  - scikit-build
