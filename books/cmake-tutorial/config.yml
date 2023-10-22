@@ -1,0 +1,17 @@
+title: "cmake-book"
+summary: "cmake-book"
+topics: ["cmake"]
+published: true
+allow_override: true
+price: 0
+chapters:
+  - about
+  - cmake
+  - first_cmake
+  - directories
+  - out_of_source
+  - shell
+  - option
+  - flags
+  - git_submodule
+  - scikit-build
