@@ -129,6 +129,134 @@ fn hex_encode_fallback(src: &[u8], dst: &mut [u8]) {
 }
 ```
 
+cargo-asm
+-----------
+実際にコンパイルされたアセンブリを見るには[cargo-asm](https://github.com/gnzlbg/cargo-asm)を使うと便利です。
+
+```shell
+cargo install cargo-asm
+```
+
+`cargo asm`コマンドを実行すると、コンパイルされたアセンブリが表示されます。この際関数名を指定することで、その関数のみのアセンブリを表示することが出来ます。なおPrivate関数は消えてしまっていることがあるので注意してください。上の`hex_encode_sse41`関数を見てみましょう：
+
+```shell
+cargo asm rust_math_book_test::simd::hex_encode_sse41  # テスト用の"rust_math_book_test" crateの中の関数を指定
+```
+
+これで次のようにアセンブリが表示されます：
+
+```asm
+rust_math_book_test::simd::hex_encode_sse41:
+ push    rsi
+ push    rdi
+ push    rbx
+ sub     rsp, 80
+ movdqa  xmmword, ptr, [rsp, +, 64], xmm8
+ movdqa  xmmword, ptr, [rsp, +, 48], xmm7
+ movdqa  xmmword, ptr, [rsp, +, 32], xmm6
+ xor     eax, eax
+ cmp     rdx, 16
+ jb      .LBB1_4
+ movdqa  xmm2, xmmword, ptr, [rip, +, __xmm@0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f]
+ movdqa  xmm3, xmmword, ptr, [rip, +, __xmm@09090909090909090909090909090909]
+ movdqa  xmm4, xmmword, ptr, [rip, +, __xmm@57575757575757575757575757575757]
+ movdqa  xmm5, xmmword, ptr, [rip, +, __xmm@30303030303030303030303030303030]
+.LBB1_2:
+ movdqu  xmm6, xmmword, ptr, [rcx]
+ movdqa  xmm7, xmm6
+ psrlq   xmm7, 4
+ pand    xmm6, xmm2
+ movdqa  xmm0, xmm6
+ pcmpgtb xmm0, xmm3
+ pand    xmm7, xmm2
+ movdqa  xmm1, xmm7
+ movdqa  xmm8, xmm5
+ pblendvb xmm8, xmm4, xmm0
+ pcmpgtb xmm1, xmm3
+ paddb   xmm8, xmm6
+ movdqa  xmm6, xmm5
+ movdqa  xmm0, xmm1
+ pblendvb xmm6, xmm4, xmm0
+ paddb   xmm6, xmm7
+ movdqa  xmm0, xmm6
+ punpcklbw xmm0, xmm8
+ punpckhbw xmm6, xmm8
+ movdqu  xmmword, ptr, [r8, +, rax], xmm0
+ movdqu  xmmword, ptr, [r8, +, rax, +, 16], xmm6
+ add     rdx, -16
+ add     rcx, 16
+ add     rax, 32
+ cmp     rdx, 15
+ ja      .LBB1_2
+ cmp     rax, r9
+ ja      .LBB1_10
+.LBB1_4:
+ mov     r10, r9
+ sub     r10, rax
+ shr     r10
+ mov     r11d, r9d
+ and     r11d, 1
+ add     r11, r10
+ xor     r10d, r10d
+ sub     r9, rax
+ cmovne  r10, r11
+ cmp     rdx, r10
+ cmovb   r10, rdx
+ test    r10, r10
+ je      .LBB1_9
+ add     rax, r8
+ inc     rax
+ xor     edx, edx
+ lea     r8, [rip, +, __unnamed_1]
+.LBB1_6:
+ cmp     r9, 2
+ mov     esi, 2
+ cmovb   rsi, r9
+ test    rsi, rsi
+ je      .LBB1_11
+ movzx   r11d, byte, ptr, [rcx, +, rdx]
+ mov     rdi, r11
+ shr     rdi, 4
+ movzx   ebx, byte, ptr, [rdi, +, r8]
+ mov     byte, ptr, [rax, +, 2*rdx, -, 1], bl
+ cmp     rsi, 1
+ je      .LBB1_12
+ and     r11d, 15
+ movzx   r11d, byte, ptr, [r11, +, r8]
+ mov     byte, ptr, [rax, +, 2*rdx], r11b
+ inc     rdx
+ add     r9, -2
+ cmp     r10, rdx
+ jne     .LBB1_6
+.LBB1_9:
+ movaps  xmm6, xmmword, ptr, [rsp, +, 32]
+ movaps  xmm7, xmmword, ptr, [rsp, +, 48]
+ movaps  xmm8, xmmword, ptr, [rsp, +, 64]
+ add     rsp, 80
+ pop     rbx
+ pop     rdi
+ pop     rsi
+ ret
+.LBB1_11:
+ lea     r8, [rip, +, __unnamed_2]
+ xor     ecx, ecx
+ xor     edx, edx
+ call    core::panicking::panic_bounds_check
+ ud2
+.LBB1_12:
+ lea     r8, [rip, +, __unnamed_3]
+ mov     ecx, 1
+ mov     edx, 1
+ call    core::panicking::panic_bounds_check
+ ud2
+.LBB1_10:
+ lea     r8, [rip, +, __unnamed_4]
+ mov     rcx, rax
+ mov     rdx, r9
+ call    core::slice::index::slice_start_index_len_fail
+ ud2
+ ```
+
 stdsimd
 --------
 
