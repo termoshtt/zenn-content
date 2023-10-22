@@ -12,7 +12,7 @@ C++プロジェクトprojに外部のC++プロジェクトsubを使用する場�
 上述のように以下の方法を実行するには
 
 - projがcmakeで管理されている事
-- proj, subがgitで管理されている事
+- proj, subがGitで管理されている事
 - subがcmakeで管理されているか、ヘッダのみで構成されているテンプレートライブラリである事
 
 が必要です。
@@ -20,7 +20,7 @@ C++プロジェクトprojに外部のC++プロジェクトsubを使用する場�
 手順
 -----
 
-まずgitのリポジトリは
+まずGitのリポジトリは
 
 - `yourhost:repos/proj.git`
 - `anotherhost:repos/sub.git`

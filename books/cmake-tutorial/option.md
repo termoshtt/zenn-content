@@ -63,7 +63,7 @@ ARGN = a2;3
 
 cmake_parse_arguments
 ----------------------
-この`${ARGN}`は手動でパースしないといけないのでしょうか？ここで登場するのが[cmake_parse_arguments](https://cmake.org/cmake/help/latest/command/cmake_parse_arguments.html)です。
+この`${ARGN}`は手動でパースしないといけないのでしょうか？　ここで登場するのが[cmake_parse_arguments](https://cmake.org/cmake/help/latest/command/cmake_parse_arguments.html)です。
 この関数はちょっとややこしい引数をとるのでドキュメントを読んでも分かりにくいです。サンプルをいくつか試してみましょう。
 
 ```cmake
@@ -87,9 +87,9 @@ OUTPUT = /path/to/output
 ...
 ```
 
-`OUTPUT`は値を一つとるオプションです。関数に渡したオプションの値は`${MYFUNC_OUTPUT}`として参照できます。この`MYFUNC`はcmake_parse_argumentsの最初の引数で上げた文字列で、cmakeには名前空間が無いので関数名を付けて名前の衝突を回避します。
+`OUTPUT`は値を1つとるオプションです。関数に渡したオプションの値は`${MYFUNC_OUTPUT}`として参照できます。この`MYFUNC`はcmake_parse_argumentsの最初の引数で上げた文字列で、cmakeには名前空間が無いので関数名を付けて名前の衝突を回避します。
 
-cmake_parse_argumentsの第2,3,4引数はそれぞれbool値のみを保持するフラグオプション、値を一つとるオプション、値を複数とるオプションです。
+cmake_parse_argumentsの第2,3,4引数はそれぞれbool値のみを保持するフラグオプション、値を1つとるオプション、値を複数とるオプションです。
 
 ```cmake
 function(myfunc arg)

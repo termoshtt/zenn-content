@@ -106,7 +106,7 @@ cmakeでは静的ライブラリが簡単に作れ、さらにリンクも簡単
 ### add_library
 
 STATICを付けると静的ライブラリを作る。
-上の例だとUnix上では`mod1/libMod1.a`,`mod2/libMod2.a`を作る。
+上の例だとUNIX上では`mod1/libMod1.a`,`mod2/libMod2.a`を作る。
 
 ### target_link_libraries
 ライブラリを実行ファイルにリンクする。

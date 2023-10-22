@@ -19,7 +19,7 @@ add_executable(Main main.cpp)        # 実行ファイルを追加する
 ```
 
 これを`CMakeLists.txt`として`main.cpp`と同じディレクトリにおきます。
-このファイル名は特別で CMakeList**s**.txt な事に注意してください
+このファイル名は特別でCMakeList**s**.txtな事に注意してください
 
 ```
 ${PROJECT_HOME}/
