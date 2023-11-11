@@ -19,3 +19,12 @@ jobs:
         with:
           command: test
           args: --doc --manifest-path=rust-math-book-test/Cargo.toml
+
+  generate-pdf:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: md-to-pdf
+        run: |
+          npm install
+          node ./books/b4bce1b9ea5e6853cb07/generate_pdf.mjs

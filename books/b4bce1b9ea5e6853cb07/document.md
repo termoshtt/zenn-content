@@ -40,9 +40,7 @@ Rustにはいくつかコメントの種類がありますが、主に使うの�
 
 ![](https://storage.googleapis.com/zenn-user-upload/7a93168fe844-20230928.png)
 
-:::message
 残念ながら一般的にMarkdownと呼ばれる書式に共通の定義はなく処理系に応じて様々な独自の拡張があります。例えば[GitHub flavored Markdown](https://github.github.com/gfm/)やこの文章を記述している[ZennのMarkdown記法](https://zenn.dev/zenn/articles/markdown-guide)などがあります。Rustのドキュメントを処理する `rustdoc` は[CommonMark](https://commonmark.org/)に基づいています。
-:::
 
 ではサンプルコードを見ていきましょう。最初に `use` 文がありますね、これはなぜ必要なのでしょう？　このドキュメントはcrateのユーザーのためのものなので、ユーザーがこの関数を使うときには `use` でインポートする必要があります。またcrateのユーザーに見えない `pub` の付いていない内部用の関数や構造体については使うことができないことに注意してください。
 
