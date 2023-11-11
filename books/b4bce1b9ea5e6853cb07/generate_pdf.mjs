@@ -9,17 +9,17 @@ const __dirname = path.dirname(__filename);
 const page_break = '\n<div class="page-break"></div>\n'
 
 function asTitle(title) {
-    return `\n# ${title}\n`;
+  return `\n# ${title}\n`;
 }
 
 const about = fs.readFileSync(path.join(__dirname, "about.md"), { encoding: 'utf8' });
 const intro = fs.readFileSync(path.join(__dirname, "intro.md"), { encoding: 'utf8' });
 
 function trimHeaders(content) {
-    const lines = content.split('\n');
-    const title = lines[1].replace(/^title:/, '').trim();
-    lines.splice(0, 3);
-    return [title, lines.join('\n')];
+  const lines = content.split('\n');
+  const title = lines[1].replace(/^title:/, '').trim();
+  lines.splice(0, 3);
+  return [title, lines.join('\n')];
 }
 
 let contents = `---
@@ -49,19 +49,45 @@ pdf_options:
 ---
 `;
 
-['about', 'intro'].forEach(page => {
-    const raw = fs.readFileSync(path.join(__dirname, `${page}.md`), { encoding: 'utf8' });
-    const [title, body] = trimHeaders(raw);
-    contents += asTitle(title);
-    contents += body;
-    contents += page_break;
+[
+  'about_pdf',
+  'intro',
+  'language',
+  'thread',
+  'simd',
+  'num_traits',
+  'development',
+  'versioning',
+  'document',
+  'criterion',
+  'flamegraph',
+  'nom',
+  'data_format',
+  'library',
+  'ndarray_linalg',
+  'eom',
+  'fftw',
+  'rand',
+  'sfmt',
+  'rayon',
+  'plotlib',
+  'rug',
+  'mkl',
+  'interop',
+  'link',
+  'cc',
+  'pyo3',
+].forEach(page => {
+  const raw = fs.readFileSync(path.join(__dirname, `${page}.md`), { encoding: 'utf8' });
+  const [title, body] = trimHeaders(raw);
+  contents += asTitle(title);
+  contents += body;
+  contents += page_break;
 });
 
-console.log(contents);
-
 (async () => {
-    const pdf = await mdToPdf({ content: contents }).catch(console.error);
-    if (pdf) {
-        fs.writeFileSync('book.pdf', pdf.content);
-    }
+  const pdf = await mdToPdf({ content: contents }).catch(console.error);
+  if (pdf) {
+    fs.writeFileSync('book.pdf', pdf.content);
+  }
 })();
