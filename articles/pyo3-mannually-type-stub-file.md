@@ -3,7 +3,7 @@ title: "PyO3拡張にPythonの型ヒントを付ける"
 emoji: "🔗"
 type: "tech"
 topics: ["rust", "pyo3", "python"]
-published: false
+published: true
 publication_name: "jij_inc"
 ---
 
