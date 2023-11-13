@@ -19,13 +19,13 @@ def greeting(name: str) -> str:
 Pythonの型ヒントの歴史と仕組みは別の記事に譲るとして、この記事ではRustのPyO3拡張にPythonの型ヒントを付ける方法を紹介します。
 
 ## Stub file (`*.pyi`)
-Pythonの型ヒント上述したようなPythonコード内にインラインに埋め込む形式に加えて、[PEP 561](https://www.python.org/dev/peps/pep-0561/)で定義される stub file と呼ばれる `*.pyi` の拡張子を持つ別ファイルに記述することができ、これにより元のPythonコードを改変することなく型ヒントを追加することができます。これは次の二つのシナリオにおいて有用です：
+Pythonの型ヒント上述したようなPythonコード内にインラインに埋め込む形式に加えて、[PEP 561](https://www.python.org/dev/peps/pep-0561/)で定義されるstub fileと呼ばれる `*.pyi` の拡張子を持つ別ファイルに記述でき、これにより元のPythonコードを改変することなく型ヒントを追加できます。これは次の2つのシナリオにおいて有用です：
 
 - 既存のPythonコードを改変できない・したくない場合
-  - 例えば、開発元が開発を停止しており型ヒントをつけてくれる見込みがない場合、元のパッケージとは別にパッケージを作って元のパッケージの型ヒントだけを追加で提供することができる
+  - 例えば、開発元が開発を停止しており型ヒントをつけてくれる見込みがない場合、元のパッケージとは別にパッケージを作って元のパッケージの型ヒントだけを追加で提供できる
 - ライブラリがPythonコードでなくバイナリで提供されている場合
   - この記事で解説するように、RustやC++で書かれたライブラリをPythonから使う場合
-  - 現状(3.12) Python C API でパッケージを作る際に型ヒントを付与する機能は存在していない
+  - 現状(3.12) Python C APIでパッケージを作る際に型ヒントを付与する機能は存在していない
 
 ### Links
 - [Type Stub Files -- pyright document](https://microsoft.github.io/pyright/#/type-stubs)
@@ -186,7 +186,7 @@ sum_as_string1(1, "2")
 sum_as_string2(1, "2")
 ```
 
-型ヒントは二つの整数を取ると言っているのに、文字列を渡しています。これをpyrightで検査すると次のようなエラーが出ます。
+型ヒントは2つの整数を取ると言っているのに、文字列を渡しています。これをpyrightで検査すると次のようなエラーが出ます。
 
 ```
 $ pyright test_inline.py 
@@ -227,7 +227,7 @@ $ pyright test_stub.py
 1 error, 0 warnings, 0 informations 
 ```
 
-そもそも `sum_as_string` なんて関数は `my_first_stub_file` のメンバとして知られていないと言ってますね。それもそのはず、この関数はRustで実装された共有ライブラリをPythonがロードすると、その初期化ルーチン内で定義されてpyrightは共有ライブラリは読み込まないので知る由もありません。これを教えてくれるのがstub fileです。次ようなファイルを作ります
+そもそも `sum_as_string` なんて関数は `my_first_stub_file` のメンバーとして知られていないと言ってますね。それもそのはず、この関数はRustで実装された共有ライブラリをPythonがロードすると、その初期化ルーチン内で定義されてpyrightは共有ライブラリは読み込まないので知る由もありません。これを教えてくれるのがstub fileです。次ようなファイルを作ります
 
 ```python:my_first_stub_file.pyi
 def sum_as_string(a: int, b: int) -> str: ...
@@ -246,7 +246,7 @@ my_first_stub_file/
     └── lib.rs
 ```
 
-これを保存して `maturin develop` で再度ビルドすると `pyright` が stub file を読み込めるようになります。
+これを保存して `maturin develop` で再度ビルドすると `pyright` がstub fileを読み込めるようになります。
 
 ```
 $ pyright test_stub.py
@@ -266,7 +266,7 @@ $ pyright test_stub.py
 
 # 最後に
 
-＼Rustエンジニア募集中！／
+＼Rustエンジニア募集中！　／
 株式会社Jijでは、数学や物理学のバックグラウンドを活かし、量子計算と数理最適化のフロンティアで活躍するRustエンジニアを募集しています！
 詳細は下記のリンクからご覧ください。 **皆様のご応募をお待ちしております！**
 https://open.talentio.com/r/1/c/j-ij.com/pages/51062
