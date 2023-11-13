@@ -1,0 +1,12 @@
+[package]
+name = "my_first_stub_file"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "my_first_stub_file"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.19.0"
