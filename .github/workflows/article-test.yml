@@ -1,0 +1,18 @@
+name: article-test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/cargo@v1
+        name: cargo test
+        with:
+          command: test
+          args: --doc --manifest-path=article-test/Cargo.toml
