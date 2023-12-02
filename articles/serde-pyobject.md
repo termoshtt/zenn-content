@@ -7,9 +7,11 @@ published: false
 publication_name: "jij_inc"
 ---
 
+この記事は[Jij Inc. Advent Calendar 2023](https://qiita.com/advent-calendar/2023/jij_inc_2023)の2日目の記事です。昨日は [オペレーションズリサーチにおけるビジネス課題の解決とは？](https://qiita.com/youhMO/items/f247703af2ba771e0fab)でした。本日は先日リリースした
+
 https://github.com/Jij-Inc/serde-pyobject
 
-の宣伝・解説記事です。
+の宣伝・解説記事となります。
 
 # RustからPythonを操作する
 
