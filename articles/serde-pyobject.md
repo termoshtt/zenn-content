@@ -3,7 +3,7 @@ title: "serdeを使ったRustとPythonでの相互変換"
 emoji: "⛎"
 type: "tech"
 topics: ["python", "rust", "serde", "pyo3"]
-published: true
+published: false
 publication_name: "jij_inc"
 ---
 
