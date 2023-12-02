@@ -1,0 +1,11 @@
+[package]
+name = "article-test"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pyo3 = { version = "0.20.0", features = ["auto-initialize"] }
+serde = { version = "1.0.193", features = ["derive"] }
+serde-pyobject = "0.2.0"
