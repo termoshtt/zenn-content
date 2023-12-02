@@ -68,7 +68,7 @@ Python::with_gil(|py| {
 use pyo3::{Python, types::PyDict};
 
 Python::with_gil(|py| {
-    let a = PyDict::empty(py);  // mutでなくていい
+    let a = PyDict::new(py);  // mutでなくていい
     a.set_item("a", 1).unwrap();
     a.set_item("b", "test").unwrap();
     a.set_item("c", 3.14).unwrap();
