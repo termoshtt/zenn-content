@@ -2,9 +2,12 @@
 title: "inventory crateを使って複数のproc-macroの結果を統合する"
 emoji: "🧪"
 type: "tech"
-topics: ["rust"]
-published: true
+topics: ["rust", "pyo3"]
+published: false
+publication_name: "jij_inc"
 ---
+
+この記事は[Jij Inc. Advent Calendar 2023](https://qiita.com/advent-calendar/2023/jij_inc_2023)の12日目の記事です。
 
 この記事ではinventory crateの使い方と大雑把な仕組み、そして応用方法について議論します。
 
@@ -118,3 +121,14 @@ impl Foo {
 PyO3は共有ライブラリのロード時にPython C APIを使ってクラスを作る機能を提供しますが、これはクラスを作る際にそのメンバー関数を全て列挙しておく必要があります。つまり `#[pyclass]` proc-macroで生成されるコード中で `inventory::collect!`し、`#[pymethods]` proc-macroで生成されるコード中で `inventory::submit!` を行えば、Python C APIの呼び出しを行うコード中で `inventory::iter` を使ってメンバー関数を列挙できるようになります。
 
 このように複数に分割できるようになることで開発者はコードを分割しやすくなります。例えばRustで実装した機能をPythonからも見えるようにするための操作は多くが単調な繰り返しになるのでcustom-derive `#[derive(MyTrait)]`を使ってPython用の関数を生成したくなります。この際custom-derive内で新たに `#[pymethods]` を使ったコードを生成できるようになります。
+
+# 最後に
+
+＼Rustエンジニア募集中！／
+株式会社Jijでは、数学や物理学のバックグラウンドを活かし、量子計算と数理最適化のフロンティアで活躍するRustエンジニアを募集しています！
+詳細は下記のリンクからご覧ください。 **皆様のご応募をお待ちしております！**
+https://open.talentio.com/r/1/c/j-ij.com/pages/51062
+
+JijのXのフォローもよろしくお願いします！
+
+https://twitter.com/Jij_Inc_JP/status/1722874215060349290
