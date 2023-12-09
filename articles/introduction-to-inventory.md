@@ -6,7 +6,7 @@ topics: ["rust"]
 published: true
 ---
 
-この記事では inventory crateの使い方と大雑把な仕組み、そして応用方法について議論します。
+この記事ではinventory crateの使い方と大雑把な仕組み、そして応用方法について議論します。
 
 https://github.com/dtolnay/inventory
 
@@ -49,7 +49,7 @@ for flag in inventory::iter::<Flag> {
 
 # 動作原理
 
-各`Flag`の初期化自体は`const fn`で行われるので特に不思議なことはありません。不思議なのは「`submit!`されたすべての`Flag`を収集できる」ということです。このリストはどこから来るのでしょうか？いつ`submit!`されたのでしょう？
+各`Flag`の初期化自体は`const fn`で行われるので特に不思議なことはありません。不思議なのは「`submit!`されたすべての`Flag`を収集できる」ということです。このリストはどこから来るのでしょうか？　いつ`submit!`されたのでしょう？
 
 これは実行時の`main`関数が始まる前に収集されます。実はC++のグローバル変数の初期化と同じリンカの機能を使ってこれが実現されています。
 
@@ -86,11 +86,11 @@ COUNTER: 1
 
 # proc-macroと組み合わせる
 
-おおまかな動作機構を理解したところで応用編です。inventoryを使うことでproc-macroの弱点である全体の情報を収集できないという点を補うことができます。例えばPyO3の`multi-pymethods` feature を見てみましょう。
+おおまかな動作機構を理解したところで応用編です。inventoryを使うことでproc-macroの弱点である全体の情報を収集できないという点を補うことができます。例えばPyO3の`multi-pymethods` featureを見てみましょう。
 
 https://pyo3.rs/v0.20.0/features.html#multiple-pymethods
 
-これは一つの `#[pyclass]` に対して複数の `#[pymethods]` を定義できるようにする機能です。
+これは1つの `#[pyclass]` に対して複数の `#[pymethods]` を定義できるようにする機能です。
 
 ```rust
 #[pyclass]
@@ -115,6 +115,6 @@ impl Foo {
 }
 ```
 
-PyO3は共有ライブラリのロード時にPython C APIを使ってクラスを作る機能を提供しますが、これはクラスを作る際にそのメンバ関数を全て列挙しておく必要があります。つまり `#[pyclass]` proc-macroで生成されるコード中で `inventory::collect!`し、`#[pymethods]` proc-macroで生成されるコード中で `inventory::submit!` を行えば、Python C APIの呼び出しを行うコード中で `inventory::iter` を使ってメンバ関数を列挙できるようになります。
+PyO3は共有ライブラリのロード時にPython C APIを使ってクラスを作る機能を提供しますが、これはクラスを作る際にそのメンバー関数を全て列挙しておく必要があります。つまり `#[pyclass]` proc-macroで生成されるコード中で `inventory::collect!`し、`#[pymethods]` proc-macroで生成されるコード中で `inventory::submit!` を行えば、Python C APIの呼び出しを行うコード中で `inventory::iter` を使ってメンバー関数を列挙できるようになります。
 
-このように複数に分割できるようになることで開発者はコードを分割しやすくなります。例えばRustで実装した機能をPythonからも見えるようにするための操作は多くが単調な繰り返しになるのでcustom-derive `#[derive(MyTrait)]`を使ってPython用の関数を生成したくなります。この際custom-derive内で新たに `#[pymethods]` を使ったコードを生成することができるようになります。
+このように複数に分割できるようになることで開発者はコードを分割しやすくなります。例えばRustで実装した機能をPythonからも見えるようにするための操作は多くが単調な繰り返しになるのでcustom-derive `#[derive(MyTrait)]`を使ってPython用の関数を生成したくなります。この際custom-derive内で新たに `#[pymethods]` を使ったコードを生成できるようになります。
