@@ -3,7 +3,7 @@ title: "inventory crateを使って複数のproc-macroの結果を統合する"
 emoji: "🧪"
 type: "tech"
 topics: ["rust", "pyo3"]
-published: false
+published: true
 publication_name: "jij_inc"
 ---
 
