@@ -17,6 +17,7 @@ chapters:
 
   # 開発技術
   - development
+  - testing
   - versioning
   - document
   - criterion
