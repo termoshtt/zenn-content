@@ -46,7 +46,7 @@ pub struct MyError {
 }
 
 impl fmt::Display for MyError {
-    fn display(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Iteration does not end after {} iterations. Last residual: {}", self.num_iteration, self.last_residual)
     }
 }
