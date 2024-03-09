@@ -10,6 +10,7 @@ chapters:
 
   # 言語機能
   - language
+  - error_handling
   - thread
   - simd
   - num_traits
