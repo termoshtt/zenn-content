@@ -16,12 +16,6 @@ https://doc.rust-jp.rs/book-ja/ch09-00-error-handling.html
 
 一方[Newton-Krylov法]のレイヤーで見ると[BiCGStab]が収束しないのはNewton法側のイテレーションによって点を移動させすぎたためで、[line search]や[trust region]等の減速法によって解決できるかもしれません。なので[BiCGStab]が返したエラーは[Newton-Krylov法]のレイヤーで処理することができる回復可能なエラーとなります。もちろんこれらの方法でエラーが回復できない場合は[Newton-Krylov法]の関数がエラーを返すことになります。同じことが非線形最適化や分岐追跡のようなレイヤーが増えるたびに繰り返されます。
 
-[GMRES]: https://en.wikipedia.org/wiki/Generalized_minimal_residual_method
-[BiCGStab]: https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
-[Newton-Krylov法]: https://en.wikipedia.org/wiki/Newton%E2%80%93Krylov_method
-[line search]: https://en.wikipedia.org/wiki/Line_search
-[trust region]: https://en.wikipedia.org/wiki/Trust_region
-
 # エラー型
 上で説明したように、エラーというのは一旦発生してもそれを回復できる場合とできない場合があります。またエラーが発生した場合にはそれをどのように扱うかも状況によって異なり、それは正常に動作する場合 (正常系) を実装した時には分からないこともよくあります。公式ドキュメントの中では回復可能なエラーが発生する関数では `Result<T, E>` 型を返すように言われていて、この `T` は正常系の戻り値で `E` はエラーの型です。この `E` をどのように実装すれば上にあるようなシナリオを上手く扱えるでしょうか？
 
@@ -30,7 +24,7 @@ https://doc.rust-jp.rs/book-ja/ch09-00-error-handling.html
 - 誰がどのようにエラーを扱う必要があるのか
 - そのためにはどのような情報が必要なのか
 
-## エラー型を管理しない
+## エラー型を作らない
 エラー型`E`はそもそも自分で作らないといけないのでしょうか？例えばあなたが自分の計算機上で自分のプログラムを実行する場合、エラーが発生したらそれをログに書いて終了するだけで良いかもしれません。この場合エラーが起きたこととその原因を文字列で表現するだけで十分です。つまり `E = String` として `Result<T, String>` とすればOKです。
 
 例えばファイルの各行に浮動小数点数が書かれているファイルを読み込んで和を返す関数を考えましょう。
@@ -94,11 +88,6 @@ fn read_and_sum(filename: &str) -> Result<f64, anyhow::Error> {
 }
 ```
 
-[トレイトオブジェクト]: https://doc.rust-jp.rs/book-ja/ch17-02-trait-objects.html
-[anyhow]: https://docs.rs/anyhow/1.0.40/anyhow/
-
-## エラー型を作る
-
 `anyhow::Error`は発生したエラーの型を持っているので、それを使うことでエラーの原因を知ることができます。
 
 ```rust
@@ -132,65 +121,70 @@ fn use_read_and_sum() {
 }
 ```
 
+
+## エラー型を作る
+
+さてエラーが起きたことさえ知れればいいならエラー型をわざわざ自分で定義する必要は無いことは分かりました。ではエラー型を定義する必要があるのはどのようなケースでしょうか？
+
+ここで最初に説明した[Newton-Krylov法]のケースを考えましょう。Newton法が減速法を適用しようとしたとき、[BiCGStab]の最終的な誤差あるいは誤差の履歴によって適用する減速法を変えたいかもしれません。[BiCGStab]が文字列でエラーを返しているとすると誤差の履歴を文字列で書き込んで、Newton法側でそれを解析するのでしょうか？それはあまりに辛すぎます。そこで誤差の履歴を格納したエラー型を定義しましょう：
+
+```rust
+struct Matrix { /* ... */ };
+struct Vector { /* ... */ };
+
+#[derive(Debug)]
+struct BiCGStabError {
+    residual_history: Vec<f64>,
+}
+
+fn bicgstab(a: &Matrix, b: &Vector, threshold: f64, max_iteration: usize) -> Result<Vector, BiCGStabError> {
+    let mut residual_history = Vec::new();
+    for _ in 0..max_iteration {
+        // BiCGStab iteration
+
+        let residual = todo!();
+        residual_history.push(residual);
+
+        if residual < threshold {
+            return Ok(todo!());
+        }
+    }
+    Err(BiCGStabError { residual_history })
+}
+```
+
+このようにエラー型を定義することでエラーの原因を知ることができます。つまり失敗したときの情報を呼び出し元に伝える必要がある場合は、その情報を伝えるためのエラー型を定義することになります。
+
 ### [std::error::Error] trait
 
-エラー型はこの [std::error::Error] traitを実装する必要があります。いくつか追加の機能がありますが、単純なケースでは `Debug + Display` のことです。
+エラー型は[std::error::Error] traitを実装する必要があります。いくつか追加の機能がありますが、単純なケースでは`Debug + Display`を実装すれば十分です。今回のケースでは`Display`も対して効果的な表示が出来ないので自動で実装される`Debug`をそのまま使いましょう：
 
 ```rust
 use std::fmt;
 
 #[derive(Debug)]
-pub struct MyError {
-    num_iteration: usize,
-    last_residual: f64,
+struct BiCGStabError {
+    residual_history: Vec<f64>,
 }
 
-impl fmt::Display for MyError {
+impl fmt::Display for BiCGStabError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Iteration does not end after {} iterations. Last residual: {}", self.num_iteration, self.last_residual)
+        fmt::Debug::fmt(self, f)
     }
 }
 
-impl std::error::Error for MyError {}
-```
-
-このようにエラーを表現する構造体を定義して、それに `std::error::Error` traitを実装することでこれはエラー型として使うことができます。
-
-### [thiserror] crate
-[thiserror]: https://docs.rs/thiserror/1.0.58/thiserror/
-
-[thiserror] crateを使って `thiserror::Error` マクロによって定義を簡単に済ますこともできます：
-
-```toml:Cargo.toml
-[dependencies]
-thiserror = "1.0.58"
-```
-
-```rust
-#[derive(Debug, thiserror::Error)]
-#[error("Iteration does not end after {num_iteration} iterations. Last residual: {last_residual}")]
-pub struct MyError {
-    num_iteration: usize,
-    last_residual: f64,
+impl std::error::Error for BiCGStabError {
+    // 必要なものは全て既に実装されているので、何も書かなくても良い
 }
 ```
 
-これは手続きマクロ(procedural macro, proc-macro)という機能を使って `MyError` の構造体を定義しているRustのコードを読み取って、それから `impl std::error::Error for MyError` 句を生成していて、それをコンパイラが処理しています。[`cargo expand`](https://github.com/dtolnay/cargo-expand)を使うと展開後のコードを確認することができます。生成されたコードは概ね上のものと同じです。
+`std::error::Error`を実装しておくと `anyhow::Error` に格納することが可能になります。
 
-https://doc.rust-lang.org/reference/procedural-macros.html
-
-proc-macroには３種類あり、上の`thiserror::Error`はcustom-deriveと呼ばれるものです。proc-macroはRustのASTを受け取って変更して新しいASTを返すRustで実装された関数を含む特殊なcrateとして提供されます。数値計算ではコンパイル時に確定できるものをコンパイル時に処理しておいて実行時のオーバーヘッドを減らすような工夫が必要になることがありますが、proc-macroを使うと別のテンプレートエンジンやプリプロセッサを使うことなくRustでそれらの機能を実装することができます。しかしそれはここの本題では無いので別のページで詳しく説明することにしましょう。
-
-
-## 動的な管理: `anyhow` crate
-
-動的な管理と静的な管理の一番の違いは発生しうるエラーのリストを作るか作らないかです。静的な管理ではEnumによって全てのエラーを列挙しますが、動的な管理では[トレイトオブジェクト]を用いることで [std::error::Error] traitを実装した任意のエラー型を扱うことができます。これはどちらもそれぞれ利点があるので、状況に応じて使い分けることが重要です。
-
-[トレイトオブジェクト] `Box<dyn Error>` にいくつか便利機能とそれを生成するためのmacro群を追加したものが [anyhow] crateです
-
-[トレイトオブジェクト]: https://doc.rust-jp.rs/book-ja/ch17-02-trait-objects.html
-[std::error::Error]: https://doc.rust-lang.org/std/error/trait.Error.html
+[BiCGStab]: https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
+[GMRES]: https://en.wikipedia.org/wiki/Generalized_minimal_residual_method
+[Newton-Krylov法]: https://en.wikipedia.org/wiki/Newton%E2%80%93Krylov_method
 [anyhow]: https://docs.rs/anyhow/1.0.40/anyhow/
-
-## 静的な管理: `thiserror` crate
-
+[line search]: https://en.wikipedia.org/wiki/Line_search
+[std::error::Error]: https://doc.rust-lang.org/std/error/trait.Error.html
+[trust region]: https://en.wikipedia.org/wiki/Trust_region
+[トレイトオブジェクト]: https://doc.rust-jp.rs/book-ja/ch17-02-trait-objects.html
