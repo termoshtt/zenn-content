@@ -169,7 +169,7 @@ struct BiCGStabError {
 
 impl fmt::Display for BiCGStabError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
+        write!(f, "BiCGStab failed with residual history: {:?}", self.residual_history)
     }
 }
 
@@ -178,12 +178,103 @@ impl std::error::Error for BiCGStabError {
 }
 ```
 
-`std::error::Error`を実装しておくと `anyhow::Error` に格納することが可能になります。
+これは[thiserror] crateを使うと簡単に定義することができます：
+
+```rust
+#[derive(Debug, thiserror::Error)]
+#[error("BiCGStab failed with residual history: {residual_history:?}")]
+struct BiCGStabError {
+    residual_history: Vec<f64>,
+}
+```
+
+`std::error::Error`を実装しておくと `anyhow::Error` に格納することが可能になり、また `downcast_ref` で動的に復元することも可能です：
+
+```rust
+#[derive(Debug)]
+struct Matrix { /* ... */ };
+#[derive(Debug)]
+struct Vector { /* ... */ };
+
+#[derive(Debug, thiserror::Error)]
+#[error("BiCGStab failed with residual history: {residual_history:?}")]
+struct BiCGStabError {
+    residual_history: Vec<f64>,
+}
+
+fn bicgstab(a: &Matrix, b: &Vector, threshold: f64, max_iteration: usize) -> anyhow::Result<Vector> {
+    let mut residual_history = Vec::new();
+    for _ in 0..max_iteration {
+        // BiCGStab iteration
+
+        let residual = todo!();
+        residual_history.push(residual);
+
+        if residual < threshold {
+            return Ok(todo!());
+        }
+    }
+    Err(BiCGStabError { residual_history }.into()) // into() で anyhow::Error に変換
+}
+
+fn use_bicgstab() {
+    match bicgstab(&Matrix { /* ... */ }, &Vector { /* ... */ }, 1e-6, 100) {
+        Ok(x) => println!("Solution: {:?}", x),
+        Err(e) => {
+            // `e` には何が入っているのか分からないので試しに `BiCGStabError` に変換してみる
+            if let Some(bicgstab) = e.downcast_ref::<BiCGStabError>() {
+                // `BiCGStabError`に変換できたので `residual_history` を表示
+                println!("BiCGStab failed with last redisual={:?}", bicgstab.residual_history.last());
+            } else {
+                // `BiCGStabError` では無い別のエラー型が入っていた
+                println!("Unknown Error: {}", e);
+            }
+        }
+    }
+}
+```
+
+このような型レベルでは[トレイトオブジェクト]を使ってエラー型を消去して、実行時にエラー型を復元する方法を動的管理と呼びます。このように自分でエラー型を定義するとエラーが発生した際の状況を呼び出し元に詳しく伝えることができます。複数のエラーが発生する場合でも個々のケースに対してエラー型を定義し、それらに `Error` traitを実装することで、呼び出し元でそれぞれのエラーを区別することができます。
+
+## 発生するエラーを列挙する
+
+動的管理の方法は型情報を一旦消してそれからエラーハンドリング時に再構成しているので、発生しうるエラー全てのケースを網羅するのは大変で、あくまで知らないエラーが来たときはより上流にスルーすることが前提の手法です。この意味でC++やPythonの例外処理と似ています。発生するエラーを列挙したEnumを用意することによってその関数のユーザーは発生するエラーを網羅的に処理することが容易になります。ファイルを読み込んで和を出すプログラムの例で考えてみましょう：
+
+```rust
+use std::fs::File;
+use std::io::{self, BufRead};
+
+#[derive(Debug, thiserror::Error)]
+enum Error {
+    #[error("File '{0}' not found")]
+    FileNotFound(String),
+
+    #[error("Failed to parse line: {0}")]
+    Io(#[from] io::Error),
+
+    #[error("Failed to parse float: {0}")]
+    ParseFloat(#[from] std::num::ParseFloatError),
+}
+
+fn read_and_sum(filename: &str) -> Result<f64, Error> {
+    let file = File::open(filename).map_err(|_| Error::FileNotFound(filename.to_string()))?;
+    let reader = io::BufReader::new(file);
+    let mut sum = 0.0;
+    for line in reader.lines() {
+        let num = line?.parse::<f64>()?;
+        sum += num;
+    }
+    Ok(sum)
+}
+```
+
+多くのRustのライブラリのコードはこのように発生するエラー型を列挙したEnumを使っています。このようにすることでエラーが発生したときにはそれが何かを知ることができ、またそれに対して適切な処理を行うことができます。`thiserror::Error`マクロはこのようなEnumに対して本領を発揮し、`#[error]`によるエラーメッセージの生成に加え、`#[from]`属性を使って他のエラー型を変換することができます。
 
 [BiCGStab]: https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
 [GMRES]: https://en.wikipedia.org/wiki/Generalized_minimal_residual_method
 [Newton-Krylov法]: https://en.wikipedia.org/wiki/Newton%E2%80%93Krylov_method
 [anyhow]: https://docs.rs/anyhow/1.0.40/anyhow/
+[thiserror]: https://docs.rs/thiserror/1.0.40/thiserror/
 [line search]: https://en.wikipedia.org/wiki/Line_search
 [std::error::Error]: https://doc.rust-lang.org/std/error/trait.Error.html
 [trust region]: https://en.wikipedia.org/wiki/Trust_region
