@@ -1,3 +1,6 @@
+#[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/error_handling.md")]
+pub mod error_handling {}
+
 #[doc = include_str!("../../books/b4bce1b9ea5e6853cb07/num_traits.md")]
 pub mod num_traits {}
 
