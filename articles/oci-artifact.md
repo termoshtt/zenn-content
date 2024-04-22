@@ -4,6 +4,7 @@ emoji: "📦"
 type: "tech"
 topics: ["container", "podman", "docker"]
 published: true
+publication_name: "jij_inc"
 ---
 
 OCI image specification 1.1.0が正式リリースされたことでOCI Artifactと呼ばれていた仕様が確定したので、これについてまとめていきます。
@@ -85,22 +86,100 @@ Optionalなフィールドもありますが一旦省略します。このよう
 TBW
 
 ## OCI Artifact
-OCI Image specificationの構造を概ね把握したので、任意のArtifactをImage manifestとして保存する方法を見ていきます。[Guidelines for Artifact usage](https://github.com/opencontainers/image-spec/blob/v1.1.0/manifest.md#guidelines-for-artifact-usage)にガイドラインが書かれているので、この内容に沿って進めます。
+OCI Image specificationの構造を概ね把握したので、任意のArtifactをImage manifestとして保存する方法を見ていきます。[Guidelines for Artifact usage](https://github.com/opencontainers/image-spec/blob/v1.1.0/manifest.md#guidelines-for-artifact-usage)にガイドラインが書かれているので、この内容に沿って進めます。以下のManifestのJSONはここからの引用です。
 
-OCI ArtifactではImage manifestの `config` と `layers` を使ってArtifactを格納します。基本的にArtifactをBlobとして保存し `layers` にそれらへのDescriptorを入れて、`config` にはそれをどのように扱うかの情報を載せます。大きく分けて3つのケースがあります：
+OCI ArtifactではImage manifestの `config` と `layers` を使ってArtifactを格納します。Image manifestを扱うアプリケーションは基本的に
+
+1. Image manifestのJSONを読み込み、
+2. 必要であれば `config` を読み込み、
+3. Manifestと `config` の内容を踏まえて `layers` を読み込む
+
+というフローをとることになります。Artifactとして何を保存したいのかによって大きく次の３つのケースに分けられます：
 
 ### `config` も `layers` も不要なケース
 
-ManifestのAnnotationだけがあれば十分なケースです。
+ManifestのAnnotationだけがあれば十分なケースです。この場合はManifestのJSONだけで全てが完結します。
 
-TBW
+```json
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.example+type",
+  "config": {
+    "mediaType": "application/vnd.oci.empty.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.oci.empty.v1+json",
+      "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "size": 2
+    }
+  ],
+  "annotations": {
+    "oci.opencontainers.image.created": "2023-01-02T03:04:05Z",
+    "com.example.data": "payload"
+  }
+}
+```
+
+`config` と `layers` にともに空のDescriptorを入れます。この場合必要なのは `artifactType` と `annotations` だけです。
+
+`artifactType` は上の例では `application/vnd.example+type` となっていますが、ここには任意のMedia Typeをいれれるので、このArtifactを扱うアプリケーションが分かる識別子を入れます。アプリケーションはユーザーが指定したコンテナイメージのManifestを取得してみて、これが自分の想定していないMedia Typeだったらエラーを返すわけですね。このようにOCI Artifactはアプリケーションごとに何を入れるのかを自由にカスタマイズできます。
+
+`annotations` がこのケースではArtifactの本体となり、任意のstring-stringのKey-ValueペアをArtifactとして扱いたい場合にこれを使います。
 
 ### `layers` のみ使うケース
 
 一つ以上のBlobが必要になるケースであり、それをどう扱うかの情報は必要ない、あるいはAnnotationのstring-string mapで十分なケースです。
 
-TBW
+```json
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.example+type",
+  "config": {
+    "mediaType": "application/vnd.oci.empty.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.example+type",
+      "digest": "sha256:e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317",
+      "size": 1234
+    }
+  ]
+}
+```
+
+この例は一つの `application/vnd.example+type` 型のBlobだけが含まれるArtifactです。例えば1つのファイルをGzipで圧縮して保存する場合、このGzipファイルをBlobとして保存し、そのDescriptorのMedia Typeを `application/gzip` として `layers` に入れます。この場合 `config` は不要です。
+
+あるいはユーザーのマシンにおける複数のディレクトリの内容をそれぞれ `tar.gz` にまとめて複数のBlobとして保存し、そのDescriptorたちを `layers` に保存することもできます。この場合どのディレクトリに対応するDescriptorか分からなくなるのでDescriptorの `annotations` に `vnd.yourapplication.directory.path` のようなKeyを作ってパスを入れておくと良いでしょう。この `annoations` はManifestのJSONに含まれることになるので、アプリケーションはManifestを見た段階でコンテナ全体をダウンロードせずに必要になったBlobだけを取得することもできます。
 
 ### `config` と `layers` の両方を使うケース
 
-TBW
+上の `annoations` を利用したメタデータでは扱いきれない場合には `config` に別のBlobを用意することになります。
+
+```json
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.example+type",
+  "config": {
+    "mediaType": "application/vnd.example.config.v1+json",
+    "digest": "sha256:5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "size": 123
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.example.data.v1.tar+gzip",
+      "digest": "sha256:e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317",
+      "size": 1234
+    }
+  ]
+}
+```
+
+`config` には任意のMedia Typeを持つDescriptorを指定する事ができるので、例えばBlobを読み出すための複雑な設定が記述されたJSONやYAML、あるいはJavaScriptやPythonのスクリプト、wasm binaryが入っているかもしれません。`layers` と `config` をどう使うかはArtifactを利用するアプリケーションが決めることになります。
