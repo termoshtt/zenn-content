@@ -11,7 +11,7 @@ OCI image specification 1.1.0が正式リリースされたことでOCI Artifact
 
 https://github.com/opencontainers/image-spec/releases/tag/v1.1.0
 
-## OCI Image specification
+# OCI Image specification
 まずOCI Image specificationのおさらいです。OCI (Open Container Initiative)はコンテナの標準化のためのLinux Foundationのサブ団体で、次の3つを定めます：
 
 - [Runtime specification](https://github.com/opencontainers/runtime-spec)
@@ -23,13 +23,13 @@ https://github.com/opencontainers/image-spec/releases/tag/v1.1.0
 
 Image specificationはいくつかのデータ形式を定義しており、少し関係がややこしいです。今回はOCI Artifactで必要になる部分について、ボトムアップに解説していきましょう。
 
-### Blobs
+## Blobs
 - 一つのバイト列のことをBlobと呼びます。おそらくBinary Large OBjectが由来ですが、[Azure Blob Storage](https://learn.microsoft.com/ja-jp/azure/storage/blobs/storage-blobs-introduction)などでは特に説明なく使っているので略語というよりも用語として定着しているようです。
 - コンテナの「中身」である任意のデータも、コンテナ自体のメタデータを記述したJSONも等しくBlobとして扱われます。つまりコンテナに含まれる任意のデータはBlobとして保存されます。
 - Blobはそのハッシュアルゴリズムとハッシュ値の組みで一意に識別されます。
   - 多くの実装でハッシュ関数は[SHA256](https://ja.wikipedia.org/wiki/SHA-2)が使われます。
 
-### [OCI Content Descriptors](https://github.com/opencontainers/image-spec/blob/v1.1.0/descriptor.md) (descriptor)
+## [OCI Content Descriptors](https://github.com/opencontainers/image-spec/blob/v1.1.0/descriptor.md) (descriptor)
 
 Blobに任意のデータが入っていますが、これを読む際にはどのようなデータが入っているのかを知る必要があり、そのためにContent Descriptorsがあります。Descriptorというのは次のフィールドを持つJSONです：
 
@@ -59,7 +59,7 @@ Optionalなフィールドもありますが一旦省略します。このよう
 
 これはバイナリデータとして空のJSON `{}` (バイト列としては空ではない) を格納していることになり、これをBase64エンコードしたものが `data` フィールドに入っている `e30=` です。
 
-### [OCI Image Manifests](https://github.com/opencontainers/image-spec/blob/v1.1.0/manifest.md) 
+## [OCI Image Manifests](https://github.com/opencontainers/image-spec/blob/v1.1.0/manifest.md) 
 
 個々のコンテナに対応するものがManifestです。Manifestは次のフィールドを持つJSONです：
 
@@ -81,11 +81,14 @@ Optionalなフィールドもありますが一旦省略します。このよう
 
 実行するコンテナイメージの場合には `config` に [`application/vnd.oci.image.config.v1+json`](https://github.com/opencontainers/image-spec/blob/v1.1.0/config.md) のMedia Typeを持つdescriptorを指定します。この中にはManifestのファイルシステムのレイヤーの情報やコンテナで実行する際の環境変数やコマンドの情報が記述されていますが、今回は必要ないので省略します。
 
-### [Annotations](https://github.com/opencontainers/image-spec/blob/v1.1.0/annotations.md)
+## [Annotations](https://github.com/opencontainers/image-spec/blob/v1.1.0/annotations.md)
 
-TBW
+DescriptorやManifestには任意のメタデータを格納するための `annotations` フィールドがあります。これはKeyとValueが文字列のペアで、Keyは次のルールに従う必要があります：
 
-## OCI Artifact
+- Keyは `com.example.key` のような Reverse domain notation形式で、`com.example` のような名前空間を持つ必要があります。
+- `org.opencontainers` という名前空間はOCI Image specificationのために予約されています。
+
+# OCI Artifact
 OCI Image specificationの構造を概ね把握したので、任意のArtifactをImage manifestとして保存する方法を見ていきます。[Guidelines for Artifact usage](https://github.com/opencontainers/image-spec/blob/v1.1.0/manifest.md#guidelines-for-artifact-usage)にガイドラインが書かれているので、この内容に沿って進めます。以下のManifestのJSONはここからの引用です。
 
 OCI ArtifactではImage manifestの `config` と `layers` を使ってArtifactを格納します。Image manifestを扱うアプリケーションは基本的に
@@ -96,7 +99,7 @@ OCI ArtifactではImage manifestの `config` と `layers` を使ってArtifact�
 
 というフローをとることになります。Artifactとして何を保存したいのかによって大きく次の３つのケースに分けられます：
 
-### `config` も `layers` も不要なケース
+## `config` も `layers` も不要なケース
 
 ManifestのAnnotationだけがあれば十分なケースです。この場合はManifestのJSONだけで全てが完結します。
 
@@ -130,7 +133,7 @@ ManifestのAnnotationだけがあれば十分なケースです。この場合�
 
 `annotations` がこのケースではArtifactの本体となり、任意のstring-stringのKey-ValueペアをArtifactとして扱いたい場合にこれを使います。
 
-### `layers` のみ使うケース
+## `layers` のみ使うケース
 
 一つ以上のBlobが必要になるケースであり、それをどう扱うかの情報は必要ない、あるいはAnnotationのstring-string mapで十分なケースです。
 
@@ -158,7 +161,7 @@ ManifestのAnnotationだけがあれば十分なケースです。この場合�
 
 あるいはユーザーのマシンにおける複数のディレクトリの内容をそれぞれ `tar.gz` にまとめて複数のBlobとして保存し、そのDescriptorたちを `layers` に保存することもできます。この場合どのディレクトリに対応するDescriptorか分からなくなるのでDescriptorの `annotations` に `vnd.yourapplication.directory.path` のようなKeyを作ってパスを入れておくと良いでしょう。この `annoations` はManifestのJSONに含まれることになるので、アプリケーションはManifestを見た段階でコンテナ全体をダウンロードせずに必要になったBlobだけを取得することもできます。
 
-### `config` と `layers` の両方を使うケース
+## `config` と `layers` の両方を使うケース
 
 上の `annoations` を利用したメタデータでは扱いきれない場合には `config` に別のBlobを用意することになります。
 
@@ -183,3 +186,14 @@ ManifestのAnnotationだけがあれば十分なケースです。この場合�
 ```
 
 `config` には任意のMedia Typeを持つDescriptorを指定する事ができるので、例えばBlobを読み出すための複雑な設定が記述されたJSONやYAML、あるいはJavaScriptやPythonのスクリプト、wasm binaryが入っているかもしれません。`layers` と `config` をどう使うかはArtifactを利用するアプリケーションが決めることになります。
+
+# 最後に
+
+＼Rustエンジニア募集中！　／
+株式会社Jijでは、数学や物理学のバックグラウンドを活かし、量子計算と数理最適化のフロンティアで活躍するRustエンジニアを募集しています！
+詳細は下記のリンクからご覧ください。 **皆様のご応募をお待ちしております！**
+https://open.talentio.com/r/1/c/j-ij.com/pages/51062
+
+JijのXのフォローもよろしくお願いします！
+
+https://twitter.com/Jij_Inc_JP/status/1722874215060349290
