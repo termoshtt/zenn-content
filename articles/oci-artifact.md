@@ -3,7 +3,7 @@ title: "OCI Artifact"
 emoji: "📦"
 type: "tech"
 topics: ["container", "podman", "docker"]
-published: true
+published: false
 publication_name: "jij_inc"
 ---
 
