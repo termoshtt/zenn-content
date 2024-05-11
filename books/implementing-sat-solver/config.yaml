@@ -1,0 +1,9 @@
+title: "SATソルバの実装"
+summary: "数理最適化への応用を念頭にSATソルバの実装を通じてアルゴリズムを学ぶ"
+topics: ["SAT"]
+published: false
+price: 0 # 有料の場合200〜5000
+# 本に含めるチャプターを順番に並べましょう
+chapters:
+  - example1
+  - example2
