@@ -1,8 +1,0 @@
-title: "SATソルバを作る"
-summary: "数理最適化への応用を念頭にSATソルバの実装を通じてアルゴリズムを学ぶ"
-topics: ["SAT", "数理最適化"]
-published: false
-price: 0
-chapters:
-  - introduction
-  - boolean_logic
