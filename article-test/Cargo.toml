@@ -9,3 +9,4 @@ edition = "2021"
 pyo3 = { version = "0.20.0", features = ["auto-initialize"] }
 serde = { version = "1.0.193", features = ["derive"] }
 serde-pyobject = "0.2.0"
+tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread", "time"] }

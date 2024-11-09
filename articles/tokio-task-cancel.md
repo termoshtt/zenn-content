@@ -81,7 +81,7 @@ async fn main() {
 
 async修飾された関数はawaitの所で中断可能な関数になります。しかし `foo` は `await` がどこにも入ってないので当然中断できず、タイムアウトは発生しません。
 
-```
+```text
 start
 foo0
 foo1
@@ -120,7 +120,7 @@ async fn main() {
 
 これでタイムアウトが実現できます。awaitで中断されたタスクは `select!` で選ばれなかったらDropされるので、スレッドの時のように実行し続ける事はありません。
 
-```
+```text
 start
 foo0
 foo1
