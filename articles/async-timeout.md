@@ -1,18 +1,23 @@
 ---
-title: "Futureのタイムアウト"
+title: "重い計算のタイムアウト（ランタイム自作編）"
 emoji: "⌛"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["rust", "async", "cancel"]
 published: true
 ---
 
-[前回](https://zenn.dev/termoshtt/articles/tokio-task-cancel)の記事では `tokio` を使ってタイムアウト処理を実装しましたが、タイムアウト処理の為だけに `tokio` を使うのは少しオーバースペックかもしれません。今回は `tokio` を使わずに `std::future` だけでタイムアウト処理を実装してみます。
+[前回](https://zenn.dev/termoshtt/articles/tokio-task-cancel)の記事では `tokio` を使ってタイムアウト処理を実装しましたが、タイムアウト処理の為だけに `tokio` を使うのは少しオーバースペックかもしれません。前回説明したように非同期にタイムアウトしてもスレッドを停止できないので、今回の目的は同期的にタイムアウトを行うことであり、なので`tokio`のような非同期ランタイムは必要ないはずです。
+今回は `tokio` を使わずに標準ライブラリだけでタイムアウト処理を実装してみます。
+
+:::message
+同期的にタイムアウトを行うのに非同期処理のプリミティブである `Future` や async/awaitの話が始まって奇妙に思うかもしれません。しかしRustの `Future` やasync/awaitは非同期処理には欠かせないものですが、同期処理にも便利であることが分かります。
+:::
 
 今回は [Waker::noop](https://doc.rust-lang.org/std/task/struct.Waker.html#method.noop) を使うのでNightlyを使います。このFeatureは既に Stabilize PRが出ているので、安定版でも使えるようになるかもしれません。
 https://github.com/rust-lang/rust/pull/133089
 これはNightlyでないと出来ないわけではなく自分で `Waker::noop` の代替物を用意することも可能なはずですが、少しややこしいのでこの記事では省略します。
 
-# RustのFuture
+# Future and Waker
 
 まずはRustにおける `Future` の操作を振り返りましょう。Async Bookの該当ページを参考にします。
 https://rust-lang.github.io/async-book/02_execution/02_future.html
@@ -70,13 +75,13 @@ assert_eq!(
 
 このように `Waker` の機能を潰すと `Future` は `Iterator` に似ている事が分かります。つまり `poll` を呼び出すと（`next`を呼び出したように）内部の状態が進み、`Iterator` が途中だけ値を返してイテレートが終わったら `None` を返すのと逆で、`Future` は途中では値は返さずに最後だけ値を返します。この例では何も非同期に動作していません。`Future` のExecutorは非同期ランタイムである必要は無いのです。
 
-## async/await
+# Make a Future
 
-`Future` と `Iterator` が似てるのならば `Iterator` 使えばいいのでは？と思うでしょう。`Future` にはもう一つの特徴があります。それは `async`/`await` 構文です。
+`Future` と `Iterator` が似てるのならば `Iterator` 使えばいいのでは？と思うでしょう。`Future` には `Iterator` にはない特徴があります。それは `async`/`await` 構文です。これはRustコンパイラが `Future` traitを実装している特殊な構造体を自動的に作ってくれる機能で、これこそが非同期処理だけでなく同期処理においても `Future` を使う利点となります。
 
-`Future` traitを実装したオブジェクトを作る方法は大まかに３種類あります。
+`Future` traitを実装したオブジェクトを作る方法は大まかに3種類あります。ここではそれらを順番に見ていきましょう。
 
-### 手動で `Future` トレイトを実装する
+## 手動で `Future` トレイトを実装する
 
 最初は通常のTraitと同様に自分で構造体あるいはEnumを作って、それに `impl Future for` で実装する方法です。後でタイムアウト処理の為に使うコンポーネントをここで作っておきましょう：
 
@@ -109,6 +114,14 @@ impl Future for PendingOnce {
 }
 ```
 
-### `async` ブロックを使う
+これは一度だけ `Pending` を返して、次回以降は `Ready` を返す `Future` です。最初に `Pending` を返した段階でもうすぐに次の `poll` の準備が出来ているので無条件に `wake` を呼び出しています。
 
-### `async fn` を使う
+これを `PendingOnce::default().await` すると（`bool`のデフォルトは`False`なので） `Pending` が返り `poll` からExecutorに処理が戻ります。タイムアウトを実装するならこのときにExecutorがタイムアウトを判定して、まだなら再度 `poll` することで処理を継続し、時間が来ていたらそこで処理を中断することができます。
+
+このように自分で `Future` を実装する時はステートマシンを自分で作ることになります。ちょうど `Iterator` を実装するような感覚で、ゼロから `Iterator` を実装した構造体を作るのが少し難しいように `Future` も同じように難しいです。
+
+## `async` ブロックを使う
+
+`Iterator` のときは `map` などによって既存のイテレータから新しいイテレータを作るのは簡単に出来ました。これに対応するのが `async` 構文です。`Iterator` の時は `map` や `filter_map` では処理の境目というのは変化しませんでした。
+
+## `async fn` を使う
