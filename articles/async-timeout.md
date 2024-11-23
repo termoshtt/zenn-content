@@ -6,6 +6,10 @@ topics: ["rust"]
 published: false
 ---
 
+この記事は[Rust Advent Calendar 2024 シリーズ2](https://qiita.com/advent-calendar/2024/rust)の5日目の記事です。
+
+---
+
 [前回](https://zenn.dev/termoshtt/articles/tokio-task-cancel)の記事では `tokio` を使ってタイムアウト処理を実装しましたが、タイムアウト処理の為だけに `tokio` を使うのは少しオーバースペックかもしれません。前回説明したように非同期に（別スレッドを起動して）タイムアウトしてもスレッドを停止できないので、今回の目的は同期的に（重い処理を行っているスレッド自体で）タイムアウトを行うことであり、なので`tokio`のような非同期ランタイムは必要ないはずです。
 
 今回は `tokio` を使わずに標準ライブラリだけでタイムアウト処理を実装してみます。
