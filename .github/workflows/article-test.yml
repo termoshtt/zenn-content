@@ -8,9 +8,16 @@ on:
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly-2024-11-01
+
+      - name: Setup caching for Rust
+        uses: Swatinem/rust-cache@v2
+
       - uses: actions-rs/cargo@v1
         name: cargo test
         with:
