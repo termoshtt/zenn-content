@@ -2,18 +2,19 @@
 title: "重い計算のタイムアウト（ランタイム自作編）"
 emoji: "⌛"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["rust", "async", "cancel"]
-published: true
+topics: ["rust"]
+published: false
 ---
 
-[前回](https://zenn.dev/termoshtt/articles/tokio-task-cancel)の記事では `tokio` を使ってタイムアウト処理を実装しましたが、タイムアウト処理の為だけに `tokio` を使うのは少しオーバースペックかもしれません。前回説明したように非同期にタイムアウトしてもスレッドを停止できないので、今回の目的は同期的にタイムアウトを行うことであり、なので`tokio`のような非同期ランタイムは必要ないはずです。
+[前回](https://zenn.dev/termoshtt/articles/tokio-task-cancel)の記事では `tokio` を使ってタイムアウト処理を実装しましたが、タイムアウト処理の為だけに `tokio` を使うのは少しオーバースペックかもしれません。前回説明したように非同期に（別スレッドを起動して）タイムアウトしてもスレッドを停止できないので、今回の目的は同期的に（重い処理を行っているスレッド自体で）タイムアウトを行うことであり、なので`tokio`のような非同期ランタイムは必要ないはずです。
+
 今回は `tokio` を使わずに標準ライブラリだけでタイムアウト処理を実装してみます。
 
 :::message
 同期的にタイムアウトを行うのに非同期処理のプリミティブである `Future` や async/awaitの話が始まって奇妙に思うかもしれません。しかしRustの `Future` やasync/awaitは非同期処理には欠かせないものですが、同期処理にも便利であることが分かります。
 :::
 
-今回は [Waker::noop](https://doc.rust-lang.org/std/task/struct.Waker.html#method.noop) を使うのでNightlyを使います。このFeatureは既に Stabilize PRが出ているので、安定版でも使えるようになるかもしれません。
+この記事では [Waker::noop](https://doc.rust-lang.org/std/task/struct.Waker.html#method.noop) を使うのでNightlyを使います。このFeatureは既に Stabilize PRが出ているので、近いうちに安定版でも使えるようになるかもしれません。
 https://github.com/rust-lang/rust/pull/133089
 これはNightlyでないと出来ないわけではなく自分で `Waker::noop` の代替物を用意することも可能なはずですが、少しややこしいのでこの記事では省略します。
 
@@ -88,10 +89,10 @@ assert_eq!(
 ```rust
 #[derive(Default)]
 struct PendingOnce {
-    polled: bool,
+    polled: bool, // boolのデフォルトはfalse
 }
 
-impl Future for PendingOnce {
+impl std::future::Future for PendingOnce {
     type Output = ();
 
     fn poll(
@@ -118,10 +119,193 @@ impl Future for PendingOnce {
 
 これを `PendingOnce::default().await` すると（`bool`のデフォルトは`False`なので） `Pending` が返り `poll` からExecutorに処理が戻ります。タイムアウトを実装するならこのときにExecutorがタイムアウトを判定して、まだなら再度 `poll` することで処理を継続し、時間が来ていたらそこで処理を中断することができます。
 
-このように自分で `Future` を実装する時はステートマシンを自分で作ることになります。ちょうど `Iterator` を実装するような感覚で、ゼロから `Iterator` を実装した構造体を作るのが少し難しいように `Future` も同じように難しいです。
+このように自分で `Future` を実装する時はステートマシンを自分で作ることになります。ちょうど `Iterator` を実装するような感覚で、ゼロから `Iterator` を実装した構造体を作るのが少し難しいように `Future` も同じように難しいです。この例では中断された時の状態というのは
+
+- 一度も `poll` が呼ばれていない
+- 一度 `poll` が呼ばれて `Pending` が返された
+
+という二つだけなので一つの `bool` で表現出来ています。
+
+:::message
+`Future::poll` が一度 `Ready` を返した後に `poll` をもう一度Executorが呼び出した場合の挙動は規定されていません。`Future`の実装によって同じ `Ready` を返すこともパニックすることも許されます。ただし `poll` はSafeな関数で無くてはいけないので未定義動作になることはありません。
+:::
+
+通常の非同期処理の為の `Future` では非同期に実行している（`wake`を呼び出す）スレッド側から内部状態を変更するので `Mutex` 等を使う必要がありますが、今回は非同期に動作するものは何もないので必要ありません。
 
 ## `async` ブロックを使う
 
-`Iterator` のときは `map` などによって既存のイテレータから新しいイテレータを作るのは簡単に出来ました。これに対応するのが `async` 構文です。`Iterator` の時は `map` や `filter_map` では処理の境目というのは変化しませんでした。
+`async`ブロックは `Future` を実装した構造体を簡単に作るための構文です。これはクロージャに似ています。
+
+```rust
+let future = async { 42 };
+```
+
+これは概ね以下のような `Future` を実装した構造体を作っているのと同じです：
+
+```rust
+struct Future42;
+impl std::future::Future for Future42 {
+    type Output = i32;
+    fn poll(self: std::pin::Pin<&mut Self>, _: &mut std::task::Context<'_>) -> std::task::Poll<i32> {
+        std::task::Poll::Ready(42)
+    }
+}
+```
+
+クロージャ`|| 42` が `Fn` を実装した構造体を作るのに似ています。クロージャと同じように、この構造体はインラインに作られて名前は与えられません。`async`ブロックの重要な機能は `await` を使う事で `Future` を合成することが出来ることです
+
+```rust
+#![feature(noop_waker)] // Waker::noop
+use std::{future::Future, task::{Context, Poll, Waker}};
+
+let a = async { 10 };
+let b = async { 20 };
+let c = async { a.await + b.await };
+
+let mut boxed = Box::pin(c);
+let mut cx = Context::from_waker(Waker::noop());
+assert_eq!(
+    boxed.as_mut().poll(&mut cx),
+    Poll::Ready(30)
+);
+```
+
+`async`ブロック中に出現した後置 `.await` はその `Future<Output = T>` から `T` を取り出す、ちょうど `Option<T>` や `Result<T, E>` から `T` を取り出す `?` 演算子と同じような働きをします。`None`や`Err`が出たら処理を中断する `?` と違って、`.await` は `Pending` が返ってきても合成された `Future` が `Pending` になるだけで、以降の処理が続けられます。
+
+`a`も`b`も一度も`Pending`を返さないので、それを合成した`c`も一度も`Pending`を返さず、最初の `Future::poll` で `Ready(30)` を返します。合成された `Future` からはもう `.await` されたのかどうかは分からない事に注意してください。上で作った `PendingOnce` を使って `await` する例を考えてみましょう：
+
+```rust
+#![feature(noop_waker)] // Waker::noop
+use std::{future::Future, task::{Context, Poll, Waker}};
+use article_test::async_timeout::PendingOnce; // 上で作ったのと同じもの
+
+let a = async {
+    PendingOnce::default().await;
+    10
+};
+let b = async { 
+    PendingOnce::default().await;
+    20
+};
+let c = async { a.await + b.await };
+
+let mut boxed = Box::pin(c);
+let mut cx = Context::from_waker(Waker::noop());
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Pending);
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Pending);
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Ready(30));
+```
+
+こうすると `a` は一度 `Pending` を返し、次に`Ready(10)`を返します。`b`も同様に2回目の `poll` で `Ready(20)` を返します。これらを合成した `c` は最初の `poll` で `a`由来の `Pending` を返し、次の `poll` で `b` 由来の `Pending` を返し、3回目で `Ready(30)` を返します。
+
+`a`と`b`の取りうる状態は `PendingOnce` 自体と同じでそれぞれ2つ、`c`については上で見たように（`poll`が3回必要だったので）3つの状態がありますが、`async`/`await`の機能によって`Future`を作ると我々は `PendingOnce` を作ったときのように明示的に内部状態を書き下す必要がありません。これが `async`/`await` の利点です。
 
 ## `async fn` を使う
+
+`async`ブロックの例で `c` を作るときに `a` と `b` をキャプチャしている事に気を付けてください。クロージャと同じように `async` ブロックでも自動的に環境にある変数をキャプチャします。また戻り値の型が推定されているので注釈を書きたい時に書くところがありません。これらを明示的に書くために `async fn` を使うことが出来ます。
+
+```rust
+use article_test::async_timeout::PendingOnce;
+
+async fn f(value: i32) -> i32 {
+    PendingOnce::default().await;
+    value
+}
+```
+
+これは概ね次のように展開されます：
+
+```rust
+use article_test::async_timeout::PendingOnce;
+
+fn f(value: i32) -> impl std::future::Future<Output = i32> {
+    async move {
+        PendingOnce::default().await;
+        value
+    }
+}
+```
+
+`async move` というのはクロージャの時と同じように、キャプチャしている `value` を `move` するのでついています。`async fn` はパラメータを受け取って `Future` を実装した構造体を作る関数です。`async`ブロックと同じように `await` を使うことが出来ます。
+
+```rust
+#![feature(noop_waker)] // Waker::noop
+use std::{future::Future, task::{Context, Poll, Waker}};
+use article_test::async_timeout::PendingOnce;
+
+async fn f(value: i32) -> i32 {
+    PendingOnce::default().await;
+    value
+}
+
+async fn g(a: i32, b: i32) -> i32 {
+    f(a).await + f(b).await
+}
+
+let mut boxed = Box::pin(g(10, 20));
+let mut cx = Context::from_waker(Waker::noop());
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Pending); // f(a)のPending
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Pending); // f(b)のPending
+assert_eq!(boxed.as_mut().poll(&mut cx), Poll::Ready(30));
+```
+
+`async`ブロックの説明でこれの動作は概ね理解できるでしょう。この例はこの記事の目的にかなり近づいてきました。つまり元々
+
+```rust
+fn f(value: i32) -> i32 {
+    value
+}
+
+fn g(a: i32, b: i32) -> i32 {
+    f(a) + f(b)
+}
+```
+
+のような複数の関数群からなる計算コードがあるときに、同期的にタイムアウトをチェックするタイミングをどうやって挟めばいいか？というのが本来の目的でした。結論は
+
+- 各関数に `async` をつけ、関数呼び出しに `.await` を挟む
+- タイムアウトをチェックしたいところで `PendingOnce::default().await` を挟む
+
+これで各関数の途中でタイムアウトをチェックするポイントを挟んだ計算を一つの大きな `Future` として合成する事が可能になります！
+
+# タイムアウト処理
+
+さて最後にタイムアウト処理を組み込んだExecutorを作りましょう。ここまでで見てきた仕組みを使えばほとんど自明に作れるはずです
+
+```rust
+#![feature(noop_waker)] // Waker::noop
+use std::{future::Future, task::{Context, Poll, Waker}};
+use std::time::{Duration, Instant};
+use article_test::async_timeout::PendingOnce;
+
+fn call_with_timeout<T>(timelimit: Duration, f: impl Future<Output = T>) -> Result<T, ()> {
+    let start = Instant::now();
+    let mut boxed = Box::pin(f);
+    let mut cx = Context::from_waker(Waker::noop());
+
+    loop {
+        match boxed.as_mut().poll(&mut cx) {
+            Poll::Ready(result) => return Ok(result),
+            Poll::Pending => {
+                if start.elapsed() > timelimit {
+                    return Err(());
+                }
+            }
+        }
+    }
+}
+
+async fn foo() {
+    for i in 0..5 {
+        PendingOnce::default().await;
+        println!("foo{}", i);
+        std::thread::sleep(Duration::from_secs(1));
+    }
+}
+
+assert!(
+    call_with_timeout(Duration::from_secs(2), foo()).is_err() // タイムアウトする
+);
+```
+
+このように非同期処理をしないなら `Future` のExecutorはほんの数行で作れます。またここにタイムアウトだけでなく[PyO3の`check_signals`](https://docs.rs/pyo3/latest/pyo3/marker/struct.Python.html#method.check_signals)でCtrl-Cによるキャンセルを検査するコードも同じように書けるでしょう。
