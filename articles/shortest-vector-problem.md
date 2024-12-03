@@ -23,7 +23,7 @@ LLLアルゴリズムは元々多項式を既約多項式の積に因数分解�
 
 # Lenstraのアルゴリズム
 
-まずLenstraのアルゴリズムについての紹介から始めましょう。これは整数線形充足問題(ILP)、つまり $m \times n$の整数値行列 $A \in \mathbb{Z}^{m \times n}$ と整数値ベクトル $b \in \mathbb{Z}^m$ が与えられたとき、$Ax \leq b$ を満たす整数値ベクトル $x \in \mathbb{Z}^n$ を一つ求めるか、その解が存在しないことを判定する問題です。
+まずLenstraのアルゴリズムについての紹介から始めましょう。これは整数線形充足問題(ILP)、つまり $m \times n$の整数値行列 $A \in \mathbb{Z}^{m \times n}$ と整数値ベクトル $b \in \mathbb{Z}^m$ が与えられたとき、$Ax \leq b$ を満たす整数値ベクトル $x \in \mathbb{Z}^n$ を1つ求めるか、その解が存在しないことを判定する問題です。
 
 Lenstraのアルゴリズムでは次元 $n$ を固定したとき、他の入力に対して多項式時間で解を求めることができるとされています。このアルゴリズムの鍵となるのがKhinchineの平坦性定理です。
 
@@ -41,7 +41,7 @@ $$
 w(K) = \min_{d \in \mathbb{Z}^n \setminus \{0\}} w_d(K)
 $$
 
-が重要となります。この $\min$ を達成する $d$ の事を $K$ の flat direction と呼びます。
+が重要となります。この $\min$ を達成する $d$ の事を $K$ のflat directionと呼びます。
 
 :::message
 （Khinchineの平坦性定理）
@@ -53,7 +53,7 @@ $K \subset \mathbb{R}^n$ が空で無い凸閉集合とする。この時 $K$ �
 
 ## Lenstraのアルゴリズム
 
-ILPを線形緩和した実行可能領域 $P = \{ x \in \mathbb{R}^n \mid Ax \leq b \}$ が有界でかつ空で無い場合を考えましょう。これは凸閉なので flat direction $d$ を求められたとすると $w_d(P) \leq \Omega(n)$ であれば平坦性定理より整数点を持つことが分かりILPの解が存在することが分かります。
+ILPを線形緩和した実行可能領域 $P = \{ x \in \mathbb{R}^n \mid Ax \leq b \}$ が有界でかつ空で無い場合を考えましょう。これは凸閉なのでflat direction $d$ を求められたとすると $w_d(P) \leq \Omega(n)$ であれば平坦性定理より整数点を持つことが分かりILPの解が存在することが分かります。
 
 $d$をどうやって計算するかは後回しにして、$w_d(P) > \Omega(n)$の場合を考えましょう。$d \in \mathbb{Z}^n$なのでもし整数点 $x \in P \cap \mathbb{Z}^n$ が存在するならば $\langle d, x \rangle$ は整数値を取ります。今 $P$ は有界なので $\delta \in \mathbb{Z}$ で $\min_{x \in P} \langle d, x \rangle \leq \delta \leq \max_{x \in P} \langle d, x \rangle$ を満たすものは有限個しかありません。つまり $n$ 次元のILPを有限個の $\langle d, x \rangle = \delta$ による定まる超平面上の $n-1$ 次元のILPに帰着できるということです。
 連続の場合と違って超平面上に制限したときにILPになるかは自明では無いですが、これはエルミート標準形に変形することで確認できます。
