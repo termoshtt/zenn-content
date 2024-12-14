@@ -269,6 +269,7 @@ fn g(a: i32, b: i32) -> i32 {
 
 - 各関数に `async` をつけ、関数呼び出しに `.await` を挟む
 - タイムアウトをチェックしたいところで `PendingOnce::default().await` を挟む
+- (2024/12/14追記) 再帰関数については [`#[async_recursion]`](https://github.com/dcchut/async-recursion) を使う
 
 これで各関数の途中でタイムアウトをチェックするポイントを挟んだ計算を1つの大きな `Future` として合成する事が可能になります！
 
