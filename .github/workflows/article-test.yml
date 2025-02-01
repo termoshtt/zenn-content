@@ -11,12 +11,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: nightly-2024-11-01
 
-      - name: Setup caching for Rust
-        uses: Swatinem/rust-cache@v2
+      - name: Setup rust toolchain
+        uses: moonrepo/setup-rust@v1
+        with:
+          channel: nightly-2024-11-01
 
       - uses: actions-rs/cargo@v1
         name: cargo test
