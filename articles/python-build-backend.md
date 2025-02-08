@@ -45,7 +45,7 @@ python -m ${build-backend で指定されたモジュール名}
 
 と同じ挙動になるはずです。
 
-逆に各パッケージのビルドを委任する側をBuild Frontendと呼び、これは典型的にはパッケージ管理システム、例えば `pip` や `uv` です。このFrontendとBackendの分離は[PEP517](https://peps.python.org/pep-0517/)で規定されています。
+逆に各パッケージのビルドを委任する側をBuild Frontendと呼び、これは典型的にはパッケージ管理システム、例えば `pip` や [`uv`](https://docs.astral.sh/uv/concepts/projects/build/) です。このFrontendとBackendの分離は[PEP517](https://peps.python.org/pep-0517/)で規定されています。
 
 ややこしいことに、Build Backendとして機能するツールにはフロントエンドとしての機能を持っているものもあります。例えば `maturin` はCLIツールとしてビルドだけで無くてインストールやパッケージのアップロードも行えます。なので「`maturin` はBuild Backendツール」ではなく「`maturin`はBuild Backendとしても機能する」と理解するのが適切です。
 
