@@ -84,3 +84,7 @@ build-backend = "scikit_build_core.build"
 name = "scikit_build_simplest"
 version = "0.0.1"
 ```
+
+## 関連文献
+
+https://zenn.dev/zerebom/articles/60d5ad4b18c901
