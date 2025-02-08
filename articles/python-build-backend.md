@@ -3,7 +3,7 @@ title: "PythonのBuild Backend"
 emoji: "🏭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["python", "pyo3", "maturin", "uv"]
-published: false
+published: true
 ---
 
 PythonのパッケージシステムはC++やRustで実装されたパッケージをサポートする仕組みを備えていますが、少し複雑なため、問題が起きた際に何が失敗しているのかを把握しづらいケースが多いです。この記事では **現在の仕様に沿って** Pythonのビルドシステムの仕組みを解説します。
