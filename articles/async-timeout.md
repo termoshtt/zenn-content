@@ -18,9 +18,8 @@ published: true
 同期的にタイムアウトを行うのに非同期処理のプリミティブである `Future` やasync/awaitの話が始まって奇妙に思うかもしれません。しかしRustの `Future` やasync/awaitは非同期処理には欠かせないものですが、同期処理にも便利であることが分かります。
 :::
 
-この記事では [Waker::noop](https://doc.rust-lang.org/std/task/struct.Waker.html#method.noop) を使うのでNightlyを使います。このFeatureは既にStabilize PRが出ているので、近いうちに安定版でも使えるようになるかもしれません。
-https://github.com/rust-lang/rust/pull/133089
-これはNightlyでないと出来ないわけではなく自分で `Waker::noop` の代替物を用意することも可能なはずですが、少しややこしいのでこの記事では省略します。
+~~この記事では [Waker::noop](https://doc.rust-lang.org/std/task/struct.Waker.html#method.noop) を使うのでNightlyを使います。このFeatureは既にStabilize PRが出ているので、近いうちに安定版でも使えるようになるかもしれません。~~
+2025/2/22追記: `Waker::noop` は [1.85.0](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html) でStabilizeされました
 
 # Future and Waker
 
