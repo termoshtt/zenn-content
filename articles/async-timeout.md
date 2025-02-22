@@ -58,8 +58,6 @@ Rustの非同期処理の特徴として、あくまで `Future` は `poll` を�
 以上の説明から分かる通り `wake` というのは「どのタイミングでどの `Future` を進めればいいか分からない」という状況を解決するためのもので、これが自明な場合には必要ありません。「何も通知する必要が無い」を表すための `Waker::noop` という関数が用意されています。これを使うと `wake` に何もしない関数を渡すことが出来ます。
 
 ```rust
-#![feature(noop_waker)] // Waker::noop
-
 use std::future::Future;
 use std::task;
 
@@ -159,7 +157,6 @@ impl std::future::Future for Future42 {
 クロージャ`|| 42` が `Fn` を実装した構造体を作るのに似ています。クロージャと同じように、この構造体はインラインに作られて名前は与えられません。`async`ブロックの重要な機能は `await` を使う事で `Future` を合成することが出来ることです
 
 ```rust
-#![feature(noop_waker)] // Waker::noop
 use std::{future::Future, task::{Context, Poll, Waker}};
 
 let a = async { 10 };
@@ -179,7 +176,6 @@ assert_eq!(
 `a`も`b`も一度も`Pending`を返さないので、それを合成した`c`も一度も`Pending`を返さず、最初の `Future::poll` で `Ready(30)` を返します。合成された `Future` からはもう `.await` されたのかどうかは分からない事に注意してください。上で作った `PendingOnce` を使って `await` する例を考えてみましょう：
 
 ```rust
-#![feature(noop_waker)] // Waker::noop
 use std::{future::Future, task::{Context, Poll, Waker}};
 use article_test::async_timeout::PendingOnce; // 上で作ったのと同じもの
 
@@ -233,7 +229,6 @@ fn f(value: i32) -> impl std::future::Future<Output = i32> {
 `async move` というのはクロージャの時と同じように、キャプチャしている `value` を `move` するのでついています。`async fn` はパラメータを受け取って `Future` を実装した構造体を作る関数です。`async`ブロックと同じように `await` を使うことが出来ます。
 
 ```rust
-#![feature(noop_waker)] // Waker::noop
 use std::{future::Future, task::{Context, Poll, Waker}};
 use article_test::async_timeout::PendingOnce;
 
@@ -278,7 +273,6 @@ fn g(a: i32, b: i32) -> i32 {
 さて最後にタイムアウト処理を組み込んだExecutorを作りましょう。ここまでで見てきた仕組みを使えばほとんど自明に作れるはずです
 
 ```rust
-#![feature(noop_waker)] // Waker::noop
 use std::{future::Future, task::{Context, Poll, Waker}};
 use std::time::{Duration, Instant};
 use article_test::async_timeout::PendingOnce;
