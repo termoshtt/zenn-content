@@ -11,7 +11,7 @@ publication_name: "jij_inc"
 この記事は [Jij Advent Calendar 2025](https://qiita.com/advent-calendar/2025/jij_inc_2025) の記念すべき第１日目の記事です 🎉
 :::
 
-私が入社直後くらいに書いた2023年の記事 [PyO3拡張にPythonの型ヒントを付ける](https://zenn.dev/jij_inc/articles/pyo3-mannually-type-stub-file) の続き兼OSSの紹介記事です。前回の記事では手動で stub file (`*.pyi`) を作成しましたが、今回はRust側の情報を使って半自動生成するツールである `pyo3-stub-gen` を紹介します。
+私が入社直後くらいに書いた2023年の記事 [PyO3拡張にPythonの型ヒントを付ける](https://zenn.dev/jij_inc/articles/pyo3-mannually-type-stub-file) の続き兼OSSの紹介記事です。前回の記事では手動でstub file (`*.pyi`) を作成しましたが、今回はRust側の情報を使って半自動生成するツールである `pyo3-stub-gen` を紹介します。
 
 https://github.com/Jij-Inc/pyo3-stub-gen
 
@@ -24,7 +24,7 @@ https://github.com/Jij-Inc/pyo3-stub-gen
 - Rust型システムからの自動的なPython型ヒント生成
 - 手動での型ヒント定義
 
-という二つのアプローチを組み合わせた半自動生成を目指します。
+という2つのアプローチを組み合わせた半自動生成を目指します。
 
 :::message
 この記事の目的は使い方の網羅的な説明ではなくて設計思想の解説ですが、使い方がわからないと設計思想も理解しづらいと思うので簡単なケースに対して使い方を説明します。詳しい使い方は [README](https://github.com/Jij-Inc/pyo3-stub-gen/blob/main/README.md) や [Examples](https://github.com/Jij-Inc/pyo3-stub-gen/tree/main/examples) を参照してください。
@@ -86,7 +86,7 @@ fn your_module_name(m: &Bound<PyModule>) -> PyResult<()> {
 define_stub_info_gatherer!(stub_info /* 関数名 */);
 ```
 
-最後の `define_stub_info_gatherer!` マクロは stub file 生成に必要な情報を集約するための関数を定義します。`#[gen_stub_pyfunction]` をPython側に公開する関数全部につけることになるので、それらを集約するための関数が必要になるからです。
+最後の `define_stub_info_gatherer!` マクロはstub file生成に必要な情報を集約するための関数を定義します。`#[gen_stub_pyfunction]` をPython側に公開する関数全部につけることになるので、それらを集約するための関数が必要になるからです。
 
 ### 2. stub 生成用実行ターゲットを追加する
 
@@ -109,7 +109,7 @@ PyO3のプロジェクトでは通常共有ライブラリを作るだけなの�
 crate-type = ["cdylib", "rlib"]
 ```
 
-以上の準備のもとで `cargo run --bin stub_gen` を実行すると `pure.pyi` のような stub ファイルが生成されます。これは `pyproject.toml` などの情報からパスとファイル名が自動的に`maturin` が正しく読める位置に生成されます。
+以上の準備のもとで `cargo run --bin stub_gen` を実行すると `pure.pyi` のようなstubファイルが生成されます。これは `pyproject.toml` などの情報からパスとファイル名が自動的に`maturin` が正しく読める位置に生成されます。
 
 この手続きは正直少し難しいので導入が難しくなりがちですが、いくつかの設計上・技術上の制約からこの形になっています。
 
@@ -166,16 +166,16 @@ def sum_as_string(a: int, b: int) -> str: ...
 
 - ユーザーが書いたRustのコードを解析しないといけないですよね？
   - proc-macroを使えば良い
-- Rustの型からPythonの型ヒントをどうやって取得するのか？ `usize` 等の組み込み型は対応表を持てば良いが `Vec<T>` などはどうすれば？ユーザー定義型は？
-  - Traitを一つ用意してそれ経由で型ヒントを取得するのが良さそう
-- 関数毎に生成した型ヒント情報をどうやってモジュールごとの stub file に集約するのか？
-  - 以前の記事 [inventory crateを使って複数のproc-macroの結果を統合する](https://zenn.dev/jij_inc/articles/introduction-to-inventory) で解説したように `inventory` crate を使うのが良さそう
+- Rustの型からPythonの型ヒントをどうやって取得するのか？ `usize` 等の組み込み型は対応表を持てば良いが `Vec<T>` などはどうすれば？　ユーザー定義型は？
+  - Traitを1つ用意してそれ経由で型ヒントを取得するのが良さそう
+- 関数毎に生成した型ヒント情報をどうやってモジュールごとのstub fileに集約するのか？
+  - 以前の記事 [inventory crateを使って複数のproc-macroの結果を統合する](https://zenn.dev/jij_inc/articles/introduction-to-inventory) で解説したように `inventory` crateを使うのが良さそう
 
 ## proc-macroはRustの型が分からない
 
-上の方針で行けそうですが、一つ確認しておく必要があることがあります。proc-macroというのは [`TokenStream`](https://doc.rust-lang.org/proc_macro/trait.TokenStream.html) を受け取って [`TokenStream`](https://doc.rust-lang.org/proc_macro/struct.TokenStream.html) を返す関数なので、**proc-macroの段階ではRustの型システムの情報が全く分からない** という点です。つまり上の例で言えば `usize` や `PyResult<String>` は単なるトークン列としか認識できません。`usize` を `int` に変換するのは名前固定でマップするのも可能ですが、`PyResult<String>` はそもそも `PyResult` が何を表すのか、実は `PyO3` の `PyResult` ではないかもしれず、部分的なRustのコードではそれはわかりません。つまり proc-macro を使ってRustの型からPythonの型ヒントを直接生成するのは不可能です。
+上の方針で行けそうですが、1つ確認しておく必要があることがあります。proc-macroというのは [`TokenStream`](https://doc.rust-lang.org/proc_macro/trait.TokenStream.html) を受け取って [`TokenStream`](https://doc.rust-lang.org/proc_macro/struct.TokenStream.html) を返す関数なので、**proc-macroの段階ではRustの型システムの情報が全く分からない** という点です。つまり上の例で言えば `usize` や `PyResult<String>` は単なるトークン列としか認識できません。`usize` を `int` に変換するのは名前固定でマップするのも可能ですが、`PyResult<String>` はそもそも `PyResult` が何を表すのか、実は `PyO3` の `PyResult` ではないかもしれず、部分的なRustのコードではそれはわかりません。つまりproc-macroを使ってRustの型からPythonの型ヒントを直接生成するのは不可能です。
 
-これはTraitを一つ噛ませることで簡単に解決できます。次のようなTraitを用意しましょう。
+これはTraitを1つ噛ませることで簡単に解決できます。次のようなTraitを用意しましょう。
 
 ```rust
 pub trait PyStubType {
@@ -184,7 +184,7 @@ pub trait PyStubType {
 }
 ```
 
-`TypeInfo` はPythonの型ヒントを表す構造体です。PyO3はある程度よしなにPythonのクラスをRustの構造体に変換してくれるので、その入力時の変換ルールを反映した `type_input` と出力時の変換ルールを反映した `type_output` の二つの関数を用意しています。例えば `Vec::<i64>::type_output()` は `list[int]` になりますが、`Vec::<i64>::type_input()` はPyO3が `typing.Sequence[int]` なら `Vec<i64>` に変換してくれるのでこれを採用しています。
+`TypeInfo` はPythonの型ヒントを表す構造体です。PyO3はある程度よしなにPythonのクラスをRustの構造体に変換してくれるので、その入力時の変換ルールを反映した `type_input` と出力時の変換ルールを反映した `type_output` の2つの関数を用意しています。例えば `Vec::<i64>::type_output()` は `list[int]` になりますが、`Vec::<i64>::type_input()` はPyO3が `typing.Sequence[int]` なら `Vec<i64>` に変換してくれるのでこれを採用しています。
 
 proc-macroでパースしているので型が入力で使われたのか出力で使われているのかは自明です。そこでproc-macroでは `usize` に対して
 
@@ -196,9 +196,9 @@ proc-macroでパースしているので型が入力で使われたのか出力�
 
 ## `const fn` で初期化したものしか `submit!` できない
 
-もう一つ非自明な技術的な問題があって、 `inventory` crate の `submit!` マクロは `const fn` で初期化されたものしか登録できないという制約があります。そして現在 (2025/12) のStable Rustでは trait の関数を `const fn` にすることができません。つまり上で行ったように `<#type_tokenstream as PyStubType>::type_output()` のように trait の関数を呼び出して得られる `TypeInfo` を `inventory::submit!` マクロで登録することができません。
+もう1つ非自明な技術的な問題があって、 `inventory` crateの `submit!` マクロは `const fn` で初期化されたものしか登録できないという制約があります。そして現在 (2025/12) のStable Rustではtraitの関数を `const fn` にできません。つまり上で行ったように `<#type_tokenstream as PyStubType>::type_output()` のようにtraitの関数を呼び出して得られる `TypeInfo` を `inventory::submit!` マクロで登録できません。
 
-これは回避が簡単で、関数ポインタを送信して `collect!` で集約した後に関数ポインタを評価するようにすれば良いです。最終的には次のようなコードが proc-macro で生成されます。
+これは回避が簡単で、関数ポインタを送信して `collect!` で集約した後に関数ポインタを評価するようにすれば良いです。最終的には次のようなコードがproc-macroで生成されます。
 
 ```rust
 ::pyo3_stub_gen::inventory::submit! {
