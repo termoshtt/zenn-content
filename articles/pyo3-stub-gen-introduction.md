@@ -64,7 +64,7 @@ fn your_module_name(m: &Bound<PyModule>) -> PyResult<()> {
 }
 ```
 
-これに次のように `pyo3_stub_gen` のマクロを追加します。
+これに次のように `pyo3_stub_gen` のマクロ、 `#[gen_stub_pyfunction]` を追加します。
 
 ```rust:src/lib.rs
 use pyo3::prelude::*;
@@ -86,9 +86,11 @@ fn your_module_name(m: &Bound<PyModule>) -> PyResult<()> {
 define_stub_info_gatherer!(stub_info /* 関数名 */);
 ```
 
+最後の `define_stub_info_gatherer!` マクロは stub file 生成に必要な情報を集約するための関数を定義します。`#[gen_stub_pyfunction]` をPython側に公開する関数全部につけることになるので、それらを集約するための関数が必要になるからです。
+
 ### 2. stub 生成用実行ターゲットを追加する
 
-`pyo3-stub-gen` は後述するようにRust側の機能を使って stub file 生成のための情報を生成・集約・出力するので実行ファイルが必要になります。`src/bin/stub_gen.rs` のような実行ファイルターゲットで `stub_info()` を呼び、`stub.generate()?;` を実行します。またこれを実行するため `[lib]` の `crate-type` には `cdylib` に加えて `rlib` を含める必要があります。
+`pyo3-stub-gen` ではproc-macroとRustの型システムによって型ヒントの情報を生成するので、情報を生成するためにコンパイルが必須であり、その情報を出力するために一度実行する必要があります。`src/bin/stub_gen.rs` のような実行ファイルターゲットで `stub_info()` を呼び、`stub.generate()?;` を実行します。
 
 ```rust:src/bin/stub_gen.rs
 use pyo3_stub_gen::Result;
@@ -100,12 +102,16 @@ fn main() -> Result<()> {
 }
 ```
 
+PyO3のプロジェクトでは通常共有ライブラリを作るだけなので `crate-type = ["cdylib"]` となっていますが、この実行ファイルをビルドして実行するため `rlib` を含める必要があります。
+
 ```toml:Cargo.toml
 [lib]
 crate-type = ["cdylib", "rlib"]
 ```
 
-`cargo run --bin stub_gen` を実行すると `pure.pyi` のような stub ファイルが生成されます。`maturin build` するとこの stub が自動的に wheel に同梱されます。
+以上の準備のもとで `cargo run --bin stub_gen` を実行すると `pure.pyi` のような stub ファイルが生成されます。これは `pyproject.toml` などの情報からパスとファイル名が自動的に`maturin` が正しく読める位置に生成されます。
+
+この手続きは正直少し難しいので導入が難しくなりがちですが、いくつかの設計上・技術上の制約からこの形になっています。
 
 ## 手動での型ヒント補完
 
