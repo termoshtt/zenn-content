@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "md-to-pdf": "^5.2.4",
-    "zenn-cli": "^0.1.158"
+    "zenn-cli": "^0.2.10"
   },
   "devDependencies": {
     "textlint": "^11.8.2",
