@@ -3,7 +3,7 @@ title: "Rustの型情報からPythonの型ヒントを生成する"
 emoji: "📌"
 type: "tech"
 topics: ["pyo3", "rust", "python"]
-published: false
+published: true
 publication_name: "jij_inc"
 ---
 
