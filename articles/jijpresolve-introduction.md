@@ -7,6 +7,10 @@ published: true
 publication_name: "jij_inc"
 ---
 
+:::message
+この記事は [数理最適化 Advent Calendar 2025](https://qiita.com/advent-calendar/2025/mathematical-optimization) 及び [Jij Advent Calendar 2025](https://qiita.com/advent-calendar/2025/jij_inc_2025) の第19日目の記事です 🎉
+:::
+
 # Presolveとは
 
 Presolveは数理最適化問題をソルバーに投げる前に問題を簡略化するための前処理技術です。
