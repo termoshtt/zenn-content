@@ -3,7 +3,7 @@ title: "JijPresolve: OMMX-based Presolver"
 emoji: "🙆"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["数理最適化", "Presolve", "OMMX"]
-published: false
+published: true
 publication_name: "jij_inc"
 ---
 
@@ -82,6 +82,39 @@ $$
 $x$ についてのcoefficient strengthenというのは $x$ の最大値 $\bar{x} \in \mathbb{Z}$ と $ax$ 以外の左辺項 $by$ （今は１項だけだが変数が増えると増える）の上限が $by \leq u$ のように与えられた時、 $a, c$ の組を更新してfeasibleな整数点を維持したままLP緩和した時の領域を削る方法です。
 
 ![](/images/coefficient_strengthening.png)
+
+:::details TikZコード
+```latex
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+\begin{document}
+\begin{tikzpicture}
+
+\fill[pattern=crosshatch, pattern color=gray] (0, 0) -- (0, 3.3) -- (3.66, 3.3) -- (5, 2) -- (5, 0) -- cycle;
+\fill[green, opacity=0.5] (3, 3.3) -- (3.66, 3.3) -- (5, 2) -- cycle;
+
+\draw[->] (-1, 0) -- (9, 0);
+\draw[->] (0, -1) -- (0, 9);
+\draw[very thick, red] (-1, 8) node[above right] { $ax + by = c$ } -- (8, -1);
+\draw[very thick, blue] (-1, 6) node[above right] { $a^\prime x + by = c^\prime$ } -- (5, 2)  -- (8, 0);
+
+\draw[<->, thick] (3, 5) -- (5, 5) node[above] {No integer points in this range};
+
+\draw[dashed] (5, 0) -- (5, 5);
+\draw[dashed] (3, 0) -- (3, 5);
+
+\draw[dashed] (0, 3.3) node[left] {$u / b$} -- (9, 3.3);
+
+\node at (5, 0) [below] { $\bar{x}$ };
+\node at (3, 0) [below] { $\bar{x} - 1$};
+
+\draw[->, very thick, green!50!black] (6, 4) node[above] {Reduced by coefficient strengthen } -- (4.5, 2.8);
+
+\end{tikzpicture}
+\end{document}
+```
+:::
 
 今の制約条件 $ax + by \leq c$ に相当する赤い線を、新しい制約条件 $a'x + by \leq c'$ に相当する青い線に置き換えます。変更前のLP緩和の実行可能領域が図中のハッチ領域（$x \leq \bar{x}, y \leq u/b$）で、変更後は図中の緑のハッチ部分が実行可能領域から安全に削除できるという手続きです。
 
