@@ -3,7 +3,7 @@ title: "JijPresolve: OMMX-based Presolver"
 emoji: "🙆"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["数理最適化", "Presolve", "OMMX"]
-published: true
+published: false
 publication_name: "jij_inc"
 ---
 
