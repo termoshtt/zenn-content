@@ -1,9 +1,9 @@
 ---
 title: "より強いテスト入力生成のためのConcolic実行"
-emoji: "🗂"
+emoji: "📈"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["rust", "PBT", "fuzzing"]
-published: false
+published: true
 ---
 
 最近Property-Based Testing (PBT) が普及しており、私も業務で [proptest] を使っています。PBTの利点は広く解説されているので割愛しますが、個人的には次の問題があると感じています。
