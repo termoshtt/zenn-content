@@ -144,9 +144,7 @@ fn is_adequate_integer2(x: i64) -> bool {  // x をシンボルとして追加
 
 このようにして得られた論理式をSMTソルバーに渡して解くことで、性質を破る反例を見つけることを目的としていました。これは全部のパスを適切にモデル化出来ているならば意味がある方法ですが、上述したように全体のモデル化は難しく、具体的に通っていないパスはモデル化が不十分なので、全部のパスに対する充足問題を解いてもあまり意味がないことになります。
 
-そこでConcolic Executionではいきなり反例を探しにいくのではなくて、今通ったパスとは違うパスを通る入力を生成するという方針を取ります。CGFではランダム生成によって別のパスに行く入力を探していましたが、Concolic実行では異なるパスを発見するためにSymbolicに抽出した条件式とSMTソルバーを使います。
-
-Concolic Executionでは条件分岐があった時、実際の値に基づいて片方のパスだけをモデル化します
+そこでConcolic Executionではいきなり反例を探しにいくのではなくて、今通ったパスとは違うパスを通る入力を生成するという方針を取ります。CGFではランダム生成によって別のパスに行く入力を探していましたが、Concolic実行では異なるパスを発見するためにSymbolicに抽出した条件式とSMTソルバーを使います。Concolic Executionでは条件分岐があった時、実際の値に基づいて片方のパスだけをモデル化します
 
 ```rust
 fn is_adequate_integer2(x: i64) -> bool {  // x をシンボルとして追加, 例えば x = 0 で開始
@@ -161,3 +159,79 @@ fn is_adequate_integer2(x: i64) -> bool {  // x をシンボルとして追加, 
 ```
 
 コメントにあるように `x = 0` で開始すると `y = 2x + 3 (= 3)` かつ `z = y^2 - y -7 (= -1)` で  `z >= 1` を false で通り、 `z * z >= 10` を false で通ったという結果が得られます。パスの探索戦略として色々ありますが、例えば深さ優先で探索するんだと次は `z >= 1`　が false かつ `z * z >= 10` が true になるような入力を探します。
+
+このようにConcolic ExecutionはSymbolic ExecutionとCGFのいいとこ取りをしたような手法で、CGFよりも強力な反例生成能力を持ちつつ、Symbolic Executionのような完全なモデル化を必要としないので実用的な方法になっています。
+
+# 実装してみた
+
+https://github.com/termoshtt/concolic-pbt
+
+実用的なプロジェクトは大変そうなので、学習用にまず簡単な例として、整数の加法と変数および条件分岐だけからなるごくごく簡単な言語を定義します。
+
+```text
+expr       := if_expr | arith_expr
+if_expr    := "if" bool_expr "then" expr "else" expr
+arith_expr := term (('+' | '-') term)*
+term       := number | var | '(' expr ')'
+
+bool_expr  := "true" | "false" | expr cmp_op expr
+cmp_op     := "<=" | ">=" | "=="
+
+var        := [a-z][a-z0-9_]*
+number     := '-'? [0-9]+
+```
+
+例えば `if x <= 10 then x + 1 else 0` のような式をこの言語で表現できます。これを `x = 5` で評価すると `x <= 10` は true　なので `x + 1 = 6` になります。
+
+```rust
+let expr = parse_expr("if x <= 10 then x + 1 else 0").unwrap();
+
+let mut state = ConcolicState::new(HashMap::from([("x".to_string(), 5)])); // x = 5 で開始
+insta::assert_snapshot!(state.eval(&expr), @"6"); // 評価結果は 6
+insta::assert_snapshot!(state, @r#"
+Env: x = 5
+Constraints:
+    x [=5] <= 10 : true
+"#);  // 評価の過程で x <= 10 を true で通ったことが記録される
+```
+
+パスの探索は次のように行います
+
+```rust
+// Property: (if x <= 5 then (if x >= 10 then 0 else 1) else 1) >= 1
+// The path (x <= 5, true) -> (x >= 10, true) is unreachable (x <= 5 and x >= 10 is contradictory)
+let property = parse_bool_expr("(if x <= 5 then (if x >= 10 then 0 else 1) else 1) >= 1").unwrap();
+
+// ソルバーを用意します（現在ソルバーは簡易的なReject Samplingですが、将来的にはZ3などのSMTソルバーを使う予定です）
+let rng = rand::rngs::StdRng::seed_from_u64(42);
+let solver = Solver::new(rng, 100);
+
+// 深さ優先でパスを探索します
+let mut explorer = Explorer::new(solver, 100);
+let initial_env = HashMap::from([("x".to_string(), 3)]); // x = 3 から探索スタート
+let result = explorer.find_counterexample(&property, initial_env);
+
+// 今回は成立する性質を検査しているので、反例が見つからなかった
+assert_eq!(result, ExploreResult::Verified);
+// 通ったパスを内部で記録しています。
+insta::assert_snapshot!(explorer, @r#"
+Reached:
+    Path: TFT
+    Env: x = 3
+    Path: FT
+    Env: x = 149
+
+Unreached:
+    Path: TFF
+    Path: TT
+    Path: FF
+"#);
+```
+
+1. 探索は `x = 3` で開始すると、これは `x <= 5` を true で通り、 `x >= 10` を false で通り、最後に `1 >= 1` なので true で `TFT` というパスを通ります。
+2. 深さ優先探索なのでまず最後の条件を反転した `TFF` を探しますが、最後の `1 >= 1` を false では通れないのでこれは unreachable になります。
+3. 次に二つ目を反転した `TT`、つまり `x <= 5` かつ `x >= 10` が true になるような入力を探します。しかしこれは数学的に矛盾しているのでこれも unreachable になります。ここで最初の二つの条件だけをみている（`TTT` などを探しに行っていない）ことに注意してください。 `TT` のブランチはまだ具体的に通ってないので、どういう条件分岐があるのか調べていません。
+4. 次に最初の条件 `x <= 5` を false で通る `F` を探します。ソルバーはここで `x = 149` という入力を見つけました。これで評価すると次は `if x <= 5 then ... else 1 = 1` なので `1 >= 1` を true で通る `FT` というパスを通ります。`F` を探しに来て `FT` を通ったことに注意してください。
+5. 最後に `FT` の最後の条件を反転した `FF` を探しますが、これも `1 >= 1` を false で通ることはできないので unreachable になります。これで全部のパスを探索したので終了します。
+
+随分と限定的ですが、与えられたASTに対してシンボリックに条件式を抽出し、それを元にソルバーで探索するというConcolic Executionの基本的な流れを実装できたと思います。
